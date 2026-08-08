@@ -437,6 +437,26 @@ export async function reserveQuota(input: {
   }
 
   const db = await admin();
+
+  // Reclaim anything abandoned before this attempt is charged.
+  //
+  // A browser that dies mid-conversion — crashed worker, closed tab, lost
+  // network — leaves its job in 'processing' holding a reservation that nothing
+  // else would ever give back. Sweeping here rather than on every gate read
+  // keeps the cost on the rare path (starting a conversion) instead of the hot
+  // one, and it runs at exactly the moment it matters: just before the user
+  // spends another attempt.
+  //
+  // Best-effort by design. A sweep failure must never block a legitimate
+  // conversion, so the error is logged and the reservation proceeds.
+  try {
+    await db.rpc("expire_stale_conversions", {
+      p_timeout_minutes: await getSetting<number>("conversions.stale_timeout_minutes", 30),
+    });
+  } catch (error) {
+    console.error("[quota] stale sweep failed", (error as Error).name);
+  }
+
   const subscription = await getSubscription(input.userId);
 
   // A trial spends one conversion per job, whatever the page count; a paid plan
