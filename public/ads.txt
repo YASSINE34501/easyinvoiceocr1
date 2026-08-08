@@ -1,0 +1,27 @@
+# ads.txt — Authorized Digital Sellers (IAB Tech Lab spec)
+#
+# INTENTIONALLY EMPTY OF SELLER RECORDS.
+#
+# This file is a placeholder. It contains no seller lines because the real
+# publisher id is not known to anyone but the authorized AdSense account owner,
+# and an invented or copied line here would either do nothing or misdeclare who
+# is allowed to sell this site's inventory.
+#
+# The AdSense account owner must replace the line below with the exact record
+# shown in their own AdSense dashboard, under Sites -> Ads.txt. It has the form:
+#
+#   google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+#
+# where pub-XXXXXXXXXXXXXXXX is that account's own publisher id. Copy it from
+# the dashboard verbatim; do not retype it and do not reuse an id from any other
+# site. The trailing value f08c47fec0942fa0 is Google's certification authority
+# id and is the same for every publisher.
+#
+# Until that line is added, this file is served as a valid but empty ads.txt,
+# which is the correct state for a site that is not yet monetised: crawlers see
+# that no seller is authorized, rather than a 404 or a false declaration.
+#
+# Related switches, all currently off:
+#   VITE_ADSENSE_ENABLED=false        master flag, see src/config/ads.ts
+#   VITE_ADSENSE_CLIENT_ID=           must start with ca-pub- before any request
+#   app_settings.ads.enabled = false  database mirror of the same decision
