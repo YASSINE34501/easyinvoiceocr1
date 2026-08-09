@@ -12,6 +12,7 @@ import { path } from "@/config/routing";
 import { SITE_ORIGIN } from "@/config/seo";
 import { sortedProducts } from "@/config/products";
 import { solutionLinks, resourceLinks, companyLinks, legalLinks } from "@/config/nav";
+import { blogSlugs } from "@/content/blog";
 
 export type SitemapEntry = { slug: string; changefreq: string; priority: string };
 
@@ -34,6 +35,13 @@ export function sitemapEntries(): SitemapEntry[] {
   }
   for (const link of legalLinks) {
     entries.push({ slug: link.slug, changefreq: "yearly", priority: "0.3" });
+  }
+
+  // Every published article, in all three locales. blogPosts contains only
+  // finished articles — there is no draft state — so nothing half-written can
+  // reach the sitemap through this loop.
+  for (const slug of blogSlugs) {
+    entries.push({ slug: `blog/${slug}`, changefreq: "monthly", priority: "0.6" });
   }
 
   return entries;

@@ -58,6 +58,22 @@ export function breadcrumbJsonLd(items: Crumb[]) {
   });
 }
 
+/**
+ * The keyboard skip link. Split into its own component because PageLayout
+ * itself does not otherwise need the translator hook.
+ */
+function SkipLink() {
+  const t = useT();
+  return (
+    <a
+      href="#main"
+      className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-[70] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+    >
+      {t("nav.skip")}
+    </a>
+  );
+}
+
 export function PageLayout({
   children,
   breadcrumbs,
@@ -67,12 +83,12 @@ export function PageLayout({
 }) {
   return (
     <div className="flex min-h-dvh flex-col overflow-x-hidden bg-background">
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
-      >
-        Skip to content
-      </a>
+      {/* The nav.skip key was already translated in all three dictionaries;
+          this element was hard-coding English, so screen-reader users on the
+          French and Arabic sites met the one untranslated string on the page.
+          focus:start-4 rather than focus:left-4, so the panel appears on the
+          correct side in Arabic. */}
+      <SkipLink />
       <Header />
       <main id="main" className="flex-1">
         {breadcrumbs && (
