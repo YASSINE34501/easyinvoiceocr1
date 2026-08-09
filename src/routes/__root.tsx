@@ -6,6 +6,7 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -17,6 +18,7 @@ import { BillingProvider } from "@/billing/BillingProvider";
 import { CookieConsent } from "@/components/site/CookieConsent";
 import { useVisitorSession } from "@/lib/analytics/useVisitorSession";
 import { SOCIAL_IMAGE, absoluteUrl } from "@/config/seo";
+import { localeDir, localeFromPathname, localeHtmlLang } from "@/i18n";
 
 function NotFoundComponent() {
   return (
@@ -117,9 +119,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+/**
+ * The document shell.
+ *
+ * `lang` and `dir` are resolved from the URL here, during render, so they are
+ * correct in the raw HTTP response. They were previously hard-coded to
+ * `lang="en"` with no `dir` at all, and only corrected client-side after
+ * hydration — so every crawler reading the initial HTML of /fr/* and /ar/*
+ * was told the page was English left-to-right.
+ *
+ * The pathname is read from router state rather than from route params,
+ * because the shell renders above the route tree and has no params of its own.
+ * Deriving both attributes from the same value the server used to route the
+ * request is what keeps the server and client markup identical, so there is no
+ * hydration mismatch to warn about.
+ */
 function RootShell({ children }: { children: ReactNode }) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const locale = localeFromPathname(pathname);
+
   return (
-    <html lang="en">
+    <html lang={localeHtmlLang[locale]} dir={localeDir[locale]}>
       <head>
         <HeadContent />
       </head>

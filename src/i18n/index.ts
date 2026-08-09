@@ -32,6 +32,19 @@ export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (locales as readonly string[]).includes(value);
 }
 
+/**
+ * Reads the locale out of a URL path, e.g. "/ar/blog/x" → "ar".
+ *
+ * Used by the document shell, which renders above the route tree and so has no
+ * route params to read. Anything unrecognised falls back to the default rather
+ * than throwing: a shell that cannot render is worse than one that renders in
+ * English.
+ */
+export function localeFromPathname(pathname: string): Locale {
+  const first = pathname.split("?")[0]!.split("#")[0]!.split("/").filter(Boolean)[0];
+  return isLocale(first) ? first : defaultLocale;
+}
+
 export function asLocale(value: unknown): Locale {
   return isLocale(value) ? value : defaultLocale;
 }

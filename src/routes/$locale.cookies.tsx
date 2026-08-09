@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
+import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
@@ -29,7 +29,6 @@ export const Route = createFileRoute("/$locale/cookies")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
-        { name: "robots", content: "index, follow" },
       ],
       links: seoLinks("cookies", locale),
       scripts: [
@@ -242,7 +241,8 @@ EasyInvoiceOCR n'utilise pas de services d'analytique tiers qui suivent les util
 
   return (
     <PageLayout breadcrumbs={[{ label: t("link.cookies") }]}>
-      <Section title={c.title}>
+      <PageHero title={c.title} />
+      <Section>
         <p className="mb-8 text-muted-foreground">{c.intro}</p>
 
         <div className="space-y-8 max-w-3xl">

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
+import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
@@ -29,7 +29,6 @@ export const Route = createFileRoute("/$locale/privacy")({
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
-        { name: "robots", content: "index, follow" },
       ],
       links: seoLinks("privacy", locale),
       scripts: [
@@ -338,7 +337,8 @@ Les documents téléchargés sont conservés pendant 24 heures après la convers
 
   return (
     <PageLayout breadcrumbs={[{ label: t("link.privacy") }]}>
-      <Section title={c.title}>
+      <PageHero title={c.title} />
+      <Section>
         <div className="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-4">
           <p className="text-sm text-amber-900">{c.note}</p>
         </div>
