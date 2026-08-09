@@ -5,35 +5,43 @@ import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/si
 import { AdSlot } from "@/components/site/AdSlot";
 import { AppLink } from "@/components/site/AppLink";
 import { Input } from "@/components/ui/input";
-import { docChapters } from "@/content/resources";
+import { docChaptersFor, resourcesUi } from "@/content/resources";
 import { path } from "@/config/nav";
-import { asLocale } from "@/i18n";
+import { asLocale, type Locale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
-import { robotsMeta, seoLinks } from "@/config/seo";
-
-const title = "Documentation — EasyInvoiceOCR";
-const description =
-  "How to upload invoices and receipts, review confidence scores, export to Excel, CSV or JSON, and understand how your documents are stored.";
+import { SITE_NAME, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/documentation")({
   component: DocumentationPage,
   head: ({ params }) => {
     const locale = asLocale(params.locale);
+    const ui = resourcesUi(locale);
+    const url = canonicalUrl("documentation", locale);
     return {
       meta: [
         robotsMeta("documentation"),
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
+        { title: ui.docTitle },
+        { name: "description", content: ui.docDescription },
+        { property: "og:title", content: ui.docTitle },
+        { property: "og:description", content: ui.docDescription },
         { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: seoLinks("documentation", locale),
       scripts: [
         {
+          // Mirrors the visible trail. No FAQPage here: the documentation page
+          // renders chapters, not a question-and-answer list.
           type: "application/ld+json",
-          children: breadcrumbJsonLd([{ label: "Documentation" }]),
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: SITE_NAME, item: canonicalUrl("", locale) },
+              { "@type": "ListItem", position: 2, name: ui.docBreadcrumb, item: url },
+            ],
+          }),
         },
       ],
     };
@@ -42,7 +50,9 @@ export const Route = createFileRoute("/$locale/documentation")({
 
 function DocumentationPage() {
   const t = useT();
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
+  const ui = resourcesUi(locale);
+  const docChapters = docChaptersFor(locale);
   const [query, setQuery] = useState("");
 
   const needle = query.trim().toLowerCase();
@@ -60,12 +70,8 @@ function DocumentationPage() {
     : docChapters;
 
   return (
-    <PageLayout breadcrumbs={[{ label: t("link.documentation") }]}>
-      <PageHero
-        eyebrow={t("nav.resources")}
-        title={t("link.documentation")}
-        lede="Everything you need to move from a stack of invoices to a clean spreadsheet: supported formats, accuracy handling, exports and data retention."
-      >
+    <PageLayout breadcrumbs={[{ label: ui.docBreadcrumb }]}>
+      <PageHero eyebrow={ui.docEyebrow} title={ui.docHeading} lede={ui.docLede}>
         <div className="relative max-w-[420px]">
           <Search
             className="pointer-events-none absolute start-3 top-3.5 size-4 text-muted-foreground"

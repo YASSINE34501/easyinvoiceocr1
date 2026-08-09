@@ -12,45 +12,57 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { helpArticles, helpCategories } from "@/content/resources";
+import { helpArticlesFor, helpCategoriesFor, resourcesUi } from "@/content/resources";
 import { path } from "@/config/nav";
-import { asLocale } from "@/i18n";
+import { asLocale, type Locale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
-import { robotsMeta, seoLinks } from "@/config/seo";
-
-const title = "Help Center — EasyInvoiceOCR";
-const description =
-  "Answers to common questions about uploads, file formats, extraction accuracy, exports, account management and data privacy.";
+import { SITE_NAME, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/help")({
   component: HelpPage,
   head: ({ params }) => {
     const locale = asLocale(params.locale);
+    const ui = resourcesUi(locale);
+    const url = canonicalUrl("help", locale);
     return {
       meta: [
         robotsMeta("help"),
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
+        { title: ui.helpTitle },
+        { name: "description", content: ui.helpDescription },
+        { property: "og:title", content: ui.helpTitle },
+        { property: "og:description", content: ui.helpDescription },
         { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
         { name: "twitter:card", content: "summary_large_image" },
       ],
       links: seoLinks("help", locale),
       scripts: [
         {
+          // Every question below is rendered in the accordion, so FAQPage
+          // describes visible content rather than hidden markup.
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: helpArticles.map((a) => ({
+            inLanguage: locale,
+            mainEntity: helpArticlesFor(locale).map((a) => ({
               "@type": "Question",
               name: a.question,
               acceptedAnswer: { "@type": "Answer", text: a.answer.join(" ") },
             })),
           }),
         },
-        { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Help Center" }]) },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: SITE_NAME, item: canonicalUrl("", locale) },
+              { "@type": "ListItem", position: 2, name: ui.helpBreadcrumb, item: url },
+            ],
+          }),
+        },
       ],
     };
   },
@@ -58,7 +70,10 @@ export const Route = createFileRoute("/$locale/help")({
 
 function HelpPage() {
   const t = useT();
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
+  const ui = resourcesUi(locale);
+  const helpArticles = helpArticlesFor(locale);
+  const helpCategories = helpCategoriesFor(locale);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | null>(null);
 
@@ -70,15 +85,11 @@ function HelpPage() {
         !needle || (a.question + " " + a.answer.join(" ")).toLowerCase().includes(needle);
       return matchesCategory && matchesQuery;
     });
-  }, [query, category]);
+  }, [query, category, helpArticles]);
 
   return (
-    <PageLayout breadcrumbs={[{ label: t("link.help") }]}>
-      <PageHero
-        eyebrow={t("nav.resources")}
-        title={t("link.help")}
-        lede="Search the answers below, or contact us if your question isn't covered."
-      >
+    <PageLayout breadcrumbs={[{ label: ui.helpBreadcrumb }]}>
+      <PageHero eyebrow={ui.helpEyebrow} title={ui.helpHeading} lede={ui.helpLede}>
         <div className="relative max-w-[420px]">
           <Search
             className="pointer-events-none absolute start-3 top-3.5 size-4 text-muted-foreground"
@@ -88,8 +99,8 @@ function HelpPage() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("help.searchPlaceholder")}
-            aria-label={t("help.searchPlaceholder")}
+            placeholder={ui.searchPlaceholder}
+            aria-label={ui.searchLabel}
             className="h-12 ps-10"
           />
         </div>
@@ -107,7 +118,7 @@ function HelpPage() {
                 : "border-border text-muted-foreground hover:text-navy"
             }`}
           >
-            {t("blog.all")}
+            {ui.allCategories}
           </button>
           {helpCategories.map((c) => {
             const count = helpArticles.filter((a) => a.category === c).length;
@@ -132,8 +143,8 @@ function HelpPage() {
         <div className="mt-8">
           {results.length === 0 ? (
             <div className="rounded-xl border border-dashed border-border p-8 text-center">
-              <p className="text-sm font-medium text-navy">{t("state.noResults")}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{t("state.noResultsHint")}</p>
+              <p className="text-sm font-medium text-navy">{ui.noResults}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{ui.noResultsHint}</p>
             </div>
           ) : (
             <Accordion
