@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router"
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithGoogle } from "@/lib/auth/oauth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -100,15 +100,18 @@ function LoginPage() {
 
   async function loginWithGoogle() {
     setFormError("");
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
+    setSubmitting(true);
+    // The locale and any ?redirect= destination are carried into the OAuth
+    // round trip, so a French visitor comes back to the French app rather than
+    // to the site root with their language re-guessed.
+    const result = await signInWithGoogle(locale, search.redirect);
+    if (!result.ok) {
+      setSubmitting(false);
       setFormError(t("auth.genericError"));
       return;
     }
-    if (result.redirected) return;
-    goAfterLogin();
+    // On success the browser is already navigating to Google; nothing below
+    // this point runs.
   }
 
   return (

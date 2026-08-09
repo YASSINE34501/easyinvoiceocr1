@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { signInWithGoogle } from "@/lib/auth/oauth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -139,15 +139,12 @@ function SignupPage() {
 
   async function signUpWithGoogle() {
     setFormError("");
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
+    const result = await signInWithGoogle(locale);
+    if (!result.ok) {
       setFormError(t("auth.genericError"));
       return;
     }
-    if (result.redirected) return;
-    navigate({ to: "/$locale/app", params: { locale } });
+    // On success the browser is already navigating to Google.
   }
 
   return (
