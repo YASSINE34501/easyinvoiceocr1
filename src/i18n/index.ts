@@ -239,6 +239,13 @@ const en = {
     "Anonymous usage statistics that help us improve extraction quality. Off until you allow them.",
   "cookie.alwaysOn": "Always on",
   "cookie.savePrefs": "Save preferences",
+  "cookie.marketing": "Advertising cookies",
+  "cookie.marketingBody":
+    "Set by Google AdSense on free public pages, plus campaign measurement. No advertising script loads until you allow it, and paid plans never see advertising.",
+  "cookie.policyLink": "Cookie Policy",
+  "cookie.dialogDesc":
+    'Choose which categories EasyInvoiceOCR may use. You can change this at any time from "Cookie settings" in the footer.',
+  "cookie.regionLabel": "Cookie consent",
 
   // docs / help / blog chrome
   "docs.searchPlaceholder": "Search the documentation",
@@ -758,6 +765,13 @@ const fr: Record<MessageKey, string> = {
     "Statistiques anonymes d'utilisation qui nous aident à améliorer la qualité d'extraction. Désactivés tant que vous ne les autorisez pas.",
   "cookie.alwaysOn": "Toujours actifs",
   "cookie.savePrefs": "Enregistrer les préférences",
+  "cookie.marketing": "Cookies publicitaires",
+  "cookie.marketingBody":
+    "Déposés par Google AdSense sur les pages publiques gratuites, avec la mesure des campagnes. Aucun script publicitaire ne se charge sans votre accord, et les formules payantes ne voient jamais de publicité.",
+  "cookie.policyLink": "Politique relative aux cookies",
+  "cookie.dialogDesc":
+    "Choisissez les catégories qu'EasyInvoiceOCR peut utiliser. Vous pouvez revenir sur ce choix à tout moment via « Paramètres des cookies » dans le pied de page.",
+  "cookie.regionLabel": "Consentement aux cookies",
 
   "docs.searchPlaceholder": "Rechercher dans la documentation",
   "docs.onThisPage": "Sur cette page",
@@ -1264,6 +1278,13 @@ const ar: Record<MessageKey, string> = {
     "إحصاءات استخدام مجهولة تساعدنا على تحسين جودة الاستخراج. معطّلة حتى تسمح بها.",
   "cookie.alwaysOn": "مفعّلة دائمًا",
   "cookie.savePrefs": "حفظ التفضيلات",
+  "cookie.marketing": "ملفات الإعلانات",
+  "cookie.marketingBody":
+    "تضعها Google AdSense على الصفحات العامة المجانية، مع قياس الحملات. ولا يُحمَّل أي نص إعلاني برمجي قبل موافقتك، والباقات المدفوعة لا ترى إعلانات إطلاقًا.",
+  "cookie.policyLink": "سياسة ملفات تعريف الارتباط",
+  "cookie.dialogDesc":
+    "اختر الفئات التي يجوز لـ EasyInvoiceOCR استخدامها. ويمكنك تغيير ذلك في أي وقت من «إعدادات ملفات تعريف الارتباط» في تذييل الصفحة.",
+  "cookie.regionLabel": "الموافقة على ملفات تعريف الارتباط",
 
   "docs.searchPlaceholder": "ابحث في التوثيق",
   "docs.onThisPage": "في هذه الصفحة",

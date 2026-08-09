@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { AppLink } from "./AppLink";
 import { path } from "@/config/nav";
+import { useLocale, useT } from "@/i18n/useLocale";
 
 const STORAGE_KEY = "eio.cookie-consent.v1";
 const OPEN_EVENT = "eio:open-cookie-preferences";
@@ -24,28 +25,20 @@ export type ConsentState = {
   decidedAt: string;
 };
 
+/**
+ * Category ids paired with their message keys.
+ *
+ * The copy lives in the dictionaries. This component previously hard-coded
+ * English, so the consent banner — a legal surface — rendered in English on
+ * every French and Arabic page, even though every cookie.* key was already
+ * translated in all three dictionaries and simply unused.
+ */
 const CATEGORIES = [
-  {
-    id: "essential" as const,
-    name: "Essential",
-    body: "Required for the site to work: security, load balancing and remembering your cookie choice. Always on.",
-  },
-  {
-    id: "preferences" as const,
-    name: "Preferences",
-    body: "Remembers settings such as your chosen language and interface options.",
-  },
-  {
-    id: "analytics" as const,
-    name: "Analytics",
-    body: "Anonymous usage statistics that help us improve the product. No analytics script loads before you allow this.",
-  },
-  {
-    id: "marketing" as const,
-    name: "Marketing",
-    body: "Advertising cookies set by Google AdSense on our free public pages, and campaign measurement. No advertising script loads until you allow this, and paid Pro and Business accounts never see advertising at all.",
-  },
-];
+  { id: "essential" as const, nameKey: "cookie.essential", bodyKey: "cookie.essentialBody" },
+  { id: "preferences" as const, nameKey: "cookie.preferences", bodyKey: "cookie.preferencesBody" },
+  { id: "analytics" as const, nameKey: "cookie.analytics", bodyKey: "cookie.analyticsBody" },
+  { id: "marketing" as const, nameKey: "cookie.marketing", bodyKey: "cookie.marketingBody" },
+] as const;
 
 export function readConsent(): ConsentState | null {
   if (typeof window === "undefined") return null;
@@ -110,6 +103,8 @@ export function useConsent(): ConsentState | null {
 }
 
 export function CookieConsent() {
+  const t = useT();
+  const locale = useLocale();
   const [visible, setVisible] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [prefs, setPrefs] = useState({ preferences: false, analytics: false, marketing: false });
@@ -153,18 +148,17 @@ export function CookieConsent() {
       {visible && (
         <div
           role="region"
-          aria-label="Cookie consent"
+          aria-label={t("cookie.regionLabel")}
           className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-card p-4 shadow-panel sm:p-5"
         >
           <div className="mx-auto flex max-w-[1200px] flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <p className="max-w-[720px] text-sm leading-relaxed text-muted-foreground">
-              We use essential cookies to run EasyInvoiceOCR. With your permission we would also use
-              preference and analytics cookies. No optional cookie or script loads until you accept.{" "}
+              {t("cookie.body")}{" "}
               <AppLink
-                href={path("cookies")}
+                href={path("cookies", locale)}
                 className="font-medium text-primary underline-offset-4 hover:underline"
               >
-                Cookie Policy
+                {t("cookie.policyLink")}
               </AppLink>
             </p>
             <div className="flex flex-wrap gap-2">
@@ -173,20 +167,20 @@ export function CookieConsent() {
                 className="min-h-11 rounded-lg"
                 onClick={() => setDialogOpen(true)}
               >
-                Manage preferences
+                {t("cookie.manage")}
               </Button>
               <Button
                 variant="outline"
                 className="min-h-11 rounded-lg"
                 onClick={() => decide({ preferences: false, analytics: false, marketing: false })}
               >
-                Reject non-essential
+                {t("cookie.rejectAll")}
               </Button>
               <Button
                 className="min-h-11 rounded-lg font-semibold"
                 onClick={() => decide({ preferences: true, analytics: true, marketing: true })}
               >
-                Accept all
+                {t("cookie.acceptAll")}
               </Button>
             </div>
           </div>
@@ -196,24 +190,23 @@ export function CookieConsent() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Cookie preferences</DialogTitle>
-            <DialogDescription>
-              Choose which categories of cookies EasyInvoiceOCR may use. You can change this at any
-              time from “Cookie settings” in the footer.
-            </DialogDescription>
+            <DialogTitle>{t("cookie.title")}</DialogTitle>
+            <DialogDescription>{t("cookie.dialogDesc")}</DialogDescription>
           </DialogHeader>
 
           <ul className="space-y-4">
             {CATEGORIES.map((c) => (
               <li key={c.id} className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-navy">{c.name}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{c.body}</p>
+                  <p className="text-sm font-semibold text-navy">{t(c.nameKey)}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {t(c.bodyKey)}
+                  </p>
                 </div>
                 <Switch
                   checked={c.id === "essential" ? true : prefs[c.id]}
                   disabled={c.id === "essential"}
-                  aria-label={`${c.name} cookies`}
+                  aria-label={t(c.nameKey)}
                   onCheckedChange={(v) =>
                     c.id !== "essential" && setPrefs((p) => ({ ...p, [c.id]: v }))
                   }
@@ -228,10 +221,10 @@ export function CookieConsent() {
               className="min-h-11 rounded-lg"
               onClick={() => decide({ preferences: false, analytics: false, marketing: false })}
             >
-              Reject non-essential
+              {t("cookie.rejectAll")}
             </Button>
             <Button className="min-h-11 rounded-lg font-semibold" onClick={() => decide(prefs)}>
-              Save choices
+              {t("cookie.savePrefs")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -9,7 +9,7 @@
 
 import { locales } from "@/i18n";
 import { path } from "@/config/routing";
-import { SITE_ORIGIN } from "@/config/seo";
+import { SITE_ORIGIN, isNoindexSlug } from "@/config/seo";
 import { sortedProducts } from "@/config/products";
 import { solutionLinks, resourceLinks, companyLinks, legalLinks } from "@/config/nav";
 import { blogSlugs } from "@/content/blog";
@@ -49,7 +49,10 @@ export function sitemapEntries(): SitemapEntry[] {
     entries.push({ slug: `blog/${slug}`, changefreq: "monthly", priority: "0.6" });
   }
 
-  return entries;
+  // Nothing marked noindex may be advertised in the sitemap. Deriving this
+  // from NOINDEX_SLUGS means a route cannot be noindex in one place and
+  // listed in the other.
+  return entries.filter((entry) => !isNoindexSlug(entry.slug));
 }
 
 function escapeXml(value: string): string {

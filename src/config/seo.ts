@@ -88,6 +88,9 @@ export function seoLinks(slug: string, locale: Locale): HeadLink[] {
  * `app`.
  */
 export const NOINDEX_SLUGS: readonly string[] = [
+  // Documents an API that accepts no requests. Reachable, but not offered to
+  // search engines until the service exists. See OCR_API_STATUS.md.
+  "api-reference",
   "login",
   "signup",
   "forgot-password",
