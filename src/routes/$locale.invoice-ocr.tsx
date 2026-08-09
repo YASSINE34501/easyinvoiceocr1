@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ProductPage, productHead } from "@/components/site/ProductPage";
 import { productBySlug } from "@/content/products";
 import { path } from "@/config/nav";
+import { asLocale } from "@/i18n";
 
 const product = productBySlug["invoice-ocr"]!;
 
@@ -13,5 +14,5 @@ export const Route = createFileRoute("/$locale/invoice-ocr")({
       breadcrumbs={[{ label: "Product", href: path("invoice-ocr") }, { label: product.name }]}
     />
   ),
-  head: () => productHead(product),
+  head: ({ params }) => productHead(product, asLocale(params.locale)),
 });

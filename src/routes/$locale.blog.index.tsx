@@ -10,6 +10,7 @@ import { blogCategories, blogPosts } from "@/content/resources";
 import { path } from "@/config/nav";
 import { asLocale, formatDate } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 const title = "Blog — EasyInvoiceOCR";
 const description =
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/$locale/blog/")({
     const locale = asLocale(params.locale);
     return {
       meta: [
+        robotsMeta("blog"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
@@ -28,12 +30,7 @@ export const Route = createFileRoute("/$locale/blog/")({
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/blog` },
-        { rel: "alternate", hrefLang: "en", href: "/en/blog" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/blog" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/blog" },
-      ],
+      links: seoLinks("blog", locale),
       scripts: [{ type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Blog" }]) }],
     };
   },

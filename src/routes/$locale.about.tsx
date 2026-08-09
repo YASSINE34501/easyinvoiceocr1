@@ -9,6 +9,8 @@ import {
 import { AppLink } from "@/components/site/AppLink";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
+import { SITE_ORIGIN } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/about")({
   component: AboutPage,
@@ -29,18 +31,14 @@ export const Route = createFileRoute("/$locale/about")({
 
     return {
       meta: [
+        robotsMeta("about"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/about` },
-        { rel: "alternate", hrefLang: "en", href: "/en/about" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/about" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/about" },
-      ],
+      links: seoLinks("about", locale),
       scripts: [
         { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "About" }]) },
         {
@@ -49,7 +47,7 @@ export const Route = createFileRoute("/$locale/about")({
             "@context": "https://schema.org",
             "@type": "Organization",
             name: "EasyInvoiceOCR",
-            url: "https://easyinvoiceocr.com",
+            url: SITE_ORIGIN,
             description: description,
             sameAs: [],
           }),

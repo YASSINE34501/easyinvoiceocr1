@@ -11,8 +11,10 @@ import { PageHero, PageLayout, Section, type Crumb } from "./PageLayout";
 import { ExtractionWorkspace, type ExtractionKind } from "@/components/extract/ExtractionWorkspace";
 import { QUOTA_TOOLS } from "@/lib/convert/validation";
 import type { Product } from "@/content/products";
+import type { Locale } from "@/i18n";
 import { authSlugs, path } from "@/config/nav";
 import { useLocale } from "@/i18n/useLocale";
+import { absoluteUrl, robotsMeta, seoLinks } from "@/config/seo";
 
 export function ProductPage({
   product,
@@ -195,18 +197,19 @@ export function ProductPage({
   );
 }
 
-export function productHead(product: Product) {
+export function productHead(product: Product, locale: Locale) {
   return {
     meta: [
       { title: product.title },
+      robotsMeta(product.slug),
       { name: "description", content: product.description },
       { property: "og:title", content: product.title },
       { property: "og:description", content: product.description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: product.route },
+      { property: "og:url", content: absoluteUrl(product.route) },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: product.route }],
+    links: seoLinks(product.slug, locale),
     scripts: [
       {
         type: "application/ld+json",

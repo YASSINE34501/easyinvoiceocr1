@@ -13,12 +13,14 @@ import { converterProducts } from "@/config/products";
 import { formatDate } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { useNavigate } from "@tanstack/react-router";
+import { robotsMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/app/")({
   component: Dashboard,
   head: () => ({
     meta: [
       { title: "Dashboard — EasyInvoiceOCR" },
+      robotsMeta("app"),
       {
         name: "description",
         content: "Your EasyInvoiceOCR workspace: upload documents and review extractions.",

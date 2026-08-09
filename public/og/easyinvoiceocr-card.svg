@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="EasyInvoiceOCR — invoice and receipt OCR to Excel, CSV and JSON">
+  <title>EasyInvoiceOCR</title>
+  <rect width="1200" height="630" fill="#ffffff"/>
+  <rect width="1200" height="630" fill="#e4f9ee" opacity="0.55"/>
+  <rect x="0" y="0" width="1200" height="10" fill="#00a470"/>
+
+  <g transform="translate(96 150)">
+    <rect width="88" height="88" rx="22" fill="#ffffff" stroke="#00a470" stroke-width="4"/>
+    <g transform="translate(20 20)" fill="none" stroke="#00a470" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 4H4a2 2 0 0 0-2 2v2"/>
+      <path d="M42 4h2a2 2 0 0 1 2 2v2"/>
+      <path d="M6 44H4a2 2 0 0 1-2-2v-2"/>
+      <path d="M42 44h2a2 2 0 0 0 2-2v-2"/>
+      <path d="M2 24h44"/>
+    </g>
+  </g>
+
+  <text x="212" y="212" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="52" font-weight="800" fill="#08173f">EasyInvoice<tspan fill="#00a470">OCR</tspan></text>
+
+  <text x="96" y="330" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="58" font-weight="800" fill="#08173f">Invoice &amp; receipt OCR</text>
+  <text x="96" y="404" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="58" font-weight="800" fill="#08173f">to Excel, CSV and JSON</text>
+
+  <text x="96" y="478" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="30" font-weight="500" fill="#4a5568">English · Français · العربية</text>
+
+  <g transform="translate(96 520)">
+    <rect width="290" height="58" rx="12" fill="#00a470"/>
+    <text x="145" y="38" text-anchor="middle" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff">5 free conversions</text>
+  </g>
+</svg>

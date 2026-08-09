@@ -18,6 +18,7 @@ import { authSlugs, path } from "@/config/nav";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { authErrorKey, isObfuscatedExistingUser, logAuthError } from "@/lib/auth/errors";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/signup")({
   component: SignupPage,
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/$locale/signup")({
       "Create a free EasyInvoiceOCR account to extract invoice and receipt data and export it to Excel, CSV or JSON.";
     return {
       meta: [
+        robotsMeta("signup"),
         { title },
         { name: "description", content: description },
         { name: "robots", content: "noindex" },
@@ -35,7 +37,7 @@ export const Route = createFileRoute("/$locale/signup")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [{ rel: "canonical", href: `/${locale}/signup` }],
+      links: seoLinks("signup", locale),
     };
   },
 });

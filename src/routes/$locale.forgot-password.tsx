@@ -8,6 +8,7 @@ import { AuthAlert, AuthFooterLink, AuthShell, Field } from "@/components/site/A
 import { authSlugs, path } from "@/config/nav";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/forgot-password")({
   component: ForgotPasswordPage,
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/$locale/forgot-password")({
     const description = "Request a password reset link for your EasyInvoiceOCR account.";
     return {
       meta: [
+        robotsMeta("forgot-password"),
         { title },
         { name: "description", content: description },
         { name: "robots", content: "noindex" },
@@ -24,7 +26,7 @@ export const Route = createFileRoute("/$locale/forgot-password")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [{ rel: "canonical", href: `/${locale}/forgot-password` }],
+      links: seoLinks("forgot-password", locale),
     };
   },
 });

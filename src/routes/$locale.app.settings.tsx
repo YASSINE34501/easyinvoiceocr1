@@ -19,12 +19,14 @@ import { deleteMyAccount } from "@/lib/account.functions";
 import { locales, localeLabels, asLocale, type Locale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { useQueryClient } from "@tanstack/react-query";
+import { robotsMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/app/settings")({
   component: SettingsPage,
   head: () => ({
     meta: [
       { title: "Account settings — EasyInvoiceOCR" },
+      robotsMeta("app/settings"),
       {
         name: "description",
         content: "Manage your EasyInvoiceOCR profile, language and password.",

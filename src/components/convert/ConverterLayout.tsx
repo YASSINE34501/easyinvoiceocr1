@@ -22,6 +22,7 @@ import { path } from "@/config/nav";
 import { relatedProducts, type ProductDefinition } from "@/config/products";
 import { locales, type Locale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { OG_LOCALE, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
 
 export function ConverterLayout({
   product,
@@ -152,28 +153,21 @@ export function ConverterLayout({
 export function converterHead(product: ProductDefinition, locale: Locale) {
   const copy = product.copy[locale];
   const content = converterCopy(product.converter!, locale);
-  const url = path(product.slug, locale);
+  const url = canonicalUrl(product.slug, locale);
 
   return {
     meta: [
       { title: copy.title },
+      robotsMeta(product.slug),
       { name: "description", content: copy.description },
       { property: "og:title", content: copy.title },
       { property: "og:description", content: copy.description },
       { property: "og:type", content: "website" },
       { property: "og:url", content: url },
-      { property: "og:locale", content: locale },
+      { property: "og:locale", content: OG_LOCALE[locale] },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      { rel: "canonical", href: url },
-      ...locales.map((alternate) => ({
-        rel: "alternate",
-        hrefLang: alternate,
-        href: path(product.slug, alternate),
-      })),
-      { rel: "alternate", hrefLang: "x-default", href: path(product.slug, "en") },
-    ],
+    links: seoLinks(product.slug, locale),
     scripts: [
       {
         type: "application/ld+json",
@@ -207,7 +201,7 @@ export function converterHead(product: ProductDefinition, locale: Locale) {
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: path("", locale) },
+            { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("", locale) },
             { "@type": "ListItem", position: 2, name: copy.name, item: url },
           ],
         }),

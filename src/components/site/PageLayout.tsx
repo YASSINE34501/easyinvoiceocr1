@@ -5,6 +5,7 @@ import { AppLink, Container } from "./AppLink";
 import { ChevronRight } from "lucide-react";
 import { path } from "@/config/routing";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { absoluteUrl } from "@/config/seo";
 
 export type Crumb = { label: string; href?: string };
 
@@ -46,13 +47,13 @@ export function breadcrumbJsonLd(items: Crumb[]) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { name: "Home", item: "/" },
+      { name: "Home", item: absoluteUrl("/") },
       ...items.map((c) => ({ name: c.label, item: c.href ?? undefined })),
     ].map((entry, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: entry.name,
-      ...(entry.item ? { item: entry.item } : {}),
+      ...(entry.item ? { item: absoluteUrl(entry.item) } : {}),
     })),
   });
 }

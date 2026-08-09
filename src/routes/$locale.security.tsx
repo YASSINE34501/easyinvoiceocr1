@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/security")({
   component: SecurityPage,
@@ -22,18 +23,14 @@ export const Route = createFileRoute("/$locale/security")({
 
     return {
       meta: [
+        robotsMeta("security"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/security` },
-        { rel: "alternate", hrefLang: "en", href: "/en/security" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/security" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/security" },
-      ],
+      links: seoLinks("security", locale),
       scripts: [
         { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Security" }]) },
       ],

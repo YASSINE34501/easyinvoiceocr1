@@ -33,13 +33,14 @@ import { listMyConversions } from "@/lib/convert/conversions.functions";
 import { authSlugs, path } from "@/config/nav";
 import { formatDate, type MessageKey } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/app/billing")({
   component: BillingPage,
   head: () => ({
     meta: [
       { title: "Billing — EasyInvoiceOCR" },
-      { name: "robots", content: "noindex" },
+      robotsMeta("app/billing"),
       { name: "description", content: "Your EasyInvoiceOCR plan, usage and subscription." },
     ],
   }),

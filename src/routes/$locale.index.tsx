@@ -17,6 +17,7 @@ import {
 } from "@/components/site/sections";
 import { faqs } from "@/config/site";
 import { asLocale } from "@/i18n";
+import { OG_LOCALE, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
 
 const meta = {
   en: {
@@ -41,25 +42,20 @@ export const Route = createFileRoute("/$locale/")({
   head: ({ params }) => {
     const locale = asLocale(params.locale);
     const { title, description } = meta[locale];
-    const url = `/${locale}`;
+    const url = canonicalUrl("", locale);
     return {
       meta: [
         { title },
+        robotsMeta(""),
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
-        { property: "og:locale", content: locale },
+        { property: "og:locale", content: OG_LOCALE[locale] },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [
-        { rel: "canonical", href: url },
-        { rel: "alternate", hrefLang: "en", href: "/en" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar" },
-        { rel: "alternate", hrefLang: "x-default", href: "/en" },
-      ],
+      links: seoLinks("", locale),
       scripts: [
         {
           type: "application/ld+json",

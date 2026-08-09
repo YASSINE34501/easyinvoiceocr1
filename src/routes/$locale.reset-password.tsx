@@ -13,6 +13,7 @@ import {
 import { authSlugs, path } from "@/config/nav";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/reset-password")({
   component: ResetPasswordPage,
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/$locale/reset-password")({
     const description = "Set a new password for your EasyInvoiceOCR account.";
     return {
       meta: [
+        robotsMeta("reset-password"),
         { title },
         { name: "description", content: description },
         { name: "robots", content: "noindex" },
@@ -29,7 +31,7 @@ export const Route = createFileRoute("/$locale/reset-password")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [{ rel: "canonical", href: `/${locale}/reset-password` }],
+      links: seoLinks("reset-password", locale),
     };
   },
 });

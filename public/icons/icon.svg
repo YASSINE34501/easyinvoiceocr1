@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EasyInvoiceOCR">
+  <title>EasyInvoiceOCR</title>
+  <rect width="512" height="512" rx="112" fill="#e4f9ee"/>
+  <rect x="24" y="24" width="464" height="464" rx="92" fill="none" stroke="#00a470" stroke-width="16" stroke-opacity="0.4"/>
+  <!-- The ScanLine glyph the header logo uses, scaled to the icon grid and
+       drawn with the same stroke ratio so the mark reads identically at 32px. -->
+  <g fill="none" stroke="#00a470" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M144 128h-32a32 32 0 0 0-32 32v32"/>
+    <path d="M368 128h32a32 32 0 0 1 32 32v32"/>
+    <path d="M144 384h-32a32 32 0 0 1-32-32v-32"/>
+    <path d="M368 384h32a32 32 0 0 0 32-32v-32"/>
+    <path d="M112 256h288"/>
+  </g>
+</svg>

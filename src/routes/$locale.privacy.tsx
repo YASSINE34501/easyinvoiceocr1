@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/privacy")({
   component: PrivacyPage,
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/$locale/privacy")({
 
     return {
       meta: [
+        robotsMeta("privacy"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
@@ -29,12 +31,7 @@ export const Route = createFileRoute("/$locale/privacy")({
         { property: "og:type", content: "website" },
         { name: "robots", content: "index, follow" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/privacy` },
-        { rel: "alternate", hrefLang: "en", href: "/en/privacy" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/privacy" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/privacy" },
-      ],
+      links: seoLinks("privacy", locale),
       scripts: [
         { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Privacy" }]) },
       ],

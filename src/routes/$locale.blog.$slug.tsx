@@ -7,6 +7,7 @@ import { blogBySlug, blogPosts, type BlogPost } from "@/content/resources";
 import { path } from "@/config/nav";
 import { asLocale, formatDate } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { absoluteUrl, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/blog/$slug")({
   loader: ({ params }): { post: BlogPost } => {
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/$locale/blog/$slug")({
       return {
         meta: [
           { title: "Article not found — EasyInvoiceOCR" },
-          { name: "robots", content: "noindex" },
+          { name: "robots", content: "noindex, nofollow" },
         ],
       };
     }
@@ -29,13 +30,14 @@ export const Route = createFileRoute("/$locale/blog/$slug")({
     return {
       meta: [
         { title },
+        robotsMeta(`blog/${post.slug}`),
         { name: "description", content: post.description },
         { property: "og:title", content: title },
         { property: "og:description", content: post.description },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: `/${locale}/blog/${post.slug}` }],
+      links: seoLinks(`blog/${post.slug}`, locale),
       scripts: [
         {
           type: "application/ld+json",

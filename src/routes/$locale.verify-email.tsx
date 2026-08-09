@@ -7,6 +7,7 @@ import { AuthAlert, AuthFooterLink, AuthShell } from "@/components/site/AuthShel
 import { authSlugs, path } from "@/config/nav";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 type VerifySearch = { email?: string };
 
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/$locale/verify-email")({
     const description = "Confirm your email address to activate your EasyInvoiceOCR account.";
     return {
       meta: [
+        robotsMeta("verify-email"),
         { title },
         { name: "description", content: description },
         { name: "robots", content: "noindex" },
@@ -27,7 +29,7 @@ export const Route = createFileRoute("/$locale/verify-email")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [{ rel: "canonical", href: `/${locale}/verify-email` }],
+      links: seoLinks("verify-email", locale),
     };
   },
 });

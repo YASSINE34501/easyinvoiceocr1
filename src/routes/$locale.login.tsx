@@ -17,6 +17,7 @@ import { authSlugs, path } from "@/config/nav";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { authErrorKey, logAuthError } from "@/lib/auth/errors";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 type LoginSearch = { redirect?: string };
 
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/$locale/login")({
     const description = "Log in to your EasyInvoiceOCR workspace to process invoices and receipts.";
     return {
       meta: [
+        robotsMeta("login"),
         { title },
         { name: "description", content: description },
         { name: "robots", content: "noindex" },
@@ -40,7 +42,7 @@ export const Route = createFileRoute("/$locale/login")({
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [{ rel: "canonical", href: `/${locale}/login` }],
+      links: seoLinks("login", locale),
     };
   },
 });

@@ -9,6 +9,7 @@ import { docChapters } from "@/content/resources";
 import { path } from "@/config/nav";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 const title = "Documentation — EasyInvoiceOCR";
 const description =
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/$locale/documentation")({
     const locale = asLocale(params.locale);
     return {
       meta: [
+        robotsMeta("documentation"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
@@ -27,12 +29,7 @@ export const Route = createFileRoute("/$locale/documentation")({
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/documentation` },
-        { rel: "alternate", hrefLang: "en", href: "/en/documentation" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/documentation" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/documentation" },
-      ],
+      links: seoLinks("documentation", locale),
       scripts: [
         {
           type: "application/ld+json",

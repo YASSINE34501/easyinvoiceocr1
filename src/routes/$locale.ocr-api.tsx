@@ -16,6 +16,7 @@ import {
   rateLimitHeaders,
 } from "@/content/apiReference";
 import { path } from "@/config/nav";
+import { asLocale } from "@/i18n";
 
 const product = productBySlug["ocr-api"]!;
 const upload = endpoints[0]!;
@@ -169,5 +170,5 @@ export const Route = createFileRoute("/$locale/ocr-api")({
       extra={<ApiExtras />}
     />
   ),
-  head: () => productHead(product),
+  head: ({ params }) => productHead(product, asLocale(params.locale)),
 });

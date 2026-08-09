@@ -13,17 +13,19 @@ import {
   rateLimitHeaders,
 } from "@/content/apiReference";
 import { path } from "@/config/nav";
+import { canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
 
 const title = "API Reference — EasyInvoiceOCR";
 const description =
   "Complete reference for the EasyInvoiceOCR document API: base URL, authentication, endpoints, parameters, request and response examples in cURL, JavaScript and Python, error codes and rate limits.";
-const route = path("api-reference");
+const route = canonicalUrl("api-reference");
 
 export const Route = createFileRoute("/$locale/api-reference")({
   component: ApiReferencePage,
   head: () => ({
     meta: [
       { title },
+      robotsMeta("api-reference"),
       { name: "description", content: description },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
@@ -31,7 +33,7 @@ export const Route = createFileRoute("/$locale/api-reference")({
       { property: "og:url", content: route },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: route }],
+    links: seoLinks("api-reference", "en"),
   }),
 });
 

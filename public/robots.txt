@@ -23,4 +23,9 @@ Disallow: /*/reset-password
 Disallow: /*/verify-email
 Disallow: /api/
 
-Sitemap: /sitemap.xml
+# Self-hosted OCR engine assets. Large binaries with nothing to rank on, and
+# crawling them wastes crawl budget on tens of megabytes of WebAssembly.
+Disallow: /tesseract/
+
+# Absolute, per the sitemap protocol: a relative value is ignored by crawlers.
+Sitemap: https://www.easyinvoiceocr.com/sitemap.xml

@@ -1,0 +1,20 @@
+# Cloudflare Pages redirect rules.
+#
+# Rules are evaluated top to bottom; the first match wins. 301 is used
+# throughout because these are permanent canonicalisation redirects, and a 302
+# would leave search engines indexing the source URL.
+#
+# NOT VERIFIED. A _redirects file only takes effect once the apex domain is
+# attached to the Pages project and DNS resolves. Until the site is deployed
+# these rules are declarative intent, not confirmed behaviour. See the
+# owner-action note in the technical SEO report.
+
+# Apex to www. www is the canonical host every canonical URL, hreflang tag and
+# sitemap entry names, so the apex must not serve a second copy of the site.
+https://easyinvoiceocr.com/* https://www.easyinvoiceocr.com/:splat 301
+http://easyinvoiceocr.com/* https://www.easyinvoiceocr.com/:splat 301
+
+# Plain HTTP on the canonical host. Cloudflare's "Always Use HTTPS" setting
+# normally handles this at the edge before a request reaches Pages; this is the
+# belt-and-braces copy in case that setting is ever off.
+http://www.easyinvoiceocr.com/* https://www.easyinvoiceocr.com/:splat 301

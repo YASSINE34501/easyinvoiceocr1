@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/terms")({
   component: TermsPage,
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/$locale/terms")({
 
     return {
       meta: [
+        robotsMeta("terms"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
@@ -29,12 +31,7 @@ export const Route = createFileRoute("/$locale/terms")({
         { property: "og:type", content: "website" },
         { name: "robots", content: "index, follow" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/terms` },
-        { rel: "alternate", hrefLang: "en", href: "/en/terms" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/terms" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/terms" },
-      ],
+      links: seoLinks("terms", locale),
       scripts: [{ type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Terms" }]) }],
     };
   },

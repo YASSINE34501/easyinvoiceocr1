@@ -29,6 +29,7 @@ import { authSlugs, path } from "@/config/nav";
 import { formatDate } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { cn } from "@/lib/utils";
+import { robotsMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/choose-plan")({
   // Session state lives in the browser, so this page is decided after hydration.
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/$locale/choose-plan")({
   head: () => ({
     meta: [
       { title: "Choose your plan — EasyInvoiceOCR" },
-      { name: "robots", content: "noindex" },
+      robotsMeta("choose-plan"),
       { name: "description", content: "Start a free trial or subscribe to EasyInvoiceOCR." },
     ],
   }),

@@ -16,6 +16,7 @@ import { AuthProvider } from "@/auth/AuthProvider";
 import { BillingProvider } from "@/billing/BillingProvider";
 import { CookieConsent } from "@/components/site/CookieConsent";
 import { useVisitorSession } from "@/lib/analytics/useVisitorSession";
+import { SOCIAL_IMAGE, absoluteUrl } from "@/config/seo";
 
 function NotFoundComponent() {
   return (
@@ -87,6 +88,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "EasyInvoiceOCR" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#00a470" },
+      // Default card art. A page may override og:image; without this a shared
+      // link renders as a bare text stub.
+      { property: "og:image", content: absoluteUrl(SOCIAL_IMAGE) },
+      { name: "twitter:image", content: absoluteUrl(SOCIAL_IMAGE) },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -96,7 +102,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", type: "image/x-icon", sizes: "48x48" },
+      // SVG first: browsers that support it get a mark that stays sharp at any
+      // density, and the .ico remains for those that do not.
+      { rel: "icon", href: "/icons/icon.svg", type: "image/svg+xml", sizes: "any" },
+      { rel: "apple-touch-icon", href: "/icons/icon.svg" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
   }),
 

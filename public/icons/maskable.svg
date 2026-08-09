@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EasyInvoiceOCR">
+  <title>EasyInvoiceOCR</title>
+  <!-- Maskable variant: the mark sits inside the 80% safe zone so Android can
+       crop it to a circle, squircle or rounded square without clipping. -->
+  <rect width="512" height="512" fill="#e4f9ee"/>
+  <g fill="none" stroke="#00a470" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M176 168h-24a24 24 0 0 0-24 24v24"/>
+    <path d="M336 168h24a24 24 0 0 1 24 24v24"/>
+    <path d="M176 344h-24a24 24 0 0 1-24-24v-24"/>
+    <path d="M336 344h24a24 24 0 0 0 24-24v-24"/>
+    <path d="M152 256h208"/>
+  </g>
+</svg>

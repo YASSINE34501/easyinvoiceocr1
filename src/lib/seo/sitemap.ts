@@ -9,6 +9,7 @@
 
 import { locales } from "@/i18n";
 import { path } from "@/config/routing";
+import { SITE_ORIGIN } from "@/config/seo";
 import { sortedProducts } from "@/config/products";
 import { solutionLinks, resourceLinks, companyLinks, legalLinks } from "@/config/nav";
 
@@ -51,9 +52,12 @@ function escapeXml(value: string): string {
  * which is what tells search engines the three language versions are the same
  * page rather than duplicates.
  */
-export function buildSitemapXml(origin: string): string {
+export function buildSitemapXml(origin: string = SITE_ORIGIN): string {
   const lastmod = new Date().toISOString().slice(0, 10);
-  const base = origin.replace(/\/+$/, "");
+  // Always the production origin. Deriving it from the request meant a preview
+  // deployment published its own hostname as the canonical location of every
+  // page on the site.
+  const base = (origin || SITE_ORIGIN).replace(/\/+$/, "");
 
   const urls = sitemapEntries().flatMap((entry) =>
     locales.map((locale) => {

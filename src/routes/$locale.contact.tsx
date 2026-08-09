@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/contact")({
   component: ContactPage,
@@ -27,18 +28,14 @@ export const Route = createFileRoute("/$locale/contact")({
 
     return {
       meta: [
+        robotsMeta("contact"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/contact` },
-        { rel: "alternate", hrefLang: "en", href: "/en/contact" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/contact" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/contact" },
-      ],
+      links: seoLinks("contact", locale),
       scripts: [
         { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Contact" }]) },
       ],

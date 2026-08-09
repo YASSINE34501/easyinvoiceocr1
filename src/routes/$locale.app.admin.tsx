@@ -29,11 +29,12 @@ import {
 } from "@/lib/admin/admin.functions";
 import { formatDate } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/app/admin")({
   component: AdminPage,
   head: () => ({
-    meta: [{ title: "Admin — EasyInvoiceOCR" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Admin — EasyInvoiceOCR" }, robotsMeta("app/admin")],
   }),
 });
 

@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { defaultLocale, isLocale, locales } from "@/i18n";
+import { seoLinks } from "@/config/seo";
 
 /**
  * "/" carries no locale, so it resolves the visitor's preferred language
@@ -28,10 +29,7 @@ export const Route = createFileRoute("/")({
     });
   },
   head: () => ({
-    meta: [{ name: "robots", content: "noindex" }],
-    links: [
-      { rel: "canonical", href: `/${defaultLocale}` },
-      ...locales.map((l) => ({ rel: "alternate", hrefLang: l, href: `/${l}` })),
-    ],
+    meta: [{ name: "robots", content: "noindex, nofollow" }],
+    links: seoLinks("", defaultLocale),
   }),
 });

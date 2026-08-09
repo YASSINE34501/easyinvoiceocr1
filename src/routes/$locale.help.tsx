@@ -16,6 +16,7 @@ import { helpArticles, helpCategories } from "@/content/resources";
 import { path } from "@/config/nav";
 import { asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
+import { robotsMeta, seoLinks } from "@/config/seo";
 
 const title = "Help Center — EasyInvoiceOCR";
 const description =
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/$locale/help")({
     const locale = asLocale(params.locale);
     return {
       meta: [
+        robotsMeta("help"),
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
@@ -34,12 +36,7 @@ export const Route = createFileRoute("/$locale/help")({
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [
-        { rel: "canonical", href: `/${locale}/help` },
-        { rel: "alternate", hrefLang: "en", href: "/en/help" },
-        { rel: "alternate", hrefLang: "fr", href: "/fr/help" },
-        { rel: "alternate", hrefLang: "ar", href: "/ar/help" },
-      ],
+      links: seoLinks("help", locale),
       scripts: [
         {
           type: "application/ld+json",

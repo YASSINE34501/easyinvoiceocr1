@@ -5,6 +5,8 @@ import { AppLink } from "@/components/site/AppLink";
 import { Button } from "@/components/ui/button";
 import { solutions, solutionBySlug, type Solution } from "@/content/solutions";
 import { path } from "@/config/nav";
+import { absoluteUrl, robotsMeta, seoLinks } from "@/config/seo";
+import { asLocale } from "@/i18n";
 
 export const Route = createFileRoute("/$locale/solutions/$slug")({
   loader: ({ params }) => {
@@ -37,27 +39,28 @@ export const Route = createFileRoute("/$locale/solutions/$slug")({
       </PageHero>
     </PageLayout>
   ),
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
     const s = loaderData?.solution as Solution | undefined;
     if (!s) {
       return {
         meta: [
           { title: "Solution not found — EasyInvoiceOCR" },
-          { name: "robots", content: "noindex" },
+          { name: "robots", content: "noindex, nofollow" },
         ],
       };
     }
     return {
       meta: [
         { title: s.title },
+        robotsMeta("solutions"),
         { name: "description", content: s.description },
         { property: "og:title", content: s.title },
         { property: "og:description", content: s.description },
         { property: "og:type", content: "website" },
-        { property: "og:url", content: s.route },
+        { property: "og:url", content: absoluteUrl(s.route) },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: s.route }],
+      links: seoLinks(`solutions/${s.slug}`, asLocale(params.locale)),
     };
   },
 });
