@@ -18,7 +18,14 @@ import {
   isValidSessionId,
   sanitizeMetadata,
 } from "./events";
-import { rateLimitBucketStart, shouldSkipBotSession } from "./collection";
+import {
+  RATE_BUCKET_KEEP_MINUTES,
+  RATE_LIMIT_GLOBAL_PER_MINUTE,
+  RATE_LIMIT_PER_SESSION_PER_MINUTE,
+  SESSION_ROTATION_IS_POSSIBLE,
+  rateLimitBucketStart,
+  shouldSkipBotSession,
+} from "./collection";
 
 const USER_ID = "a412e252-c022-4518-aec0-b1bde1def0d5";
 
@@ -78,6 +85,35 @@ describe("rate-limit window arithmetic", () => {
   it("is stable across repeated calls for the same instant", () => {
     const at = new Date("2026-08-09T02:34:12.345Z");
     expect(rateLimitBucketStart(at).getTime()).toBe(rateLimitBucketStart(at).getTime());
+  });
+});
+
+describe("two-tier rate limit contract", () => {
+  it("keeps the per-session ceiling at 60 per minute", () => {
+    // Must match analytics_rate_limit_check's p_limit default. A drift here
+    // means the server falls back to a different limit than the database.
+    expect(RATE_LIMIT_PER_SESSION_PER_MINUTE).toBe(60);
+  });
+
+  it("keeps the global breaker default at 5000 per minute", () => {
+    expect(RATE_LIMIT_GLOBAL_PER_MINUTE).toBe(5000);
+  });
+
+  it("sets the global breaker far above the per-session ceiling", () => {
+    // Otherwise a single well-behaved session could trip the deployment-wide
+    // breaker on its own.
+    expect(RATE_LIMIT_GLOBAL_PER_MINUTE).toBeGreaterThan(RATE_LIMIT_PER_SESSION_PER_MINUTE * 10);
+  });
+
+  it("keeps retention at or above the two-minute floor the function enforces", () => {
+    expect(RATE_BUCKET_KEEP_MINUTES).toBeGreaterThanOrEqual(2);
+  });
+
+  it("does not claim session rotation is prevented", () => {
+    // Documented honestly rather than assumed away: the browser mints the
+    // session id, so rotation remains possible and the global breaker — not
+    // the per-session bucket — is what bounds it.
+    expect(SESSION_ROTATION_IS_POSSIBLE).toBe(true);
   });
 });
 

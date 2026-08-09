@@ -42,6 +42,31 @@ export function createSessionId(): string {
 /* ------------------------------------------------------------------ */
 
 /**
+ * Defaults mirroring the database function's parameter defaults.
+ *
+ * The live values come from app_settings and the database is authoritative;
+ * these exist so the server has a sane fallback if a setting is missing, and so
+ * a drift between the two layers shows up as a failing test rather than as a
+ * silently different limit in production.
+ */
+export const RATE_LIMIT_PER_SESSION_PER_MINUTE = 60;
+export const RATE_LIMIT_GLOBAL_PER_MINUTE = 5000;
+
+/** Minutes an expired bucket is kept. Must stay >= 2; the function rejects less. */
+export const RATE_BUCKET_KEEP_MINUTES = 5;
+
+/**
+ * Why the per-session limit is not, by itself, an abuse control.
+ *
+ * `session_id` is minted by the browser, so an attacker can rotate it per
+ * request and never collide with their own bucket. The per-session ceiling
+ * stops a runaway loop or a buggy client. The global breaker is what bounds a
+ * rotating-session flood — at the cost of dropping legitimate events once
+ * saturated. Neither prevents abuse outright; they bound its blast radius.
+ */
+export const SESSION_ROTATION_IS_POSSIBLE = true;
+
+/**
  * Start of the one-minute bucket an instant belongs to.
  *
  * Mirrors `date_trunc('minute', now())` in analytics_rate_limit_check. The
