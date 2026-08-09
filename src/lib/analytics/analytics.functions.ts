@@ -63,29 +63,46 @@ const trackInput = z.object({
 });
 
 /**
- * Per-session ceiling for one server instance.
+ * Consumes one unit of the visitor's analytics budget.
  *
- * Crude on purpose: it is a guard against a runaway loop or a casual flood, not
- * a defence against a determined attacker. The real protection is that a
- * browser can only write two harmless event types and cannot forge attribution.
+ * The decision lives in the database, not in this process. An in-memory Map
+ * would give every serverless instance its own budget, so N instances would
+ * allow N times the intended rate; a single atomic statement against a shared
+ * table is the same decision however many instances are running.
+ *
+ * Fails open. If the limiter itself is unreachable the event is allowed
+ * through: dropping real measurements because a counter is down is the worse
+ * outcome, and the two events a browser can report are harmless by design.
  */
-const RATE_LIMIT_PER_SESSION = 60;
-const RATE_WINDOW_MS = 60_000;
-const seen = new Map<string, { count: number; resetAt: number }>();
+async function withinRateLimit(sessionId: string): Promise<boolean> {
+  try {
+    const { serverDb } = await import("@/lib/db.server");
+    const { getSetting } = await import("@/lib/billing/entitlements.server");
+    const { RATE_LIMIT_GLOBAL_PER_MINUTE, RATE_LIMIT_PER_SESSION_PER_MINUTE } =
+      await import("./collection");
 
-function withinRateLimit(sessionId: string, now: number): boolean {
-  const entry = seen.get(sessionId);
-  if (!entry || entry.resetAt <= now) {
-    seen.set(sessionId, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    // Opportunistic sweep so the map cannot grow without bound.
-    if (seen.size > 5000) {
-      for (const [key, value] of seen) if (value.resetAt <= now) seen.delete(key);
+    const [perSession, global] = await Promise.all([
+      getSetting<number>("analytics.rate_limit_per_minute", RATE_LIMIT_PER_SESSION_PER_MINUTE),
+      getSetting<number>("analytics.global_rate_limit_per_minute", RATE_LIMIT_GLOBAL_PER_MINUTE),
+    ]);
+
+    const db = await serverDb();
+    const { data, error } = await db.rpc("analytics_rate_limit_check", {
+      p_session_id: sessionId,
+      p_limit: perSession,
+      p_global_limit: global,
+    });
+    if (error) {
+      console.error("[analytics] rate limiter unavailable", { code: error.code });
+      return true;
     }
+
+    const row = (Array.isArray(data) ? data[0] : data) as { allowed?: boolean } | undefined;
+    return row?.allowed !== false;
+  } catch (error) {
+    console.error("[analytics] rate limiter failed", (error as Error).name);
     return true;
   }
-  if (entry.count >= RATE_LIMIT_PER_SESSION) return false;
-  entry.count += 1;
-  return true;
 }
 
 export const trackEvent = createServerFn({ method: "POST" })
@@ -95,7 +112,7 @@ export const trackEvent = createServerFn({ method: "POST" })
     // measured at all — no row, not even an anonymised one.
     if (!data.consent) return { ok: false as const, reason: "no_consent" as const };
 
-    if (!withinRateLimit(data.sessionId, Date.now())) {
+    if (!(await withinRateLimit(data.sessionId))) {
       return { ok: false as const, reason: "rate_limited" as const };
     }
 
