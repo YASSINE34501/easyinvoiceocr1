@@ -19,6 +19,9 @@ import { PageHero, PageLayout, Section } from "@/components/site/PageLayout";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/site/AppLink";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
+import { useConsent } from "@/components/site/CookieConsent";
+import { trackEvent } from "@/lib/analytics/analytics.functions";
+import { SESSION_STORAGE_KEY, checkoutStartedKey } from "@/lib/analytics/collection";
 import { useAuth } from "@/auth/AuthProvider";
 import { useBilling } from "@/billing/BillingProvider";
 import { claimTrial, getPublicPlans } from "@/lib/billing/billing.functions";
@@ -48,6 +51,40 @@ function ChoosePlanPage() {
   const { state, refresh } = useBilling();
   const [interval, setInterval] = useState<"month" | "year">("month");
   const [selected, setSelected] = useState<"pro" | "business" | null>(null);
+  const consent = useConsent();
+
+  /**
+   * Records checkout intent, if the visitor consented to analytics.
+   *
+   * Deliberately not awaited and deliberately silent on failure: a tracking
+   * problem must never change what the page does next, and above all must never
+   * be mistaken for a payment outcome. Nothing here contacts PayPal.
+   */
+  function trackCheckoutIntent(planCode: "pro" | "business", billingInterval: "month" | "year") {
+    if (!consent?.analytics) return;
+    let sessionId: string | null = null;
+    try {
+      sessionId = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
+    } catch {
+      return;
+    }
+    if (!sessionId) return;
+
+    void trackEvent({
+      data: {
+        type: "checkout_started",
+        sessionId,
+        consent: true,
+        locale,
+        // Only the two allowlisted scalars. The price lives in the database and
+        // is never taken from, or echoed back through, the browser.
+        metadata: { plan_code: planCode, interval: billingInterval },
+        idempotencyKey: checkoutStartedKey(sessionId, planCode, billingInterval),
+      },
+    }).catch(() => {
+      /* intentionally silent */
+    });
+  }
   const [startingTrial, setStartingTrial] = useState(false);
 
   const { data: plans = [] } = useQuery({
@@ -188,7 +225,16 @@ function ChoosePlanPage() {
                   <button
                     key={plan.id}
                     type="button"
-                    onClick={() => setSelected(plan.code as "pro" | "business")}
+                    onClick={() => {
+                      const code = plan.code as "pro" | "business";
+                      setSelected(code);
+                      // Intent, recorded on a deliberate click on a real paid
+                      // plan. It is not revenue and grants nothing: the key
+                      // carries only the plan code and interval, never a price
+                      // or a payment status, and a repeated click on the same
+                      // choice collapses to one row.
+                      trackCheckoutIntent(code, interval);
+                    }}
                     aria-pressed={isSelected}
                     className={cn(
                       "rounded-xl border p-4 text-start transition-colors",

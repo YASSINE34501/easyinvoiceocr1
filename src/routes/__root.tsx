@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { BillingProvider } from "@/billing/BillingProvider";
 import { CookieConsent } from "@/components/site/CookieConsent";
+import { useVisitorSession } from "@/lib/analytics/useVisitorSession";
 
 function NotFoundComponent() {
   return (
@@ -119,6 +120,18 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Mounts the visitor beacon once for the whole application.
+ *
+ * Renders nothing. It exists as a component only because the hook needs to run
+ * inside the tree, and mounting it here rather than per route is what keeps it
+ * to one beacon per session instead of one per navigation.
+ */
+function VisitorSession() {
+  useVisitorSession();
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
@@ -127,6 +140,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AuthProvider>
         <BillingProvider>
+          <VisitorSession />
           <Outlet />
           <CookieConsent />
         </BillingProvider>

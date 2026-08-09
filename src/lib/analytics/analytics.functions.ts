@@ -70,9 +70,12 @@ const trackInput = z.object({
  * allow N times the intended rate; a single atomic statement against a shared
  * table is the same decision however many instances are running.
  *
- * Fails open. If the limiter itself is unreachable the event is allowed
- * through: dropping real measurements because a counter is down is the worse
- * outcome, and the two events a browser can report are harmless by design.
+ * Fails closed. If the limiter is unreachable the event is dropped rather than
+ * admitted: an unmeasurable minute is a gap in a chart, whereas an unbounded
+ * write path that opens precisely when the database is already struggling is
+ * how a slow dependency becomes an outage. Only browser-reported events pass
+ * through here — trusted signup, conversion, admin and webhook events never
+ * call this function and are unaffected.
  */
 async function withinRateLimit(sessionId: string): Promise<boolean> {
   try {
@@ -93,15 +96,17 @@ async function withinRateLimit(sessionId: string): Promise<boolean> {
       p_global_limit: global,
     });
     if (error) {
-      console.error("[analytics] rate limiter unavailable", { code: error.code });
-      return true;
+      // Fixed category and error code only — never the session id or payload.
+      console.warn("[analytics] rate_limiter_unavailable", { code: error.code });
+      return false;
     }
 
+    // An absent or malformed row is treated as a refusal, not as permission.
     const row = (Array.isArray(data) ? data[0] : data) as { allowed?: boolean } | undefined;
-    return row?.allowed !== false;
+    return row?.allowed === true;
   } catch (error) {
-    console.error("[analytics] rate limiter failed", (error as Error).name);
-    return true;
+    console.warn("[analytics] rate_limiter_failed", { name: (error as Error).name });
+    return false;
   }
 }
 
@@ -112,6 +117,9 @@ export const trackEvent = createServerFn({ method: "POST" })
     // measured at all — no row, not even an anonymised one.
     if (!data.consent) return { ok: false as const, reason: "no_consent" as const };
 
+    // A refusal — whether the budget is spent or the limiter is down — returns
+    // a benign ignored result. The caller is a fire-and-forget beacon, so this
+    // never surfaces to the visitor and never blocks rendering or navigation.
     if (!(await withinRateLimit(data.sessionId))) {
       return { ok: false as const, reason: "rate_limited" as const };
     }
