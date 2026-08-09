@@ -27,11 +27,12 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { UploadCard } from "./UploadCard";
 import { AppLink } from "./AppLink";
-import { faqs, siteConfig } from "@/config/site";
+import { homeFor } from "@/content/home";
 import { authSlugs, path } from "@/config/nav";
 import { homepageProducts } from "@/config/products";
 import { getPublicPlans } from "@/lib/billing/billing.functions";
 import { useLocale, useT } from "@/i18n/useLocale";
+import type { Locale } from "@/i18n";
 import type { MessageKey } from "@/i18n";
 import { cn } from "@/lib/utils";
 
@@ -40,21 +41,23 @@ const Container = ({ className, children }: { className?: string; children: Reac
 );
 
 export function Hero() {
+  const home = homeFor(useLocale() as Locale);
+  const { hero } = home;
   return (
     <section className="hero-glow border-b border-border/70">
       <Container className="grid gap-10 py-12 lg:grid-cols-[1.05fr_1fr] lg:items-start lg:gap-14 lg:py-16">
         <div className="min-w-0">
           <h1 className="text-[34px] font-extrabold leading-[1.1] tracking-tight text-navy sm:text-[44px] lg:text-[48px]">
-            Convert Any Invoice or
-            <br className="hidden sm:block" /> Receipt Into Structured Data
+            {hero.h1Line1}
+            <br className="hidden sm:block" /> {hero.h1Line2}
           </h1>
           <p className="mt-5 max-w-[520px] text-[15px] leading-relaxed text-muted-foreground">
-            {siteConfig.description}
+            {hero.description}
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-semibold">
               <a href="#upload">
-                <Upload className="size-4" aria-hidden="true" /> Upload an Invoice Free
+                <Upload className="size-4" aria-hidden="true" /> {hero.primaryCta}
               </a>
             </Button>
             <Button
@@ -64,22 +67,17 @@ export function Hero() {
               className="h-12 rounded-xl border-border px-6 text-[15px] font-semibold text-navy"
             >
               <a href="#how-it-works">
-                <Play className="size-4" aria-hidden="true" /> View Demo
+                <Play className="size-4" aria-hidden="true" /> {hero.secondaryCta}
               </a>
             </Button>
           </div>
           <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-            {/* "50+ languages" was false: the app vendors three Tesseract
-                models — eng, fra and ara (scripts/vendor-tesseract.mjs). The
-                badge now states what is actually shipped. */}
-            {["No credit card required", "English, French and Arabic", "Runs in your browser"].map(
-              (t) => (
-                <li key={t} className="flex items-center gap-1.5">
-                  <CheckCircle2 className="size-3.5 text-primary" aria-hidden="true" />
-                  {t}
-                </li>
-              ),
-            )}
+            {hero.badges.map((t) => (
+              <li key={t} className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-primary" aria-hidden="true" />
+                {t}
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -92,12 +90,11 @@ export function Hero() {
 const marks = ["cube", "target", "peaks", "chevrons", "dots", "waves"];
 
 export function AudienceStrip() {
+  const { audience } = homeFor(useLocale() as Locale);
   return (
     <section className="bg-surface py-10">
       <Container>
-        <h2 className="text-center text-sm font-semibold text-navy">
-          Built for accountants, small businesses, and finance teams worldwide
-        </h2>
+        <h2 className="text-center text-sm font-semibold text-navy">{audience.heading}</h2>
         <ul className="mt-7 grid grid-cols-3 items-center gap-6 sm:grid-cols-6">
           {marks.map((m) => (
             <li key={m} className="flex justify-center">
@@ -209,18 +206,18 @@ export function ProductCards() {
 }
 
 export function LanguageStrip() {
+  const { languages } = homeFor(useLocale() as Locale);
   return (
     <section className="bg-surface pb-12">
       <Container>
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-xl border border-border bg-card px-6 py-3.5 text-xs text-muted-foreground shadow-card">
           <span className="flex items-center gap-1.5 font-semibold text-navy">
-            <Globe className="size-4" aria-hidden="true" /> Supported Languages:
+            <Globe className="size-4" aria-hidden="true" /> {languages.label}
           </span>
-          {siteConfig.languages.map((l) => (
-            <span key={l.code} className="flex items-center gap-1.5">
-              <span aria-hidden="true">{l.flag}</span>
-              {l.label}
-            </span>
+          {/* Exactly the models that ship. The previous list advertised six
+              languages, three of which had no recognition model at all. */}
+          {languages.items.map((label) => (
+            <span key={label}>{label}</span>
           ))}
         </div>
       </Container>
@@ -228,26 +225,14 @@ export function LanguageStrip() {
   );
 }
 
-const steps = [
-  { n: 1, title: "Upload", body: "Upload an invoice or receipt in PDF, JPG or PNG format." },
-  {
-    n: 2,
-    title: "AI Extracts",
-    body: "The OCR engine detects and structures the important fields.",
-  },
-  {
-    n: 3,
-    title: "Review and Export",
-    body: "Correct the results and export to Excel, CSV or JSON.",
-  },
-];
-
 export function HowItWorks() {
+  const { howItWorks } = homeFor(useLocale() as Locale);
+  const steps = howItWorks.steps.map((step, index) => ({ n: index + 1, ...step }));
   return (
     <section id="how-it-works" className="py-16">
       <Container>
         <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          How It Works
+          {howItWorks.heading}
         </h2>
         <ol className="mt-10 grid gap-10 md:grid-cols-3">
           {steps.map((s) => (
@@ -269,26 +254,18 @@ export function HowItWorks() {
   );
 }
 
-const fields = [
-  "Vendor & Company Details",
-  "Invoice Number & Date",
-  "Line Items (Description, Qty, Price)",
-  "Taxes, Discounts & Fees",
-  "Total Amount & Currency",
-  "Payment Terms",
-];
-
 export function ExtractSection() {
+  const { extract } = homeFor(useLocale() as Locale);
+  const fields = extract.fields;
   return (
     <section className="bg-surface py-16">
       <Container className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div className="min-w-0">
           <h2 className="text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-            Extract Every Invoice Field
+            {extract.heading}
           </h2>
           <p className="mt-4 max-w-[400px] text-sm leading-relaxed text-muted-foreground">
-            EasyInvoiceOCR captures all the important information from invoices and receipts, so you
-            can stop typing and start analyzing.
+            {extract.description}
           </p>
           <ul className="mt-6 space-y-3">
             {fields.map((f) => (
@@ -300,18 +277,30 @@ export function ExtractSection() {
           </ul>
         </div>
 
-        <div className="grid gap-4 rounded-2xl border border-border bg-card p-4 shadow-panel sm:grid-cols-[1.4fr_1fr]">
-          <InvoicePreview />
-          <ExtractedPanel />
-        </div>
+        <figure
+          className="grid gap-4 rounded-2xl border border-border bg-card p-4 shadow-panel sm:grid-cols-[1.4fr_1fr]"
+          aria-label={extract.previewAlt}
+        >
+          <InvoicePreview sampleLabel={extract.sampleLabel} />
+          <ExtractedPanel
+            title={extract.panelTitle}
+            confidenceLabel={extract.confidenceLabel}
+            labels={extract.sampleFieldLabels}
+          />
+        </figure>
       </Container>
     </section>
   );
 }
 
-function InvoicePreview() {
+function InvoicePreview({ sampleLabel }: { sampleLabel: string }) {
   return (
     <div className="rounded-xl border border-border p-4 text-[10px] text-muted-foreground">
+      {/* Labelled so a made-up invoice and a made-up confidence figure cannot
+          be read as a measured result. */}
+      <p className="mb-2 inline-block rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {sampleLabel}
+      </p>
       <div className="flex items-start justify-between">
         <p className="text-sm font-bold tracking-tight text-navy">INVOICE</p>
         <div className="text-right">
@@ -360,18 +349,23 @@ function InvoicePreview() {
   );
 }
 
-const extracted = [
-  ["Vendor", "Acme Corporation"],
-  ["Invoice Number", "INV-10023"],
-  ["Invoice Date", "May 18, 2024"],
-  ["Total Amount", "$1,844.50"],
-  ["Currency", "USD"],
-];
+/** Sample values from the specimen invoice. The labels are localised; the
+    values are not, because they belong to an English example document. */
+const sampleValues = ["Acme Corporation", "INV-10023", "May 18, 2024", "$1,844.50", "USD"];
 
-function ExtractedPanel() {
+function ExtractedPanel({
+  title,
+  confidenceLabel,
+  labels,
+}: {
+  title: string;
+  confidenceLabel: string;
+  labels: readonly string[];
+}) {
+  const extracted = labels.map((label, index) => [label, sampleValues[index] ?? ""] as const);
   return (
     <div className="rounded-xl border border-border bg-surface p-4">
-      <p className="text-xs font-semibold text-navy">Extracted Fields</p>
+      <p className="text-xs font-semibold text-navy">{title}</p>
       <dl className="mt-3 space-y-3">
         {extracted.map(([k, v]) => (
           <div key={k}>
@@ -381,41 +375,26 @@ function ExtractedPanel() {
         ))}
       </dl>
       <p className="mt-4 flex items-center gap-1.5 rounded-lg bg-pale-green px-2.5 py-1.5 text-[10px] font-semibold text-accent-foreground">
-        <BadgeCheck className="size-3.5" aria-hidden="true" /> Confidence: 99.2%
+        <BadgeCheck className="size-3.5" aria-hidden="true" /> {confidenceLabel}: 99.2%
       </p>
     </div>
   );
 }
 
-const workflows = [
-  {
-    icon: Building2,
-    title: "Accountants",
-    body: "Process hundreds of invoices in minutes and reduce manual data entry.",
-  },
-  {
-    icon: Receipt,
-    title: "Small Businesses",
-    body: "Automate bookkeeping and keep your records clean and organized.",
-  },
-  {
-    icon: Sparkles,
-    title: "Freelancers",
-    body: "Track expenses and manage receipts without the spreadsheet mess.",
-  },
-  {
-    icon: Code2,
-    title: "Developers",
-    body: "Powerful API and SDKs to integrate invoice OCR into your applications.",
-  },
-];
+/** Icons stay here; the words come from the locale content. */
+const workflowIcons = [Building2, Receipt, Sparkles, Code2];
 
 export function Workflows() {
+  const { workflows: copy } = homeFor(useLocale() as Locale);
+  const workflows = copy.cards.map((card, index) => ({
+    icon: workflowIcons[index] ?? Building2,
+    ...card,
+  }));
   return (
     <section className="py-16">
       <Container>
         <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          Built for Every Workflow
+          {copy.heading}
         </h2>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {workflows.map(({ icon: Icon, title, body }) => (
@@ -436,37 +415,22 @@ export function Workflows() {
   );
 }
 
-const global = [
-  {
-    icon: Languages,
-    // Was "50+ Languages" / "more than 50 languages". Three recognition models
-    // are vendored — eng, fra and ara — so the old copy overstated the actual
-    // capability by roughly seventeen times.
-    title: "Three languages, including Arabic",
-    body: "Recognition ships with English, French and Arabic models, and handles right-to-left layouts and invoices that mix scripts.",
-  },
-  {
-    icon: CircleDollarSign,
-    title: "Multiple Currencies",
-    body: "Currencies are detected automatically and preserved through every export.",
-  },
-  {
-    icon: Shield,
-    title: "Local Formats",
-    body: "Local number, date and tax formats are recognised and exported country-aware.",
-  },
-];
+const globalIcons = [Languages, CircleDollarSign, Shield];
 
 export function GlobalSection() {
+  const { global: copy } = homeFor(useLocale() as Locale);
+  const global = copy.cards.map((card, index) => ({
+    icon: globalIcons[index] ?? Languages,
+    ...card,
+  }));
   return (
     <section className="bg-surface py-16">
       <Container>
         <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          Global by Design
+          {copy.heading}
         </h2>
         <p className="mx-auto mt-3 max-w-[640px] text-center text-sm text-muted-foreground">
-          EasyInvoiceOCR supports businesses worldwide with multi-language OCR and multi-currency
-          extraction.
+          {copy.description}
         </p>
         <div className="mt-9 grid gap-8 md:grid-cols-3">
           {global.map(({ icon: Icon, title, body }) => (
@@ -646,14 +610,15 @@ export function Pricing() {
 }
 
 export function Faq() {
+  const { faq } = homeFor(useLocale() as Locale);
   return (
     <section className="pb-16">
       <Container className="max-w-[860px]">
         <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          Frequently Asked Questions
+          {faq.heading}
         </h2>
         <Accordion type="single" collapsible className="mt-8 space-y-3">
-          {faqs.map((f, i) => (
+          {faq.items.map((f, i) => (
             <AccordionItem
               key={f.q}
               value={`item-${i}`}
@@ -674,6 +639,7 @@ export function Faq() {
 }
 
 export function FinalCta() {
+  const { finalCta } = homeFor(useLocale() as Locale);
   return (
     <section className="pb-16">
       <Container>
@@ -684,11 +650,9 @@ export function FinalCta() {
             </span>
             <div className="min-w-0">
               <h2 className="text-xl font-bold text-primary-foreground sm:text-2xl">
-                Ready to automate your invoice processing?
+                {finalCta.heading}
               </h2>
-              <p className="mt-1.5 text-sm text-primary-foreground/85">
-                Start converting invoices and receipts into structured data today.
-              </p>
+              <p className="mt-1.5 text-sm text-primary-foreground/85">{finalCta.body}</p>
             </div>
           </div>
           <div className="text-center">
@@ -698,7 +662,7 @@ export function FinalCta() {
               className="h-11 w-full rounded-lg px-6 font-semibold text-navy sm:w-auto"
             >
               <a href="#upload">
-                Start Free Now <ArrowRight className="size-4" aria-hidden="true" />
+                {finalCta.cta} <ArrowRight className="size-4" aria-hidden="true" />
               </a>
             </Button>
             <p className="mt-2 text-[11px] text-primary-foreground/80">No credit card required</p>

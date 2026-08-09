@@ -15,7 +15,7 @@ import {
   ProductCards,
   Workflows,
 } from "@/components/site/sections";
-import { faqs } from "@/config/site";
+import { homeFor } from "@/content/home";
 import { asLocale } from "@/i18n";
 import { OG_LOCALE, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
 
@@ -42,6 +42,7 @@ export const Route = createFileRoute("/$locale/")({
   head: ({ params }) => {
     const locale = asLocale(params.locale);
     const { title, description } = meta[locale];
+    const home = homeFor(locale);
     const url = canonicalUrl("", locale);
     return {
       meta: [
@@ -73,7 +74,12 @@ export const Route = createFileRoute("/$locale/")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: faqs.map((f) => ({
+            inLanguage: locale,
+            // The same questions the accordion renders, in the same locale.
+            // It previously emitted the English config list on every locale,
+            // so /fr and /ar published structured data that did not match the
+            // page.
+            mainEntity: home.faq.items.map((f) => ({
               "@type": "Question",
               name: f.q,
               acceptedAnswer: { "@type": "Answer", text: f.a },
