@@ -98,7 +98,37 @@ export async function syncSubscriptionFromPayPal(
   const { error } = await db.from("user_subscriptions").update(patch).eq("id", existing.id);
   if (error) throw new Error(error.message);
 
-  return { applied: true, status: patch["status"] as SubscriptionStatus };
+  const applied = patch["status"] as SubscriptionStatus;
+
+  // Recorded only here, after PayPal itself has been re-queried and the local
+  // row updated. A browser callback never reaches this path, so no client can
+  // manufacture an activation.
+  //
+  // Only a genuine transition is recorded — re-delivering ACTIVATED for a
+  // subscription already active changes nothing and emits nothing. The key is
+  // the subscription plus the status it moved to, so a redelivery of the same
+  // transition collapses onto one row.
+  if (applied !== existing.status) {
+    const eventType =
+      applied === "active"
+        ? "subscription_activated"
+        : applied === "cancelled" || applied === "expired"
+          ? "subscription_cancelled"
+          : null;
+
+    if (eventType) {
+      const { recordEventDetached } = await import("@/lib/analytics/analytics.server");
+      const { buildIdempotencyKey } = await import("@/lib/analytics/events");
+      recordEventDetached({
+        type: eventType,
+        userId: existing.user_id,
+        metadata: { reason: applied },
+        idempotencyKey: buildIdempotencyKey(eventType, providerSubscriptionId, applied),
+      });
+    }
+  }
+
+  return { applied: true, status: applied };
 }
 
 /**
@@ -161,6 +191,47 @@ export async function applyWebhookEvent(event: {
 
   if (!subscriptionId) return { handled: false, note: "no_subscription_id" };
 
+  /**
+   * Records a money event from a verified webhook.
+   *
+   * The idempotency key is PayPal's own event id, so a redelivery — which
+   * PayPal does routinely — cannot double-count revenue. The amount and
+   * currency are read from PayPal's resource and stored only as scalar
+   * metadata; no payer details or payment payload is kept here, because the
+   * full payload already lives in subscription_events for admins alone.
+   */
+  async function recordPaymentEvent(
+    type: "payment_completed" | "payment_refunded",
+    verified: { id: string; create_time?: string | undefined },
+    subId: string,
+    payload: Record<string, unknown>,
+  ): Promise<void> {
+    try {
+      const { data: sub } = await db
+        .from("user_subscriptions")
+        .select("user_id")
+        .eq("provider_subscription_id", subId)
+        .maybeSingle();
+      if (!sub?.user_id) return;
+
+      const amount = payload["amount"] as { total?: string; currency?: string } | undefined;
+      const { recordEventDetached } = await import("@/lib/analytics/analytics.server");
+      const { buildIdempotencyKey } = await import("@/lib/analytics/events");
+
+      recordEventDetached({
+        type,
+        userId: sub.user_id,
+        metadata: {
+          ...(amount?.total ? { reason: `${amount.total} ${amount.currency ?? ""}`.trim() } : {}),
+        },
+        idempotencyKey: buildIdempotencyKey(type, verified.id),
+        ...(verified.create_time ? { occurredAt: verified.create_time } : {}),
+      });
+    } catch (error) {
+      console.error("[analytics] payment event failed", (error as Error).name);
+    }
+  }
+
   switch (event.event_type) {
     case "BILLING.SUBSCRIPTION.ACTIVATED":
     case "BILLING.SUBSCRIPTION.UPDATED":
@@ -170,6 +241,14 @@ export async function applyWebhookEvent(event: {
     case "BILLING.SUBSCRIPTION.EXPIRED":
     case "PAYMENT.SALE.COMPLETED": {
       const result = await syncSubscriptionFromPayPal(subscriptionId, event.create_time ?? null);
+
+      // Money only ever enters the funnel here: the webhook signature has been
+      // verified upstream and the subscription re-fetched from PayPal. The
+      // amount is taken from PayPal's own resource, never from a browser.
+      if (event.event_type === "PAYMENT.SALE.COMPLETED") {
+        await recordPaymentEvent("payment_completed", event, subscriptionId, resource);
+      }
+
       return { handled: result.applied, note: result.reason ?? result.status };
     }
 
@@ -194,6 +273,13 @@ export async function applyWebhookEvent(event: {
           last_event_at: event.create_time ?? now.toISOString(),
         })
         .eq("id", existing.id);
+
+      // A reversal is money going back out, so it is recorded as a refund and
+      // reported separately from gross revenue. A denial is a payment that
+      // never completed, so it is not a refund and emits nothing.
+      if (event.event_type === "PAYMENT.SALE.REVERSED") {
+        await recordPaymentEvent("payment_refunded", event, subscriptionId, resource);
+      }
 
       await notify(existing.id, subscriptionId, "payment_failed");
       return { handled: true, note: "past_due" };

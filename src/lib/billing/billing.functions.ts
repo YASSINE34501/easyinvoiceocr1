@@ -94,6 +94,17 @@ export const claimTrial = createServerFn({ method: "POST" })
     const result = await claim(context.userId);
     if (!result.ok) return { ok: false as const, error: result.reason };
 
+    // Only a claim that actually succeeded is recorded. A refused or repeated
+    // claim returns above, and the key is the user id, so even a race that
+    // somehow reached here twice produces one row.
+    const { recordEventDetached } = await import("@/lib/analytics/analytics.server");
+    const { buildIdempotencyKey } = await import("@/lib/analytics/events");
+    recordEventDetached({
+      type: "trial_claimed",
+      userId: context.userId,
+      idempotencyKey: buildIdempotencyKey("trial_claimed", context.userId),
+    });
+
     return { ok: true as const, state: await resolveBillingState(context.userId) };
   });
 

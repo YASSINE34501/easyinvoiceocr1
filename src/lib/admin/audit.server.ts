@@ -15,6 +15,7 @@
 export const AUDIT_ACTIONS = [
   "plan.updated",
   "setting.updated",
+  "subscription.status_changed",
   "subscription.cancelled",
   "subscription.refreshed",
   "conversion.purged",

@@ -50,6 +50,8 @@ export const ERROR_CODES = [
   "empty_result",
   "output_invalid",
   "timeout",
+  /** The user aborted. A distinct outcome from a failure, and counted apart. */
+  "cancelled",
   "quota_exceeded",
   "not_entitled",
   "unauthorized",

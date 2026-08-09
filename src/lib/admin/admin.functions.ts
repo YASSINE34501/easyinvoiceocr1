@@ -151,6 +151,18 @@ export const updatePlan = createServerFn({ method: "POST" })
     const { id, ...patch } = data;
     const { error } = await db.from("subscription_plans").update(patch).eq("id", id);
     if (error) throw new Error(error.message);
+
+    // Which fields changed, never their contents. A price is a scalar and safe
+    // to record; anything larger stays out of the trail.
+    const { recordAdminAction } = await import("./audit.server");
+    await recordAdminAction({
+      actorUserId: context.userId,
+      action: "plan.updated",
+      targetType: "subscription_plan",
+      targetId: id,
+      metadata: { fields: Object.keys(patch).join(",") },
+    });
+
     return { ok: true as const };
   });
 
@@ -178,6 +190,17 @@ export const updateSetting = createServerFn({ method: "POST" })
       .update({ value: parsed, updated_by: context.userId })
       .eq("key", data.key);
     if (error) throw new Error(error.message);
+
+    // The key is recorded, not the value: a setting could hold configuration
+    // that should not be duplicated into a second table.
+    const { recordAdminAction } = await import("./audit.server");
+    await recordAdminAction({
+      actorUserId: context.userId,
+      action: "setting.updated",
+      targetType: "app_setting",
+      targetId: data.key,
+    });
+
     return { ok: true as const };
   });
 
@@ -206,11 +229,29 @@ export const setSubscriptionStatus = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => statusPatch.parse(data))
   .handler(async ({ context, data }) => {
     const db = await assertAdmin(context.userId);
+    // The previous status is read first so the trail records the transition,
+    // not just the destination.
+    const { data: before } = await db
+      .from("user_subscriptions")
+      .select("status")
+      .eq("id", data.subscriptionId)
+      .maybeSingle();
+
     const { error } = await db
       .from("user_subscriptions")
       .update({ status: data.status })
       .eq("id", data.subscriptionId);
     if (error) throw new Error(error.message);
+
+    const { recordAdminAction } = await import("./audit.server");
+    await recordAdminAction({
+      actorUserId: context.userId,
+      action: "subscription.status_changed",
+      targetType: "user_subscription",
+      targetId: data.subscriptionId,
+      metadata: { from: before?.status ?? "unknown", to: data.status },
+    });
+
     return { ok: true as const };
   });
 

@@ -122,6 +122,19 @@ export const startConversion = createServerFn({ method: "POST" })
 
     if (error) throw new Error(error.message);
 
+    // Recorded only now: the quota is reserved and the job row exists, so this
+    // is a conversion that genuinely started. Keyed on the job id, so a retry
+    // that reuses the idempotency key cannot count twice.
+    const { recordEventDetached } = await import("@/lib/analytics/analytics.server");
+    const { buildIdempotencyKey } = await import("@/lib/analytics/events");
+    recordEventDetached({
+      type: "conversion_started",
+      userId: context.userId,
+      tool: data.tool,
+      metadata: { page_count: pages },
+      idempotencyKey: buildIdempotencyKey("conversion_started", created.id),
+    });
+
     return {
       ok: true,
       jobId: created.id,
@@ -143,7 +156,9 @@ export const completeConversion = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { serverDb } = await import("@/lib/db.server");
     const db = await serverDb();
-    const { error } = await db
+    // The tool slug comes back from the update so the event can be attributed
+    // to a product without a second query.
+    const { data: job, error } = await db
       .from("conversion_jobs")
       .update({
         status: "completed",
@@ -153,11 +168,56 @@ export const completeConversion = createServerFn({ method: "POST" })
       })
       .eq("id", data.jobId)
       // Ownership check: a job id from another account matches nothing.
-      .eq("user_id", context.userId);
+      .eq("user_id", context.userId)
+      .select("tool_type")
+      .maybeSingle();
 
     if (error) throw new Error(error.message);
+
+    // The job is committed and a downloadable result exists, so this is a
+    // genuinely successful conversion.
+    const { recordEventDetached } = await import("@/lib/analytics/analytics.server");
+    const { buildIdempotencyKey } = await import("@/lib/analytics/events");
+    recordEventDetached({
+      type: "conversion_completed",
+      userId: context.userId,
+      tool: job?.tool_type ?? null,
+      metadata: { page_count: data.pageCount },
+      idempotencyKey: buildIdempotencyKey("conversion_completed", data.jobId),
+    });
+
+    // A trial that has just reached its allowance. Emitted here rather than on
+    // every gate read so a refresh, or opening another product, cannot repeat
+    // it — and the key is the user, so it can only ever exist once per account.
+    await recordTrialExhaustedIfReached(context.userId);
+
     return { ok: true as const };
   });
+
+/**
+ * Records trial_exhausted the first time real usage reaches the allowance.
+ *
+ * The idempotency key is the user id alone, so the unique index guarantees one
+ * row per account no matter how many products or tabs observe the transition.
+ */
+async function recordTrialExhaustedIfReached(userId: string): Promise<void> {
+  try {
+    const { trialStatus } = await import("@/lib/billing/entitlements.server");
+    const status = await trialStatus(userId);
+    if (!status.claimed || !status.exhausted) return;
+
+    const { recordEventDetached } = await import("@/lib/analytics/analytics.server");
+    const { buildIdempotencyKey } = await import("@/lib/analytics/events");
+    recordEventDetached({
+      type: "trial_exhausted",
+      userId,
+      metadata: { page_count: status.used },
+      idempotencyKey: buildIdempotencyKey("trial_exhausted", userId),
+    });
+  } catch (error) {
+    console.error("[analytics] trial_exhausted check failed", (error as Error).name);
+  }
+}
 
 const failInput = z.object({
   jobId: z.string().uuid(),
@@ -173,7 +233,7 @@ export const failConversion = createServerFn({ method: "POST" })
     const db = await serverDb();
     const { releaseQuota } = await import("@/lib/billing/entitlements.server");
 
-    await db
+    const { data: job } = await db
       .from("conversion_jobs")
       .update({
         status: "failed",
@@ -183,9 +243,30 @@ export const failConversion = createServerFn({ method: "POST" })
         error_message: null,
       })
       .eq("id", data.jobId)
-      .eq("user_id", context.userId);
+      .eq("user_id", context.userId)
+      .select("tool_type")
+      .maybeSingle();
 
     await releaseQuota(context.userId, data.idempotencyKey);
+
+    // Recorded only after the reservation is released, so the event and the
+    // quota can never disagree. A user-initiated abort is a distinct outcome
+    // from a genuine failure and is counted separately.
+    const cancelled = data.errorCode === "cancelled";
+    const { recordEventDetached } = await import("@/lib/analytics/analytics.server");
+    const { buildIdempotencyKey } = await import("@/lib/analytics/events");
+    recordEventDetached({
+      type: cancelled ? "conversion_cancelled" : "conversion_failed",
+      userId: context.userId,
+      tool: job?.tool_type ?? null,
+      // The machine-readable code only — never OCR text or a filename.
+      metadata: { error_code: data.errorCode },
+      idempotencyKey: buildIdempotencyKey(
+        cancelled ? "conversion_cancelled" : "conversion_failed",
+        data.jobId,
+      ),
+    });
+
     return { ok: true as const };
   });
 

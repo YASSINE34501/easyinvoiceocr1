@@ -217,8 +217,10 @@ export function ExtractionWorkspace({
         });
 
         if (controller.signal.aborted) {
-          // Cancelled after the reservation: give it straight back.
-          await job?.fail("timeout");
+          // Cancelled after the reservation: give it straight back. Reported as
+          // "cancelled" rather than "timeout" so the funnel can tell a user who
+          // changed their mind from a conversion that genuinely broke.
+          await job?.fail("cancelled");
           return;
         }
 
