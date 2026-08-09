@@ -20,6 +20,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { adsConfig, adsRuntimeReady, isAdEligiblePath, type AdSlotName } from "@/config/ads";
 import { useConsent } from "./CookieConsent";
 import { useBilling } from "@/billing/BillingProvider";
+import { useT } from "@/i18n/useLocale";
 import { cn } from "@/lib/utils";
 
 type AdSlotProps = {
@@ -56,6 +57,7 @@ function ensureAdSenseScript(clientId: string): void {
 }
 
 export function AdSlot({ name, variant = "in-article", className, label }: AdSlotProps) {
+  const t = useT();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const consent = useConsent();
   const { adsAllowed, loading } = useBilling();
@@ -65,9 +67,15 @@ export function AdSlot({ name, variant = "in-article", className, label }: AdSlo
 
   const slotId = adsConfig.slotId(name);
   const eligibleRoute = isAdEligiblePath(pathname);
+  // An explicit refusal is final. The non-personalised path may only apply
+  // while the visitor has not decided yet; treating "no" as grounds to serve a
+  // non-personalised ad would still put Google's script, and its cookies, on
+  // the page of someone who declined advertising.
+  const refusedMarketing = consent !== null && consent.marketing === false;
   const consented =
-    consent?.marketing === true ||
-    (adsConfig.allowNonPersonalisedWithoutConsent && consent !== null);
+    !refusedMarketing &&
+    (consent?.marketing === true ||
+      (adsConfig.allowNonPersonalisedWithoutConsent && consent === null));
 
   const shouldRenderPlaceholder =
     adsConfig.isDevelopment && adsConfig.enabled && eligibleRoute && adsAllowed && !loading;
@@ -118,7 +126,7 @@ export function AdSlot({ name, variant = "in-article", className, label }: AdSlo
   return (
     <aside
       ref={containerRef}
-      aria-label={label ?? "Advertisement"}
+      aria-label={label ?? t("ads.label")}
       // Generous vertical spacing keeps the unit away from product controls,
       // and the border makes the separation from page content obvious.
       className={cn(
@@ -127,7 +135,7 @@ export function AdSlot({ name, variant = "in-article", className, label }: AdSlo
       )}
     >
       <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        {label ?? "Advertisement"}
+        {label ?? t("ads.label")}
       </p>
 
       {shouldRenderLive ? (

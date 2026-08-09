@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { adsConfig, adsRuntimeReady, isAdEligiblePath, slugFromPath } from "./ads";
 import { sortedProducts } from "./products";
+import { isComingSoonProduct } from "@/content/products";
 
 describe("slugFromPath", () => {
   it("strips the locale segment", () => {
@@ -57,9 +58,13 @@ describe("isAdEligiblePath", () => {
     expect(isAdEligiblePath(path)).toBe(false);
   });
 
-  it("allows every product page in the registry", () => {
+  it("allows every working product page, and no coming-soon one", () => {
     for (const product of sortedProducts) {
-      expect(isAdEligiblePath(`/en/${product.slug}`)).toBe(true);
+      // This assertion used to require every product unconditionally, which
+      // would have monetised a page whose entire message is that the feature
+      // does not exist yet.
+      const expected = !isComingSoonProduct(product.slug);
+      expect(isAdEligiblePath(`/en/${product.slug}`), product.slug).toBe(expected);
     }
   });
 

@@ -10,6 +10,7 @@
 
 import { locales } from "@/i18n";
 import { sortedProducts } from "@/config/products";
+import { isComingSoonProduct } from "@/content/products";
 
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -66,16 +67,26 @@ const DENIED_PREFIXES = [
   "cookies",
   "security",
   "admin",
+  // Both describe an API that is not operational. See ALLOWED_EXACT.
+  "api-reference",
+  "ocr-api",
 ];
 
-/** Public pages with substantial original content. */
+/**
+ * Public pages with substantial original content.
+ *
+ * api-reference and any coming-soon product are deliberately absent. Both
+ * describe an API that accepts no requests, so the page is an announcement
+ * rather than something a reader came to read. Placing ads against a page
+ * whose entire message is that the feature does not exist is thin-content
+ * monetisation, and it is exactly what an AdSense review looks for.
+ */
 const ALLOWED_EXACT = new Set<string>([
   "", // homepage
   "documentation",
   "help",
   "blog",
-  "api-reference",
-  ...sortedProducts.map((product) => product.slug),
+  ...sortedProducts.map((product) => product.slug).filter((slug) => !isComingSoonProduct(slug)),
 ]);
 
 const ALLOWED_PREFIXES = ["blog/", "solutions/", "help/", "documentation/"];
