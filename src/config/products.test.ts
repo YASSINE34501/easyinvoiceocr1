@@ -13,6 +13,7 @@ import { productLinks, allPublicSlugs } from "./nav";
 import { converterContent } from "@/content/converters";
 import { dictionaries, locales } from "@/i18n";
 import { sitemapEntries, buildSitemapXml } from "@/lib/seo/sitemap";
+import { isComingSoonProduct } from "@/content/products";
 
 const NEW_PRODUCTS = ["pdf-to-word", "image-to-word", "image-to-pdf"];
 const EXISTING_PRODUCTS = [
@@ -84,9 +85,18 @@ describe("navigation and sitemap wiring", () => {
     for (const slug of NEW_PRODUCTS) expect(slugs).toContain(slug);
   });
 
-  it("includes every product in the sitemap entries", () => {
+  it("includes every working product in the sitemap entries", () => {
     const slugs = sitemapEntries().map((entry) => entry.slug);
-    for (const product of sortedProducts) expect(slugs).toContain(product.slug);
+    for (const product of sortedProducts) {
+      // A coming-soon product is deliberately absent. This assertion used to
+      // require every product unconditionally, which would have kept the
+      // non-functional OCR API advertised to search engines.
+      if (isComingSoonProduct(product.slug)) {
+        expect(slugs).not.toContain(product.slug);
+        continue;
+      }
+      expect(slugs).toContain(product.slug);
+    }
   });
 
   it("emits one localized URL per locale for each new converter", () => {
@@ -114,10 +124,12 @@ describe("plan availability", () => {
     }
   });
 
-  it("keeps the OCR API on the Business plan only", () => {
-    expect(planAllowsProduct("trial", "ocr-api")).toBe(false);
-    expect(planAllowsProduct("pro", "ocr-api")).toBe(false);
-    expect(planAllowsProduct("business", "ocr-api")).toBe(true);
+  it("grants the OCR API to nobody while it is not operational", () => {
+    // Previously Business resolved to true, so the application believed a
+    // paying customer had API access that does not exist.
+    for (const plan of ["trial", "pro", "business"] as const) {
+      expect(planAllowsProduct(plan, "ocr-api")).toBe(false);
+    }
   });
 
   it("returns false for a product that does not exist", () => {

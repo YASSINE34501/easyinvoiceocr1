@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { path } from "@/config/routing";
 import { locales, type Locale, type MessageKey } from "@/i18n";
+import { isComingSoonProduct } from "@/content/products";
 
 /** Plan codes, matching subscription_plans.code in the database. */
 export type PlanCode = "trial" | "pro" | "business";
@@ -433,7 +434,13 @@ export const products: ProductDefinition[] = [
     inNav: true,
     inSitemap: true,
     order: 80,
-    features: ["API key authentication", "Asynchronous processing", "Idempotent submission"],
+    // Design goals, not shipped features. Phrased so a reader cannot mistake
+    // the list for a description of something callable today.
+    features: [
+      "Planned: key authentication",
+      "Planned: asynchronous processing",
+      "Planned: idempotent submission",
+    ],
     copy: {
       en: {
         name: "OCR API",
@@ -506,6 +513,10 @@ const planRank: Record<PlanCode, number> = { trial: 0, pro: 1, business: 2 };
 export function planAllowsProduct(plan: PlanCode, slug: string): boolean {
   const product = bySlug.get(slug);
   if (!product) return false;
+  // A product that does not work is not an entitlement, whatever the plan
+  // says. The OCR API previously resolved to true on Business, which meant the
+  // application believed a paying customer had API access they cannot use.
+  if (isComingSoonProduct(slug)) return false;
   return planRank[plan] >= planRank[product.minPlan];
 }
 

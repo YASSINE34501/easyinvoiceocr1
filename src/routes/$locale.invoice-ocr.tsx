@@ -7,12 +7,6 @@ import { asLocale } from "@/i18n";
 const product = productBySlug["invoice-ocr"]!;
 
 export const Route = createFileRoute("/$locale/invoice-ocr")({
-  component: () => (
-    <ProductPage
-      product={product}
-      kind="invoice"
-      breadcrumbs={[{ label: "Product", href: path("invoice-ocr") }, { label: product.name }]}
-    />
-  ),
+  component: () => <ProductPage product={product} kind="invoice" />,
   head: ({ params }) => productHead(product, asLocale(params.locale)),
 });

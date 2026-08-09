@@ -106,9 +106,9 @@ export const docChapters: DocChapter[] = [
       },
       {
         id: "api",
-        title: "API access",
+        title: "API access — not yet available",
         body: [
-          "The REST API mirrors the interface: upload a document, poll its status, then retrieve the extraction. The full contract is published in the API Reference. Endpoints are documented and stable, and are marked as planned until the public beta opens.",
+          "There is no working API. No endpoint accepts requests, no keys are issued, and API access is not part of any plan. The interface being designed is described on the OCR API page so integrators can plan against it, but nothing there can be called today.",
         ],
       },
     ],

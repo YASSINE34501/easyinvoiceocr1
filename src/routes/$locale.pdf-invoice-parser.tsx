@@ -7,15 +7,6 @@ import { asLocale } from "@/i18n";
 const product = productBySlug["pdf-invoice-parser"]!;
 
 export const Route = createFileRoute("/$locale/pdf-invoice-parser")({
-  component: () => (
-    <ProductPage
-      product={product}
-      kind="pdf"
-      breadcrumbs={[
-        { label: "Product", href: path("pdf-invoice-parser") },
-        { label: product.name },
-      ]}
-    />
-  ),
+  component: () => <ProductPage product={product} kind="pdf" />,
   head: ({ params }) => productHead(product, asLocale(params.locale)),
 });

@@ -1,48 +1,59 @@
-import { path } from "@/config/nav";
+import type { ProductContent } from "./types";
 
-export type ProductFaq = { q: string; a: string };
+/**
+ * English product-page content.
+ *
+ * Two corrections were made while moving this out of the old single-locale
+ * file, both because the previous text described behaviour the code does not
+ * have:
+ *
+ *   1. The shared security list claimed "Extraction runs server-side". It does
+ *      not. Recognition runs in the visitor's browser through Tesseract
+ *      (src/lib/extract/pipeline.ts), and the document is never uploaded to be
+ *      read. The old wording also implied files are stored and served through
+ *      signed URLs, which described a pipeline that is not the one shipping.
+ *   2. Invoice OCR's FAQ said "The interface itself is currently English only".
+ *      The interface ships in English, French and Arabic.
+ */
 
-export type Product = {
-  slug: string;
-  route: string;
-  name: string;
-  title: string;
-  description: string;
-  eyebrow: string;
-  heading: string;
-  lede: string;
-  what: string[];
-  fields: { group: string; items: string[] }[];
-  audience: { title: string; body: string }[];
-  formats: string[];
-  capabilities: { title: string; body: string }[];
-  security: string[];
-  faqs: ProductFaq[];
-};
-
-const sharedSecurity = [
-  "Files are transferred over HTTPS/TLS only.",
-  "Documents are held in private storage — never in a public bucket — and are read through short-lived signed URLs.",
-  "Extraction runs server-side; API credentials are never exposed to the browser.",
-  "Invoice contents are not written to application logs.",
-  "You can delete a document at any time, which removes both the stored file and its extracted record.",
+/**
+ * How documents are actually handled. Written from the code, not from an
+ * intended architecture: recognition is client-side, so the strongest true
+ * claim is that the document does not leave the machine to be read.
+ */
+const security: string[] = [
+  "Recognition runs inside your browser. The document is not uploaded to a server to be read.",
+  "Because the file stays on your device during extraction, its contents are never written to our logs or held in a processing queue.",
+  "A conversion record — filename, size and page count — is stored against your account so your allowance and history are accurate. The document's contents are not part of that record.",
+  "The connection to the application is HTTPS/TLS only.",
+  "You can delete a conversion record at any time from your account.",
 ];
 
-export const products: Product[] = [
-  {
-    slug: "invoice-ocr",
-    route: path("invoice-ocr"),
+const labels: ProductContent["labels"] = {
+  what: "What this is",
+  fields: "What gets extracted",
+  audience: "Who it is for",
+  formats: "Supported formats",
+  capabilities: "What you can do",
+  security: "How your documents are handled",
+  faqs: "Frequently asked questions",
+  relatedGuides: "Related guides",
+  relatedTools: "Related tools",
+};
+
+export const productsEn: Record<string, ProductContent> = {
+  "invoice-ocr": {
     name: "Invoice OCR",
     title: "Invoice OCR — Extract Invoice Data From PDFs and Scans",
     description:
       "Upload a PDF or image invoice and get vendor, invoice number, dates, tax, totals and line items as structured, editable data you can export to Excel, CSV or JSON.",
     eyebrow: "Product",
     heading: "Invoice OCR that returns structured, editable invoice data",
-    lede: "Drop in a PDF, scan or phone photo of an invoice. EasyInvoiceOCR reads the document, returns every field with a confidence value, and lets you correct anything before exporting to Excel, CSV or JSON.",
+    lede: "Drop in a PDF, scan or phone photo of an invoice. The document is read in your browser, every field comes back with a confidence value, and you can correct anything before exporting to Excel, CSV or JSON.",
     what: [
       "Invoice OCR is optical character recognition combined with document understanding. Plain OCR gives you a wall of text; invoice OCR also decides which piece of text is the invoice number, which is the due date, and which numbers belong to which line item.",
       "That distinction is what makes the output usable. Instead of retyping an invoice into a spreadsheet, you review a structured record where each field is already filled in and every value stays editable.",
-      "Low-confidence values are highlighted so review time goes to the fields that actually need a human, not to the whole document.",
+      "Low-confidence values are highlighted, so review time goes to the fields that actually need a human rather than to the whole document.",
     ],
     fields: [
       {
@@ -104,10 +115,6 @@ export const products: Product[] = [
         title: "Small business owners",
         body: "Anyone who currently types invoice totals into a spreadsheet by hand at the end of each month.",
       },
-      {
-        title: "Developers",
-        body: "Teams that want the same extraction behind an HTTP call instead of a browser upload.",
-      },
     ],
     formats: [
       "PDF — native (text-based) and scanned, single or multi-page",
@@ -118,11 +125,11 @@ export const products: Product[] = [
     capabilities: [
       {
         title: "Drag, drop or browse",
-        body: "Drop a file onto the upload area, pick it from your device, or paste it in. MIME type and size are validated before anything is sent.",
+        body: "Drop a file onto the upload area or pick it from your device. Type and size are checked before anything is processed.",
       },
       {
         title: "Progress you can see",
-        body: "Upload, preparation, reading and field extraction are reported as distinct stages, so a slow document never looks like a frozen page.",
+        body: "Preparation, reading and field extraction are reported as distinct stages, so a slow document never looks like a frozen page.",
       },
       {
         title: "Side-by-side review",
@@ -130,7 +137,7 @@ export const products: Product[] = [
       },
       {
         title: "Editable line items",
-        body: "Add, remove, reorder and correct rows. Totals recalculate as you edit so the exported figures stay internally consistent.",
+        body: "Add, remove, reorder and correct rows. Totals recalculate as you edit, so the exported figures stay internally consistent.",
       },
       {
         title: "Three export formats",
@@ -138,10 +145,10 @@ export const products: Product[] = [
       },
       {
         title: "Honest failure states",
-        body: "Unsupported file, oversized file, unreadable scan, empty result and provider failure each produce a specific message and a way forward.",
+        body: "Unsupported file, oversized file, unreadable scan and empty result each produce a specific message and a way forward.",
       },
     ],
-    security: sharedSecurity,
+    security,
     faqs: [
       {
         q: "Does it work on scanned invoices and photos?",
@@ -149,7 +156,7 @@ export const products: Product[] = [
       },
       {
         q: "What happens to a field the engine is unsure about?",
-        a: "It is returned with a low confidence value and highlighted in the review panel so you check it before exporting.",
+        a: "It is returned with a low confidence value and highlighted in the review panel, so you check it before exporting.",
       },
       {
         q: "Are multi-page invoices supported?",
@@ -157,13 +164,44 @@ export const products: Product[] = [
       },
       {
         q: "Which languages and currencies are handled?",
-        a: "Extraction handles international number, date and currency formats, and Latin and Arabic script documents. The interface itself is currently English only.",
+        a: "Extraction handles international number, date and currency formats, and both Latin and Arabic script. The interface itself is available in English, French and Arabic.",
+      },
+      {
+        q: "Is my invoice uploaded anywhere?",
+        a: "No. Recognition runs in your browser, so the document is not sent to a server to be read. Only a conversion record — filename, size and page count — is stored against your account.",
       },
     ],
+    cta: {
+      label: "Extract an invoice",
+      href: "/en/invoice-ocr#upload",
+      note: "Five conversions are free. No card required.",
+    },
+    relatedGuides: [
+      {
+        label: "What invoice OCR accuracy actually means",
+        href: "/en/blog/invoice-ocr-accuracy-guide",
+      },
+      {
+        label: "Reading invoices in Arabic, French and mixed scripts",
+        href: "/en/blog/multilingual-invoice-extraction",
+      },
+    ],
+    relatedTools: [
+      { label: "Parse a multi-page PDF invoice", href: "/en/pdf-invoice-parser" },
+      { label: "Turn receipts into a spreadsheet", href: "/en/receipt-to-excel" },
+    ],
+    solutionLink: {
+      label: "Invoice processing for accounting teams",
+      href: "/en/solutions/accountants",
+    },
+    labels,
+    emptyState:
+      "No invoice fields were found in this document. Try a sharper, straighter capture with all four corners in frame.",
+    errorState: "This document could not be read. Nothing was charged against your allowance.",
+    a11y: { uploadLabel: "Upload an invoice", previewLabel: "Preview of the uploaded invoice" },
   },
-  {
-    slug: "receipt-to-excel",
-    route: path("receipt-to-excel"),
+
+  "receipt-to-excel": {
     name: "Receipt to Excel",
     title: "Receipt to Excel — Convert Receipt Photos Into a Spreadsheet",
     description:
@@ -192,10 +230,7 @@ export const products: Product[] = [
         group: "Amounts",
         items: ["Subtotal", "Tax", "Tip", "Discount", "Total", "Payment method when printed"],
       },
-      {
-        group: "Items",
-        items: ["Item description", "Quantity", "Unit price", "Line total"],
-      },
+      { group: "Items", items: ["Item description", "Quantity", "Unit price", "Line total"] },
     ],
     audience: [
       {
@@ -238,7 +273,7 @@ export const products: Product[] = [
         body: "The printed currency is preserved per receipt, so a mixed-currency batch does not silently become one currency.",
       },
     ],
-    security: sharedSecurity,
+    security,
     faqs: [
       {
         q: "How many receipts can I upload at once?",
@@ -254,24 +289,51 @@ export const products: Product[] = [
       },
       {
         q: "What about a receipt the engine cannot read at all?",
-        a: "It is returned as an empty result with a clear explanation, and it is listed separately in the batch so you can re-shoot or enter it manually.",
+        a: "It is returned as an empty result with a clear explanation, and it is listed separately in the batch so you can re-shoot it or enter it manually.",
       },
     ],
+    cta: {
+      label: "Convert receipts",
+      href: "/en/receipt-to-excel#upload",
+      note: "Five conversions are free. No card required.",
+    },
+    relatedGuides: [
+      {
+        label: "A monthly routine for turning receipts into a spreadsheet",
+        href: "/en/blog/receipts-to-spreadsheet-workflow",
+      },
+      {
+        label: "Questions to ask before uploading documents anywhere",
+        href: "/en/blog/gdpr-document-processing",
+      },
+    ],
+    relatedTools: [
+      { label: "Extract data from a full invoice", href: "/en/invoice-ocr" },
+      { label: "Photograph a table and get a workbook", href: "/en/image-to-excel" },
+    ],
+    solutionLink: {
+      label: "Expense handling for independent workers",
+      href: "/en/solutions/freelancers",
+    },
+    labels,
+    emptyState:
+      "Nothing could be read from this receipt. Faded thermal paper and folds across the total are the usual causes.",
+    errorState: "This receipt could not be processed. Nothing was charged against your allowance.",
+    a11y: { uploadLabel: "Upload receipts", previewLabel: "Preview of the uploaded receipt" },
   },
-  {
-    slug: "pdf-invoice-parser",
-    route: path("pdf-invoice-parser"),
+
+  "pdf-invoice-parser": {
     name: "PDF Invoice Parser",
     title: "PDF Invoice Parser — Extract Data From Native and Scanned PDFs",
     description:
       "Parse single and multi-page PDF invoices, native or scanned, with page navigation, invoice-level and line-item extraction, review and structured export.",
     eyebrow: "Product",
     heading: "Parse PDF invoices — native text or scanned image",
-    lede: "Upload a PDF invoice of any kind. Text-based PDFs are read directly, scanned pages go through OCR, and multi-page documents keep their page structure so you can check any value against the page it came from.",
+    lede: "Upload a PDF invoice of any kind. Text-based PDFs are read directly, scanned pages go through recognition, and multi-page documents keep their page structure so you can check any value against the page it came from.",
     what: [
       "There are two kinds of PDF invoice and they need different handling. A native PDF exported from accounting software contains a real text layer. A scanned PDF is a picture of paper wrapped in a PDF container, with no text at all.",
-      "The parser detects which kind it is given and routes it accordingly, so you do not have to know or care which you have.",
-      "Multi-page documents are common in supplier billing — a summary page followed by pages of line items. Pages are kept navigable, and line items are collected across page boundaries into one table.",
+      "The parser detects which kind it has been given and routes it accordingly, so you do not have to know or care which you have.",
+      "Multi-page documents are common in supplier billing — a summary page followed by pages of line items. Pages stay navigable, and line items are collected across page boundaries into one table.",
     ],
     fields: [
       {
@@ -317,7 +379,7 @@ export const products: Product[] = [
     ],
     formats: [
       "PDF with a text layer (native export)",
-      "Scanned PDF (image pages, processed with OCR)",
+      "Scanned PDF (image pages, read with OCR)",
       "Multi-page PDFs",
       "Up to 20 MB per file",
     ],
@@ -327,8 +389,8 @@ export const products: Product[] = [
         body: "Move between pages of the source document while reviewing, with the current page indicated.",
       },
       {
-        title: "Native vs scanned detection",
-        body: "The document is inspected for a text layer and routed to direct parsing or OCR automatically.",
+        title: "Native versus scanned detection",
+        body: "The document is inspected for a text layer and routed to direct parsing or to recognition automatically.",
       },
       {
         title: "Cross-page line items",
@@ -347,29 +409,52 @@ export const products: Product[] = [
         body: "Excel with summary and line-item sheets, CSV, or JSON including page references.",
       },
     ],
-    security: sharedSecurity,
+    security,
     faqs: [
       {
         q: "Can it handle password-protected PDFs?",
-        a: "No. An encrypted PDF is rejected with a message asking you to remove the password and re-upload — the file is not stored.",
+        a: "No. An encrypted PDF is rejected with a message asking you to remove the password and try again.",
       },
       {
         q: "What is the page limit?",
         a: "Page count is limited by file size (20 MB) and your plan's monthly page allowance. Each parsed page counts as one page.",
       },
       {
-        q: "Does it detect several invoices inside one PDF?",
-        a: "Multiple-invoice splitting depends on the configured extraction backend. When the backend does not support it the file is treated as a single document, and the interface says so rather than silently returning partial data.",
+        q: "Does it split several invoices inside one PDF?",
+        a: "No. A file is treated as one document. If it contains several invoices they are extracted as a single record, and you can correct or split the result before exporting.",
       },
       {
         q: "Is the original PDF kept?",
-        a: "It stays in private storage so you can re-open it during review, and it is removed when you delete the document.",
+        a: "The file stays on your device. Only a conversion record — filename, size and page count — is stored against your account.",
       },
     ],
+    cta: {
+      label: "Parse a PDF invoice",
+      href: "/en/pdf-invoice-parser#upload",
+      note: "Five conversions are free. No card required.",
+    },
+    relatedGuides: [
+      {
+        label: "Why line-item extraction is harder than reading the total",
+        href: "/en/blog/line-item-extraction-hard",
+      },
+      { label: "How to judge an accuracy claim", href: "/en/blog/invoice-ocr-accuracy-guide" },
+    ],
+    relatedTools: [
+      { label: "Extract from a single invoice image", href: "/en/invoice-ocr" },
+      { label: "Convert a PDF into an editable Word file", href: "/en/pdf-to-word" },
+    ],
+    solutionLink: {
+      label: "Accounts payable in accounting practices",
+      href: "/en/solutions/accountants",
+    },
+    labels,
+    emptyState: "No invoice fields were found in this PDF. It may be a scan with no readable text.",
+    errorState: "This PDF could not be parsed. Nothing was charged against your allowance.",
+    a11y: { uploadLabel: "Upload a PDF invoice", previewLabel: "Preview of the uploaded PDF page" },
   },
-  {
-    slug: "image-to-excel",
-    route: path("image-to-excel"),
+
+  "image-to-excel": {
     name: "Image to Excel",
     title: "Image to Excel — Convert Photographed Tables Into .xlsx",
     description:
@@ -378,9 +463,9 @@ export const products: Product[] = [
     heading: "Photograph a table, download a spreadsheet",
     lede: "Upload an image of a printed table, statement or invoice. The rows and columns are detected, shown as an editable grid, and exported to a genuine .xlsx workbook — with numbers as numbers and dates as dates.",
     what: [
-      "Plenty of financial data still arrives as a picture: a photo of a printed statement, a screenshot from a portal that has no export button, a scan of a supplier price list.",
+      "Plenty of financial data still arrives as a picture: a photo of a printed statement, a screenshot from a portal with no export button, a scan of a supplier price list.",
       "Image to Excel finds the table structure inside that picture and gives you the grid back, so you can work with the values instead of squinting at them.",
-      "The output is a real workbook produced by a spreadsheet writer — not a renamed CSV and not an empty file with a promising name.",
+      "The output is a real workbook produced by a spreadsheet writer — not a renamed CSV, and not an empty file with a promising name.",
     ],
     fields: [
       {
@@ -407,10 +492,7 @@ export const products: Product[] = [
         title: "Analysts",
         body: "Anyone who receives data as an image and needs it in a sheet to work with.",
       },
-      {
-        title: "Bookkeepers",
-        body: "Statements and ledgers that only exist on paper.",
-      },
+      { title: "Bookkeepers", body: "Statements and ledgers that only exist on paper." },
       {
         title: "Operations",
         body: "Price lists, stock counts and delivery notes captured on a phone.",
@@ -443,7 +525,7 @@ export const products: Product[] = [
         body: "If no table structure is found you are told so, with guidance on re-shooting, instead of being handed a blank sheet.",
       },
     ],
-    security: sharedSecurity,
+    security,
     faqs: [
       {
         q: "What if the image contains no table?",
@@ -453,58 +535,81 @@ export const products: Product[] = [
         q: "Are the numbers usable in formulas?",
         a: "Yes — numeric cells are written as numeric types, so SUM and friends work without a text-to-columns step.",
       },
-      {
-        q: "Can I get CSV or JSON instead?",
-        a: "Yes, the same grid exports to CSV and JSON.",
-      },
+      { q: "Can I get CSV or JSON instead?", a: "Yes, the same grid exports to CSV and JSON." },
       {
         q: "Does it handle rotated or skewed photos?",
         a: "Mild rotation is tolerated. Heavily skewed or partially cropped tables reduce accuracy — the preview shows you what was read before you export.",
       },
     ],
+    cta: {
+      label: "Convert an image",
+      href: "/en/image-to-excel#upload",
+      note: "Five conversions are free. No card required.",
+    },
+    relatedGuides: [
+      {
+        label: "Why table structure is the hard part",
+        href: "/en/blog/line-item-extraction-hard",
+      },
+      {
+        label: "Turning a month of receipts into one sheet",
+        href: "/en/blog/receipts-to-spreadsheet-workflow",
+      },
+    ],
+    relatedTools: [
+      { label: "Extract a full invoice instead", href: "/en/invoice-ocr" },
+      { label: "Combine images into a single PDF", href: "/en/image-to-pdf" },
+    ],
+    solutionLink: {
+      label: "Document handling for small businesses",
+      href: "/en/solutions/small-businesses",
+    },
+    labels,
+    emptyState: "No table structure was detected in this image. Try a flatter, better-lit capture.",
+    errorState: "This image could not be processed. Nothing was charged against your allowance.",
+    a11y: {
+      uploadLabel: "Upload an image of a table",
+      previewLabel: "Preview of the uploaded image",
+    },
   },
-  {
-    slug: "ocr-api",
-    route: path("ocr-api"),
+
+  "ocr-api": {
     name: "OCR API",
-    title: "OCR API — Programmatic Invoice and Receipt Extraction",
+    title: "OCR API — Planned Programmatic Extraction (Coming Soon)",
     description:
-      "HTTP API for submitting invoices and receipts and retrieving structured JSON. Authentication, endpoints, request and response examples, error codes and rate limits.",
-    eyebrow: "Developers",
-    heading: "The same extraction, behind an HTTP call",
-    lede: "Submit a document, poll for status, retrieve structured JSON. The API surface is documented in full below and in the API Reference.",
+      "The EasyInvoiceOCR HTTP API is not yet available and does not accept requests. This page describes the interface being designed, so integrators can plan against it.",
+    eyebrow: "Coming soon",
+    heading: "The OCR API is not available yet",
+    lede: "This page describes an interface that is being designed. There is no endpoint accepting requests, no key to obtain and no timetable being promised. It exists so that anyone planning an integration can see the intended shape early.",
     what: [
-      "The OCR API is intended for teams that already have a system receiving invoices — an ERP, a procurement tool, an internal ops dashboard — and want extraction to happen there rather than in a browser tab.",
-      "It is a small surface on purpose: upload a document, check its status, fetch the extraction, list what you have, delete what you no longer need.",
-      "Responses are plain JSON with a stable field layout, so you can map it into your own schema once and leave it alone.",
+      "The API is intended for teams that already have a system receiving invoices — an ERP, a procurement tool, an internal dashboard — and would rather have extraction happen there than in a browser tab.",
+      "Nothing described below is live. The endpoints do not exist, no credentials are issued, and no request will succeed. Treat this page as a design note, not as documentation for something you can call today.",
+      "It is published early for one reason: an integrator deciding between vendors deserves to know what is planned and what is not, rather than discovering the gap after committing.",
     ],
     fields: [
       {
-        group: "Endpoints",
+        group: "Planned operations",
         items: [
-          "POST /v1/documents — submit a document",
-          "GET /v1/documents/{id} — processing status",
-          "GET /v1/documents/{id}/extraction — structured result",
-          "GET /v1/documents — list documents",
-          "DELETE /v1/documents/{id} — delete a document and its file",
+          "Submit a document for extraction",
+          "Check the processing status of a submission",
+          "Retrieve the structured result",
+          "List previously submitted documents",
+          "Delete a document and its record",
         ],
       },
       {
-        group: "Response payload",
+        group: "Planned response contents",
         items: [
           "Document metadata and status",
-          "Invoice-level fields with confidence",
-          "Line items array",
+          "Invoice-level fields with a confidence value",
+          "A line-item array",
           "Detected currency and locale hints",
-          "Timing and page count",
+          "Page count",
         ],
       },
     ],
     audience: [
-      {
-        title: "Product teams",
-        body: "Adding document capture to an existing application.",
-      },
+      { title: "Product teams", body: "Adding document capture to an existing application." },
       {
         title: "Internal tooling",
         body: "Automating an inbox of supplier invoices into a database.",
@@ -515,58 +620,69 @@ export const products: Product[] = [
       },
     ],
     formats: [
-      "PDF (native and scanned)",
-      "JPG / JPEG",
-      "PNG",
-      "WebP",
-      "multipart/form-data upload, up to 20 MB",
+      "The planned interface targets the same inputs as the browser tools: PDF, JPG, PNG and WebP.",
+      "No upload endpoint is live, so no size or rate limit is in force.",
     ],
     capabilities: [
       {
-        title: "API key authentication",
-        body: "A single bearer token per workspace, sent in the Authorization header. Keys are shown once at creation and can be revoked.",
+        title: "Not accepting requests",
+        body: "There is no live endpoint. Any call you make today will fail, because nothing is listening.",
       },
       {
-        title: "Asynchronous processing",
-        body: "Submission returns immediately with a document id and a queued status; extraction is fetched once processing completes.",
+        title: "No keys are issued",
+        body: "There is no key management, no developer account area and no way to authenticate. API access is not part of any current plan.",
       },
       {
-        title: "Idempotency",
-        body: "An Idempotency-Key header on submission makes retries safe after a network failure.",
+        title: "Design goals, not features",
+        body: "Idempotent submission, a stable machine-readable error envelope and explicit rate-limit headers are what the interface is being designed around. None of them is implemented.",
       },
       {
-        title: "Rate limits",
-        body: "Per-key limits are reported on every response through X-RateLimit-Limit, X-RateLimit-Remaining and X-RateLimit-Reset.",
-      },
-      {
-        title: "Predictable errors",
-        body: "One error envelope for every failure, with a machine-readable code and a human message.",
-      },
-      {
-        title: "No secrets in docs",
-        body: "Every example uses the literal placeholder YOUR_API_KEY. No live credential appears anywhere in the documentation.",
+        title: "No SDK and no webhooks",
+        body: "Neither exists. They are absent from this page rather than described as though they worked.",
       },
     ],
-    security: sharedSecurity,
+    security,
     faqs: [
       {
         q: "Is the API available today?",
-        a: "No. The API is documented and specified, but the endpoints are not live yet — they are marked Planned throughout the API Reference. The documentation is published now so integrators can design against a stable contract.",
+        a: "No. It does not accept requests. There is no endpoint, no key and no sandbox.",
       },
       {
-        q: "How will I get a key?",
-        a: "API key management arrives with the developer account area. Until then, contact us and describe your integration so we can notify you when keys are issued.",
+        q: "Is API access included in the Business plan?",
+        a: "No. API access is not part of any current plan and is not billed. If that changes, the plan pages will say so before the endpoint opens.",
       },
       {
-        q: "Are there webhooks?",
-        a: "Webhooks are not implemented. They are deliberately absent from the reference rather than documented as if they worked.",
+        q: "When will it be available?",
+        a: "There is no date to give. Announcing one before the endpoint is built and tested would be a guess, and integration plans should not be built on a guess.",
       },
       {
-        q: "Is there an SDK?",
-        a: "No SDK exists. The reference shows plain cURL, JavaScript fetch and Python requests examples, which is all the API needs.",
+        q: "What can I use in the meantime?",
+        a: "The browser tools do the same extraction today. Invoice OCR, the PDF invoice parser and Receipt to Excel all run without an API.",
       },
     ],
+    cta: {
+      label: "Use the browser tools instead",
+      href: "/en/invoice-ocr",
+      note: "The API accepts no requests. The browser tools do the same extraction today.",
+    },
+    relatedGuides: [
+      {
+        label: "A developer's checklist for evaluating an OCR API",
+        href: "/en/blog/choosing-ocr-api",
+      },
+      {
+        label: "What to ask a document processor about your data",
+        href: "/en/blog/gdpr-document-processing",
+      },
+    ],
+    relatedTools: [
+      { label: "Extract invoices in the browser today", href: "/en/invoice-ocr" },
+      { label: "Parse multi-page PDF invoices", href: "/en/pdf-invoice-parser" },
+    ],
+    solutionLink: { label: "Notes for developers", href: "/en/solutions/developers" },
+    labels,
+    emptyState: "There is nothing to show: the API is not operational.",
+    errorState: "The API is not available. No request can succeed yet.",
+    a11y: { uploadLabel: "Upload is unavailable", previewLabel: "No preview is available" },
   },
-];
-
-export const productBySlug = Object.fromEntries(products.map((p) => [p.slug, p]));
+};

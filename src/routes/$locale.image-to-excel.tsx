@@ -7,12 +7,6 @@ import { asLocale } from "@/i18n";
 const product = productBySlug["image-to-excel"]!;
 
 export const Route = createFileRoute("/$locale/image-to-excel")({
-  component: () => (
-    <ProductPage
-      product={product}
-      kind="image"
-      breadcrumbs={[{ label: "Product", href: path("image-to-excel") }, { label: product.name }]}
-    />
-  ),
+  component: () => <ProductPage product={product} kind="image" />,
   head: ({ params }) => productHead(product, asLocale(params.locale)),
 });

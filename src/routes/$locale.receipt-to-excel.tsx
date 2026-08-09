@@ -7,12 +7,6 @@ import { asLocale } from "@/i18n";
 const product = productBySlug["receipt-to-excel"]!;
 
 export const Route = createFileRoute("/$locale/receipt-to-excel")({
-  component: () => (
-    <ProductPage
-      product={product}
-      kind="receipt"
-      breadcrumbs={[{ label: "Product", href: path("receipt-to-excel") }, { label: product.name }]}
-    />
-  ),
+  component: () => <ProductPage product={product} kind="receipt" />,
   head: ({ params }) => productHead(product, asLocale(params.locale)),
 });

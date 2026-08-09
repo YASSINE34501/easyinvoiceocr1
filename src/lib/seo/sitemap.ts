@@ -13,6 +13,7 @@ import { SITE_ORIGIN } from "@/config/seo";
 import { sortedProducts } from "@/config/products";
 import { solutionLinks, resourceLinks, companyLinks, legalLinks } from "@/config/nav";
 import { blogSlugs } from "@/content/blog";
+import { isComingSoonProduct } from "@/content/products";
 
 export type SitemapEntry = { slug: string; changefreq: string; priority: string };
 
@@ -21,6 +22,10 @@ export function sitemapEntries(): SitemapEntry[] {
 
   for (const product of sortedProducts) {
     if (!product.inSitemap) continue;
+    // A product that does not work yet is not offered to search engines.
+    // Ranking for "OCR API" and then telling the visitor there is no API
+    // wastes their visit; the page stays reachable, just not advertised.
+    if (isComingSoonProduct(product.slug)) continue;
     entries.push({ slug: product.slug, changefreq: "weekly", priority: "0.9" });
   }
 

@@ -52,6 +52,9 @@ export const faqs = [
   },
   {
     q: "Is an API available?",
-    a: "API access is part of the Business plan, so you can submit documents and retrieve structured JSON from your own systems.",
+    // Corrected: the previous answer said API access "is part of the Business
+    // plan", which is not true. No endpoint accepts requests, no key is
+    // issued, and no plan bills for it.
+    a: "Not yet. The OCR API is being designed but does not accept requests, no keys are issued, and it is not part of any current plan. The browser tools do the same extraction today.",
   },
 ];

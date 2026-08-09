@@ -48,13 +48,13 @@ const ACCEPT: Record<ExtractionKind, { mime: string[]; label: string; attr: stri
   },
   receipt: {
     mime: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
-    label: "JPG, PNG, WebP or PDF",
+    label: "JPG · PNG · WebP · PDF",
     attr: ".pdf,.jpg,.jpeg,.png,.webp",
   },
-  pdf: { mime: ["application/pdf"], label: "PDF only", attr: ".pdf" },
+  pdf: { mime: ["application/pdf"], label: "PDF", attr: ".pdf" },
   image: {
     mime: ["image/jpeg", "image/png", "image/webp"],
-    label: "JPG, PNG or WebP",
+    label: "JPG · PNG · WebP",
     attr: ".jpg,.jpeg,.png,.webp",
   },
 };
