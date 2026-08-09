@@ -69,12 +69,17 @@ export function Hero() {
             </Button>
           </div>
           <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
-            {["No credit card required", "50+ languages", "Secure file processing"].map((t) => (
-              <li key={t} className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-3.5 text-primary" aria-hidden="true" />
-                {t}
-              </li>
-            ))}
+            {/* "50+ languages" was false: the app vendors three Tesseract
+                models — eng, fra and ara (scripts/vendor-tesseract.mjs). The
+                badge now states what is actually shipped. */}
+            {["No credit card required", "English, French and Arabic", "Runs in your browser"].map(
+              (t) => (
+                <li key={t} className="flex items-center gap-1.5">
+                  <CheckCircle2 className="size-3.5 text-primary" aria-hidden="true" />
+                  {t}
+                </li>
+              ),
+            )}
           </ul>
         </div>
 
@@ -434,8 +439,11 @@ export function Workflows() {
 const global = [
   {
     icon: Languages,
-    title: "50+ Languages",
-    body: "Extract invoices in more than 50 languages, with right-to-left support for Arabic.",
+    // Was "50+ Languages" / "more than 50 languages". Three recognition models
+    // are vendored — eng, fra and ara — so the old copy overstated the actual
+    // capability by roughly seventeen times.
+    title: "Three languages, including Arabic",
+    body: "Recognition ships with English, French and Arabic models, and handles right-to-left layouts and invoices that mix scripts.",
   },
   {
     icon: CircleDollarSign,
