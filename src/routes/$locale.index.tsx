@@ -23,17 +23,17 @@ const meta = {
   en: {
     title: "EasyInvoiceOCR — Invoice & Receipt OCR to Excel, CSV, JSON",
     description:
-      "AI-powered invoice and receipt OCR. Extract vendors, dates, taxes, totals and line items from PDFs, scans and photos, then export to Excel, CSV or JSON.",
+      "Read invoices and receipts with OCR in your browser. Extract vendor, dates, tax, totals and line items, then export to Excel, CSV or JSON.",
   },
   fr: {
     title: "EasyInvoiceOCR — OCR de factures et reçus vers Excel, CSV, JSON",
     description:
-      "OCR de factures et de reçus par IA. Extrayez fournisseurs, dates, taxes, totaux et lignes depuis vos PDF, scans et photos, puis exportez vers Excel, CSV ou JSON.",
+      "Lisez vos factures et reçus par OCR dans votre navigateur. Extrayez fournisseur, dates, TVA, totaux et lignes, puis exportez vers Excel, CSV ou JSON.",
   },
   ar: {
     title: "EasyInvoiceOCR — تحويل الفواتير والإيصالات إلى Excel وCSV وJSON",
     description:
-      "استخراج بيانات الفواتير والإيصالات بالذكاء الاصطناعي: المورد والتواريخ والضرائب والإجماليات وبنود الفاتورة، مع تصدير إلى Excel أو CSV أو JSON.",
+      "اقرأ فواتيرك وإيصالاتك بتقنية OCR داخل متصفحك: المورّد والتواريخ والضريبة والإجماليات والبنود، ثم صدّرها إلى Excel أو CSV أو JSON.",
   },
 } as const;
 

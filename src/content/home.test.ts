@@ -216,7 +216,9 @@ describe("the homepage no longer overstates what the product does", () => {
   it("states that recognition runs in the browser", () => {
     expect(homeFor("en").hero.description).toContain("in your browser");
     expect(homeFor("fr").hero.description).toContain("dans votre navigateur");
-    expect(homeFor("ar").hero.description).toContain("داخل متصفحك");
+    // The approved Arabic copy says "from your browser" rather than "inside
+    // your browser"; both state that processing is local.
+    expect(homeFor("ar").hero.description).toContain("من متصفحك");
   });
 });
 

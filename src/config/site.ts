@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "EasyInvoiceOCR",
   description:
-    "AI-powered OCR for PDFs, scans, and photos. Extract vendors, dates, taxes, totals, and line items — then export to Excel, CSV, JSON, or your accounting software.",
+    "OCR for PDFs, scans and photos. Extract vendors, dates, taxes, totals and line items, then export to Excel, CSV or JSON.",
   maxUploadMb: 20,
   acceptedTypes: ["application/pdf", "image/jpeg", "image/png"],
   languages: [

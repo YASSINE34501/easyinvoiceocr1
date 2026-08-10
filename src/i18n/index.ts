@@ -103,7 +103,7 @@ const en = {
   "cta.loadMore": "Load more",
 
   "footer.tagline":
-    "AI-powered OCR that converts invoices and receipts into structured data — fast, accurate, and secure.",
+    "OCR that converts invoices and receipts into structured data, in your browser.",
   "footer.rights": "All rights reserved.",
   "footer.cookieSettings": "Cookie settings",
 
@@ -628,7 +628,7 @@ const fr: Record<MessageKey, string> = {
   "cta.loadMore": "Voir plus",
 
   "footer.tagline":
-    "Une OCR pilotée par l'IA qui transforme factures et reçus en données structurées — rapide, précise et sécurisée.",
+    "Une OCR qui transforme factures et reçus en données structurées, dans votre navigateur.",
   "footer.rights": "Tous droits réservés.",
   "footer.cookieSettings": "Paramètres des cookies",
 
@@ -1151,8 +1151,7 @@ const ar: Record<MessageKey, string> = {
   "cta.next": "التالي",
   "cta.loadMore": "عرض المزيد",
 
-  "footer.tagline":
-    "تقنية OCR مدعومة بالذكاء الاصطناعي تحوّل الفواتير والإيصالات إلى بيانات منظمة — بسرعة ودقة وأمان.",
+  "footer.tagline": "تقنية OCR تحوّل الفواتير والإيصالات إلى بيانات منظَّمة، داخل متصفحك.",
   "footer.rights": "جميع الحقوق محفوظة.",
   "footer.cookieSettings": "إعدادات ملفات تعريف الارتباط",
 

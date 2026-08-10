@@ -68,7 +68,7 @@ const en: HomeContent = {
     h1Line1: "Convert any invoice or",
     h1Line2: "receipt into structured data",
     description:
-      "Read invoices and receipts from PDFs, scans and photos. Vendor, dates, tax, totals and line items come back as structured fields you can correct and export to Excel, CSV or JSON. Recognition runs in your browser.",
+      "Extract invoice and receipt data automatically with OCR, then convert PDFs and images into structured data you can export to Excel, CSV and JSON directly in your browser.",
     primaryCta: "Convert an invoice free",
     secondaryCta: "See how it works",
     badges: ["No credit card required", "English, French and Arabic", "Runs in your browser"],
@@ -199,7 +199,7 @@ const fr: HomeContent = {
     h1Line1: "Transformez n'importe quelle facture",
     h1Line2: "ou reçu en données structurées",
     description:
-      "Lisez vos factures et reçus depuis des PDF, des numérisations ou des photos. Fournisseur, dates, TVA, totaux et lignes reviennent sous forme de champs structurés que vous corrigez puis exportez en Excel, CSV ou JSON. La reconnaissance s'exécute dans votre navigateur.",
+      "Extrayez automatiquement les données de vos factures et reçus grâce à la technologie OCR, puis convertissez vos PDF et images en données structurées exportables vers Excel, CSV et JSON, directement dans votre navigateur.",
     primaryCta: "Convertir une facture gratuitement",
     secondaryCta: "Voir le fonctionnement",
     badges: [
@@ -343,7 +343,7 @@ const ar: HomeContent = {
     h1Line1: "حوّل أي فاتورة أو إيصال",
     h1Line2: "إلى بيانات منظَّمة",
     description:
-      "اقرأ فواتيرك وإيصالاتك من ملفات PDF أو المستندات الممسوحة أو الصور. يعود المورّد والتواريخ والضريبة والإجماليات والبنود في صورة حقول منظَّمة تصححها ثم تصدّرها إلى Excel أو CSV أو JSON. ويجري التعرّف داخل متصفحك.",
+      "استخرج بيانات الفواتير والإيصالات تلقائياً باستخدام تقنية OCR، وحوّل ملفات PDF والصور إلى بيانات منظّمة قابلة للتصدير إلى Excel وCSV وJSON مباشرةً من متصفحك.",
     primaryCta: "حوّل فاتورة مجانًا",
     secondaryCta: "شاهد طريقة العمل",
     badges: ["دون بطاقة دفع", "الإنجليزية والفرنسية والعربية", "المعالجة داخل متصفحك"],
