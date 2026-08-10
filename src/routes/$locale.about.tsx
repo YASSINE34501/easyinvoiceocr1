@@ -7,7 +7,7 @@ import {
   Container,
 } from "@/components/site/PageLayout";
 import { AppLink } from "@/components/site/AppLink";
-import { asLocale } from "@/i18n";
+import { translate, asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
 import { SITE_ORIGIN } from "@/config/seo";
@@ -40,7 +40,10 @@ export const Route = createFileRoute("/$locale/about")({
       ],
       links: seoLinks("about", locale),
       scripts: [
-        { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "About" }]) },
+        {
+          type: "application/ld+json",
+          children: breadcrumbJsonLd([{ label: translate(locale, "link.about") }]),
+        },
         {
           type: "application/ld+json",
           children: JSON.stringify({
@@ -180,7 +183,7 @@ Toutes les données d'abonnement et d'utilisateur sont stockées dans Supabase, 
             <p className="text-sm text-muted-foreground">{c.securityBody}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-6">
-            <h3 className="mb-3 font-semibold text-navy">High Accuracy</h3>
+            <h3 className="mb-3 font-semibold text-navy">{c.accuracy}</h3>
             <p className="text-sm text-muted-foreground">{c.accuryBody}</p>
           </div>
         </div>

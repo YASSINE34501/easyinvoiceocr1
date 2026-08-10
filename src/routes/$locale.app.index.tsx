@@ -25,7 +25,6 @@ export const Route = createFileRoute("/$locale/app/")({
         name: "description",
         content: "Your EasyInvoiceOCR workspace: upload documents and review extractions.",
       },
-      { name: "robots", content: "noindex" },
       { property: "og:title", content: "Dashboard — EasyInvoiceOCR" },
       { property: "og:description", content: "Your EasyInvoiceOCR workspace." },
       { property: "og:type", content: "website" },

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
-import { asLocale } from "@/i18n";
+import { translate, asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
 
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/$locale/terms")({
     const descriptions = {
       en: "Read the terms and conditions that govern the use of EasyInvoiceOCR.",
       fr: "Lisez les conditions générales d'utilisation d'EasyInvoiceOCR.",
-      ar: "اقرأ شروط الخدمة التي تحكم استخدام EasyInvoiceOCR.",
+      ar: "اقرأ الشروط التي تحكم استخدام EasyInvoiceOCR: الحساب والرصيد المجاني والاشتراكات المدفوعة ومسؤوليات المستخدم وحدود الخدمة.",
     };
     const title = titles[locale];
     const description = descriptions[locale];
@@ -31,7 +31,12 @@ export const Route = createFileRoute("/$locale/terms")({
         { property: "og:type", content: "website" },
       ],
       links: seoLinks("terms", locale),
-      scripts: [{ type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Terms" }]) }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: breadcrumbJsonLd([{ label: translate(locale, "link.terms") }]),
+        },
+      ],
     };
   },
 });

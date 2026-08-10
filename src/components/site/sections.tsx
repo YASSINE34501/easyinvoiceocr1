@@ -640,6 +640,7 @@ export function Faq() {
 
 export function FinalCta() {
   const { finalCta } = homeFor(useLocale() as Locale);
+  const t = useT();
   return (
     <section className="pb-16">
       <Container>
@@ -665,7 +666,7 @@ export function FinalCta() {
                 {finalCta.cta} <ArrowRight className="size-4" aria-hidden="true" />
               </a>
             </Button>
-            <p className="mt-2 text-[11px] text-primary-foreground/80">No credit card required</p>
+            <p className="mt-2 text-[11px] text-primary-foreground/80">{t("free.noCard")}</p>
           </div>
         </div>
       </Container>

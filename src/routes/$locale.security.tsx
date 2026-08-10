@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
-import { asLocale } from "@/i18n";
+import { translate, asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
 
@@ -32,7 +32,10 @@ export const Route = createFileRoute("/$locale/security")({
       ],
       links: seoLinks("security", locale),
       scripts: [
-        { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Security" }]) },
+        {
+          type: "application/ld+json",
+          children: breadcrumbJsonLd([{ label: translate(locale, "link.security") }]),
+        },
       ],
     };
   },
@@ -40,6 +43,7 @@ export const Route = createFileRoute("/$locale/security")({
 
 function SecurityPage() {
   const locale = useLocale();
+  const t = useT();
 
   const content = {
     en: {
@@ -140,7 +144,7 @@ HTTPS إلزامي لجميع الاتصالات بين متصفحك وخواد�
   const c = content[locale];
 
   return (
-    <PageLayout breadcrumbs={[{ label: "Security" }]}>
+    <PageLayout breadcrumbs={[{ label: t("link.security") }]}>
       <PageHero title={c.hero} lede={c.heroLede} />
 
       <Section title={c.dataEncryption}>

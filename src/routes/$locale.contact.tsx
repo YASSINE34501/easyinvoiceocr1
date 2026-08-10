@@ -5,7 +5,7 @@ import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/si
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { asLocale } from "@/i18n";
+import { translate, asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
 
@@ -37,7 +37,10 @@ export const Route = createFileRoute("/$locale/contact")({
       ],
       links: seoLinks("contact", locale),
       scripts: [
-        { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Contact" }]) },
+        {
+          type: "application/ld+json",
+          children: breadcrumbJsonLd([{ label: translate(locale, "link.contact") }]),
+        },
       ],
     };
   },

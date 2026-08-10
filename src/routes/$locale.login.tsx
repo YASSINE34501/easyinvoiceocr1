@@ -37,7 +37,6 @@ export const Route = createFileRoute("/$locale/login")({
         robotsMeta("login"),
         { title },
         { name: "description", content: description },
-        { name: "robots", content: "noindex" },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
-import { asLocale } from "@/i18n";
+import { translate, asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
 
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/$locale/privacy")({
     const descriptions = {
       en: "Learn how EasyInvoiceOCR collects, uses, and protects your personal data.",
       fr: "Découvrez comment EasyInvoiceOCR collecte, utilise et protège vos données personnelles.",
-      ar: "تعرف على كيفية جمع وتخزين وحماية بياناتك الشخصية.",
+      ar: "كيف نجمع بياناتك الشخصية ونستخدمها ونحميها: ما الذي يُحفظ فعليًا، ولماذا يبقى مستندك داخل متصفحك، وكيف تحذف حسابك.",
     };
     const title = titles[locale];
     const description = descriptions[locale];
@@ -32,7 +32,10 @@ export const Route = createFileRoute("/$locale/privacy")({
       ],
       links: seoLinks("privacy", locale),
       scripts: [
-        { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Privacy" }]) },
+        {
+          type: "application/ld+json",
+          children: breadcrumbJsonLd([{ label: translate(locale, "link.privacy") }]),
+        },
       ],
     };
   },

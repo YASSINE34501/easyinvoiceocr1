@@ -24,7 +24,6 @@ export const Route = createFileRoute("/$locale/verify-email")({
         robotsMeta("verify-email"),
         { title },
         { name: "description", content: description },
-        { name: "robots", content: "noindex" },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
         { property: "og:type", content: "website" },

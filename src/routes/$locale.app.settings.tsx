@@ -31,7 +31,6 @@ export const Route = createFileRoute("/$locale/app/settings")({
         name: "description",
         content: "Manage your EasyInvoiceOCR profile, language and password.",
       },
-      { name: "robots", content: "noindex" },
       { property: "og:title", content: "Account settings — EasyInvoiceOCR" },
       { property: "og:description", content: "Manage your EasyInvoiceOCR account." },
       { property: "og:type", content: "website" },

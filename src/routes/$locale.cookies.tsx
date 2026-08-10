@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
-import { asLocale } from "@/i18n";
+import { translate, asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
 
@@ -32,7 +32,10 @@ export const Route = createFileRoute("/$locale/cookies")({
       ],
       links: seoLinks("cookies", locale),
       scripts: [
-        { type: "application/ld+json", children: breadcrumbJsonLd([{ label: "Cookies" }]) },
+        {
+          type: "application/ld+json",
+          children: breadcrumbJsonLd([{ label: translate(locale, "link.cookies") }]),
+        },
       ],
     };
   },
