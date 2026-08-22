@@ -4,227 +4,110 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**EasyInvoiceOCR** is a multi-locale invoice/receipt extraction and document conversion platform. It provides real-time client-side document processing (PDF to Word, Image to Word, Image to PDF) and integrates with Supabase for authentication, billing, and data storage. The codebase is undergoing a phased launch toward production.
+**EasyInvoiceOCR** — a three-locale (en/fr/ar) invoice and receipt extraction site plus file converters, built on TanStack Start + React 19 + Supabase, deployed through Lovable. All recognition runs in the visitor's browser (Tesseract.js); the server owns only entitlement, quota and record-keeping.
 
-**Current Phase:** Phase 3 (Billing & Subscriptions) — database verification pending owner action.
+The project is connected to [Lovable](https://lovable.dev) (see `AGENTS.md`): **never rewrite published history** — no force push, no rebase/amend/squash of pushed commits — and keep the connected branch in a working state, because commits sync back into the Lovable editor.
 
-## Common Commands
+## Commands
 
-### Development
 ```bash
-npm run dev                  # Start dev server at http://localhost:8080 (strictPort — no fallback)
-npm run typecheck           # TypeScript strict mode check (must pass before builds)
-npm run lint                # ESLint + Prettier check
-npm run lint -- --fix       # Auto-fix lint/format issues
-npm run test                # Run all tests once (Vitest)
-npm run test:watch          # Run tests in watch mode
-npm run format              # Prettier format all files
-npm run build               # Production build (outputs to .output/)
-npm run preview             # Preview production build
+npm run dev          # Dev server on http://localhost:8080 (strictPort). predev vendors Tesseract assets.
+npm run typecheck    # tsc --noEmit — must pass before any commit
+npm run lint         # ESLint (Prettier runs as an ESLint rule); `npm run lint -- --fix` to autofix
+npm run test         # vitest run (27 test files)
+npm run build        # Production build to .output/ (prebuild vendors Tesseract assets)
+npm run format       # prettier --write .
 ```
 
-### Testing Single Files
+Single test file / pattern:
+
 ```bash
-npx vitest run src/lib/billing/billing.test.ts         # Run specific test file
-npx vitest run -t "pattern"                            # Run tests matching pattern
+npx vitest run src/lib/billing/gate.test.ts
 ```
 
-## Architecture & Key Patterns
+```bash
+npx vitest run -t "free allowance"
+```
 
-### Build System
-- `vite.config.ts` imports `defineConfig` from **`@lovable.dev/vite-tanstack-config`**, not from `vite`. The preset already supplies TanStack devtools (dev-only), `tanstackStart`, `viteReact`, `tailwindcss`, `tsConfigPaths`, nitro (build-only, Cloudflare default target), `VITE_*` env injection, the `@/*` alias, React/TanStack dedupe, and error-logger plugins — **adding any of these manually breaks the app with duplicate plugins**
-- The preset pins the dev server to port 8080 with `strictPort: true`; a `server.port` override is warned about and then ignored
-- `tanstackStart.server.entry` is redirected to `src/server.ts` (an SSR error wrapper); nitro builds from that entry
-- `.claude/launch.json` declares the `dev` configuration used by the preview tooling — same `npm run dev`, port 8080
+`scripts/vendor-tesseract.mjs` (run automatically by `predev`/`prebuild`) copies the worker + WASM core from `node_modules` and downloads the language models into `public/tesseract/` (~61 MB, ESLint-ignored). Recognition must not depend on a CDN at run time — a CDN failure used to wedge conversions with quota already reserved.
 
-### File Structure
-- **`src/routes/`** — File-based routing (TanStack Start). Routes are `$locale.page.tsx` (e.g. `$locale.about.tsx` → `/:locale/about`); dots nest, so `$locale.app.billing.tsx` → `/:locale/app/billing`
-- **`src/config/`** — Single sources of truth: `products.ts` (product registry), `nav.ts` (every nav/footer/sitemap link), `routing.ts` (locale-prefixed URL builder)
-- **`src/lib/`** — Shared server/client utilities, split by domain (auth, billing, convert, account)
-- **`src/components/`** — React components (split by domain: site, billing, ui, etc.)
-- **`src/auth/`** — AuthProvider, session management (client-side only)
-- **`src/billing/`** — Subscription/trial/entitlements logic
-- **`src/integrations/supabase/`** — Supabase client & auth middleware
-- **`supabase/migrations/`** — Database schema & seed data (3 files, additive only)
+## Architecture
 
-### Routing & Locales
-- Three locales: `en` (LTR), `fr` (LTR), `ar` (RTL)
-- Routes are locale-prefixed: `/en/pdf-to-word`, `/fr/about`, `/ar/app/settings`
-- `src/routes/index.tsx` catches bare `/` and redirects to the visitor's preferred locale (`navigator.languages`, falling back to `en`)
-- Use `useLocale()` hook to get current locale; `useT()` to get i18n function
-- Protected routes: `/app/*` redirects unauthenticated users to `/login?redirect=/app/...`
+### Build system
 
-### Route Inventory
-Every page route is locale-prefixed (`/:locale/<slug>`). Slugs below are the `<slug>` portion.
+- `vite.config.ts` imports `defineConfig` from **`@lovable.dev/vite-tanstack-config`**, not from `vite`. The preset already supplies TanStack devtools, `tanstackStart`, `viteReact`, `tailwindcss`, `tsConfigPaths`, nitro (Cloudflare target), `VITE_*` injection, the `@/*` alias, React/TanStack dedupe and the error-logger plugins — **adding any of them manually breaks the app with duplicate plugins**. Port 8080 / `strictPort` comes from the preset; a `server.port` override is ignored.
+- `src/server.ts` is the SSR entry (`tanstackStart.server.entry: "server"`): it wraps the real server entry to catch h3-swallowed 500s (`{"unhandled":true,...}` JSON bodies) and render a real error page.
+- `src/start.ts` defines `createStart` — its existence opts out of Start's automatic CSRF middleware, so CSRF is re-added explicitly there alongside `attachSupabaseAuth` and an error middleware.
+- `vitest.config.ts` is standalone (jsdom, `globals: false`, `@` alias) — unit tests must not load the Start/nitro plugin chain.
 
-- **Home** — `/:locale` itself (`$locale.index.tsx`); `$locale.tsx` is its layout, `$locale.app.tsx` the layout for the protected area
-- **Products (8)** — `invoice-ocr`, `receipt-to-excel`, `pdf-invoice-parser`, `image-to-excel`, `pdf-to-word`, `image-to-word`, `image-to-pdf`, `ocr-api`
-- **Solutions** — `solutions/$slug`, four slugs registered in `nav.ts`: accountants, small-businesses, freelancers, developers
-- **Resources** — `documentation`, `api-reference`, `help`, `blog` (index) and `blog/$slug`
-- **Company** — `about`, `contact`, `security`
-- **Legal** — `terms`, `privacy`, `cookies`
-- **Auth** — `login`, `signup`, `forgot-password`, `reset-password`, `verify-email`
-- **Billing** — `choose-plan`
-- **Protected (`app/*`)** — `app` (index), `app/settings`, `app/billing`, `app/admin`
-- **Non-locale** — `/sitemap.xml`, `POST /api/contact`, `POST /api/paypal/webhook`
+### Routing & locales
 
-Products, solutions, resources, company and legal links are all *derived* from `src/config/products.ts` and `src/config/nav.ts` — header, mobile menu, footer and `sitemap.xml` read from those registries, so adding a product or link there propagates everywhere. Never hard-code a link list. `allPublicSlugs` in `nav.ts` backs the broken-link scan test; auth/app/billing routes are deliberately excluded from the sitemap.
+- File-based routes in `src/routes/`, flat with dots: `$locale.app.billing.tsx` → `/:locale/app/billing`. `routeTree.gen.ts` is generated — never hand-edit. `src/routes/README.md` documents the conventions and warns against Next.js/Remix habits.
+- Locales: `en`, `fr` (LTR), `ar` (RTL). `src/routes/index.tsx` redirects bare `/` to the visitor's preferred locale. `useLocale()` for the locale, `useT()` for `t()`.
+- Every page route is locale-prefixed. Products (8): `invoice-ocr`, `receipt-to-excel`, `pdf-invoice-parser`, `image-to-excel`, `pdf-to-word`, `image-to-word`, `image-to-pdf`, `ocr-api`. Plus `solutions/$slug` (accountants, small-businesses, freelancers, developers), `documentation`, `api-reference`, `help`, `blog[/$slug]`, `about`, `contact`, `security`, `terms`, `privacy`, `cookies`, the auth pages, `choose-plan`, and `app`, `app/settings`, `app/billing`, `app/admin`. Non-locale: `/sitemap.xml`, `POST /api/contact`, `POST /api/paypal/webhook`.
+- `/:locale/app/*` is client-side protected only; unauthenticated visitors are redirected to `/login?redirect=…`.
 
-`src/routes/README.md` documents the TanStack file-naming conventions (dynamic `$id`, optional `{-$param}`, splat `$.tsx`, `__root.tsx`) and warns against Next.js/Remix conventions. `routeTree.gen.ts` is generated — never hand-edit.
+### Registries — never hard-code a list
 
-### Authentication (Supabase)
-- **Client:** `supabase` (public key, RLS enforced)
-- **Server:** `supabaseAdmin` (service role, bypasses RLS)
-- **Session:** Stored in localStorage, persisted across tabs via `onAuthStateChange` listener
-- **Error Mapping:** `src/lib/auth/errors.ts` maps Supabase errors to localized message keys (prevents leaking raw API messages)
-- **RLS:** All private tables have `auth.uid() = user_id` or `auth.uid() = id` policies
-- **Email Verification:** Required before login; verification link expires (Supabase-managed)
+- `src/config/products.ts` — the product registry (slug, icon, kind, converter/workspace, minPlan, accepted MIME, nav/sitemap/ads flags, per-locale copy). Nav, homepage cards, footer, docs index and sitemap all derive from it.
+- `src/content/products/{en,fr,ar}.ts` + `index.ts` — long-form per-locale product page content and the `live` / `coming-soon` availability registry. A missing locale is a type error, not an English fallback.
+- `src/config/nav.ts` — nav/footer groups and `allPublicSlugs` (backs the broken-link scan test).
+- `src/config/routing.ts` — `path(slug, locale)`, the only URL builder.
+- `src/config/site.ts` — copy and FAQs only. Prices and limits live in the `subscription_plans` table, read via `getPublicPlans()`; a second copy of a price in source is how the two drift.
+- `src/content/{solutions,resources,blog,home}` — per-locale page content, each with its own test file.
 
-### Validation & Error Messages
-- All forms use **Zod** with localized error messages from i18n
-- Errors are rendered immediately on form blur/submit; server errors shown as alerts
-- Never show raw Supabase error messages to users; use centralized error mapping
+### SEO (`src/config/seo.ts`, `src/lib/seo/sitemap.ts`)
 
-### Subscriptions & Billing
-- **Plans:** Trial (30 days, 100 pages/mo, free), Pro ($14/mo, 500 pages/mo), Business ($49/mo, 5000 pages/mo)
-- **Quota Enforcement:** Atomic via `pg_advisory_xact_lock` in `consume_quota()` function (prevents concurrent quota overshooting)
-- **Trial:** One per account, enforced by PRIMARY KEY on `trial_claims.user_id`
-- **Payment:** PayPal Subscriptions API; webhooks signed and verified server-side
-- **Entitlements:** Resolved server-side via `resolveBillingState()`, never trusted from client
+- `SITE_ORIGIN` is the constant `https://www.easyinvoiceocr.com`; canonicals always name it, even from a preview.
+- Indexability is a separate idea and **fails closed**: `isIndexableDeployment()` is true only when `VITE_SITE_URL` equals `SITE_ORIGIN` exactly. Anywhere else every page renders `noindex, nofollow`.
+- `NOINDEX_SLUGS` covers auth, `choose-plan`, `app/*` and `api-reference`. `ocr-api` is `coming-soon` in the product registry, and that flag alone drives both its noindex and its sitemap exclusion — there is no second list to keep in sync.
+- `src/config/seo.test.ts` / `ssr-seo.test.ts` encode the technical-SEO contract (absolute canonicals, hreflang + x-default, robots.txt, manifest). `src/content/ai-claims.test.ts` fails if "AI-powered" returns to any marketing surface while Tesseract.js is the only engine.
+- Root-level SEO markdown (`SEO_AUDIT.md`, `KEYWORD_MAP.md`, `CONTENT_PLAN.md`, `BLOG_*.md`, `INTERNAL_LINK_AUDIT.md`, `OFF_PAGE_SEO_PLAN.md`, `OCR_API_STATUS.md`) records measured state and owner actions. `OCR_API_STATUS.md` lists the conditions that must all hold before `ocr-api` may be marked live.
 
-### Client-Side Processing
-- **Real Converters:** PDF to Word, Image to Word, Image to PDF (use pdf-lib, docx, html2canvas)
-- **Demo Converters:** Invoice OCR, Receipt to Excel, PDF Invoice Parser (placeholder UI, no real processing)
-- **OCR Engine:** Tesseract.js (browser-based, no file upload required)
+### Processing pipelines (browser-side)
 
-### Server Functions
-- File: `src/lib/*.functions.ts` (bundled for client, lazy-import server-only modules inside handlers)
-- Authentication: Use `requireSupabaseAuth` middleware to extract `context.userId`
-- No secrets in these files — all sensitive operations in server-only modules
-- Return types must be serializable (no Date objects; use ISO strings)
+- `src/lib/convert/` — converters: `pdf.ts` (text layer / needs-OCR detection), `ocr.ts` (Tesseract engine), `layout.ts` (positioned lines → blocks, direction detection), `pipelines.ts` (per-tool orchestration + progress stages), `docx.ts` / `imagePdf.ts` (writers), `validation.ts` (`TOOL_ACCEPT`, shared client/server file rules).
+- `src/lib/extract/` — invoice/receipt extraction reusing the same readers: `pipeline.ts` → `parser.ts` → `normalize.ts` → `workbook.ts` / `exports.ts` (Excel/CSV/JSON). Both paths converge on the same positioned-line shape, so the parser is reader-agnostic. Max 30 pages, 120 s per page, abortable.
+- Nothing is uploaded; a job row is still written server-side because quota decisions are never made in the browser.
+
+### Billing & entitlements
+
+- The model is **five successful conversions per account, shared across every product** (`FREE_CONVERSION_ALLOWANCE` in `src/lib/billing/gate.ts`) — not a 30-day trial. `resolveGate()` is pure (no db, no clock, no network) so the same function decides in production and in tests. A cancelled or suspended subscription resolves to `subscription_inactive` and must never fall back to the free five.
+- Paid plans: Pro and Business, monthly or yearly, seeded in `supabase/migrations/20260807120000_five_conversion_trial_and_pricing.sql`; prices and page limits come from the database.
+- `src/lib/billing/entitlements.server.ts` is the single authority (`resolveBillingState`, `reserveQuota`). Server-only — import it *inside* a handler with `await import(...)`, never at the top level of a `*.functions.ts`, or the service-role client ships to the browser.
+- Quota is reserved before processing and released on failure; the idempotency key is generated once per attempt and reused on retry, so a retried conversion is charged once. `consume_quota()` serialises with `pg_advisory_xact_lock`.
+- PayPal: `src/lib/paypal/*.server.ts`; webhooks verified server-side. Live checkout fails closed — it opens only when every PayPal env var is present *and* `PAYPAL_LIVE_CHECKOUT_ENABLED` is exactly `"true"`.
+
+### Server functions & auth
+
+- `src/lib/**/*.functions.ts` are bundled for the client: no secrets, lazy-import server-only modules inside handlers, return JSON-serializable values (ISO strings, not `Date`).
+- `requireSupabaseAuth` (`src/integrations/supabase/auth-middleware.ts`, generated — do not edit) validates the Bearer token and provides `context.userId` and `context.supabase`. Admin handlers re-check the role server-side through `has_role`; reaching `/app/admin` in the browser grants nothing.
+- Client `supabase` uses the publishable key under RLS; `serverDb()` uses the service-role key. Private tables enforce `auth.uid() = user_id`; unauthenticated queries return empty results, not 401.
+- Never surface raw Supabase errors — map them through `src/lib/auth/errors.ts` to i18n keys. Duplicate-signup responses stay neutral (no account enumeration).
+
+### Ads & analytics
+
+- `src/config/ads.ts`: an ad renders only when the flag is on, the client id starts with `ca-pub-`, the build is production, the route is eligible, the visitor consented, and the account is not paying. Anything less renders nothing (a visible placeholder in dev).
+- `src/lib/analytics/`: session-scoped and non-identifying (random per-tab token, no fingerprinting, no IP). Collection rules are pure and unit-tested in `collection.ts` / `events.ts`.
 
 ### i18n
-- Dictionary: `src/i18n/index.ts` (3 objects: `en`, `fr`, `ar`)
-- Message keys are flat (no nesting): `"auth.loginTitle"`, `"valid.emailRequired"`
-- Use `useT()` to get `t()` function in components
-- RTL support: Tailwind `rtl:` prefix; CSS `[dir="rtl"]` selector
 
-## Important Constraints & Gotchas
+- `src/i18n/index.ts` (~1.6k lines): `locales`, `localeDir`, `localeFromPathname`, `formatDate`, and three flat dictionaries. Keys are flat: `"auth.loginTitle"`, `"valid.emailRequired"`. RTL via Tailwind `rtl:` and `[dir="rtl"]`.
+- Any user-visible string added to chrome, forms or validation must land in all three dictionaries — an untranslated label leaking onto `/fr` or `/ar` is a recurring class of bug here.
 
-### TypeScript
-- **Strict Mode:** `exactOptionalPropertyTypes` enabled; optional fields must be `Type | undefined`
-- **Auth Error Type:** Must explicitly union properties with `undefined` (not just optional)
+## Constraints & gotchas
 
-### Supabase
-- **Published Key:** Stored in `.env` (already git-ignored, public by design)
-- **Service Role Key:** Never commit; set as deployment env var only
-- **Email Delivery:** Blocked locally without SMTP configuration; requires SendGrid setup for production
-- **RLS:** Always on; anonymous users get empty results (not 401) on private tables
+- **TypeScript is maximally strict**: `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature` (read env as `env["VITE_X"]`, not `env.VITE_X`), `noImplicitReturns`. Optional fields need an explicit `| undefined`.
+- **`server-only` is banned** by an ESLint rule — name server modules `*.server.ts` instead.
+- **Migrations are forward-only and additive** (`supabase/migrations/`, 7 files); write every statement to be safely re-runnable and drop nothing.
+- Env: `.env` is git-ignored. Server names are `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` / `SUPABASE_SERVICE_ROLE_KEY`; PayPal uses `PAYPAL_ENV` (anything but `"live"` resolves to sandbox). `.env.example` documents every flag and its fail-closed behaviour.
+- Prettier: 100 columns, double quotes, trailing commas.
+- Comments explain *why* — constraints, past failures, fail-closed reasoning. Existing modules follow this closely; match that tone rather than annotating what the code does.
+- Git: new commits rather than amends; trailer `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`.
 
-### Builds & Tests
-- `npm run typecheck` must pass before any commit/push
-- `npm run lint` runs Prettier + ESLint; auto-fix with `--fix` if it fails
-- All tests must pass: `npm run test`
-- Production build: `npm run build` (outputs optimized bundle to `.output/`)
+## Known limitations
 
-### Protected Routes
-- Routes under `/:locale/app/*` require authentication
-- Client-side only: no server-side auth check
-- Unauthenticated users redirected to `/login?redirect=/original/path`
-
-## Current Project State
-
-### Phase 1: Public Routes ✅ COMPLETE
-- ✅ All 6 public pages (about, contact, security, terms, privacy, cookies) created in en/fr/ar
-- ✅ Contact form submits to `contact_messages` table (API: POST `/api/contact`)
-- ✅ Full SEO (title, description, canonical, hreflang, structured data)
-
-### Phase 2: Authentication ⚠️ CONDITIONAL PASS
-- ✅ Code verified: logout, session persistence, profile updates, account deletion, protected routes, RLS
-- ⛔ Email-dependent flows blocked by SMTP: sign-up verification, password reset
-- **Blockers:** Real email delivery (SendGrid), verification-link redirect, password-reset flow end-to-end
-
-### Phase 3: Billing & Subscriptions ⛔ BLOCKED (Awaiting Owner Action)
-- ✅ Code verified: database schema, RLS policies, quota functions, seed data
-- ⛔ Database verification: **Requires authorized Supabase credentials** to verify tables exist and functions work
-- **Owner Action Required:** Query Supabase to confirm schema; see Phase 3 report for SQL queries
-
-## Pre-Production Blockers (Must Complete Before Launch)
-
-1. **Email Delivery (SMTP):** Configure SendGrid; test sign-up verification and password reset flows end-to-end
-2. **Verification Link Redirect:** Test that email links redirect to deployed domain and process correctly
-3. **Password Reset Expiration:** Verify links expire correctly and old links fail gracefully
-4. **Account Deletion Cleanup:** Verify all user data cascades delete (documents, profiles, subscriptions, usage records)
-5. **Database Verification:** Confirm all tables, functions, indexes, and constraints exist in connected Supabase
-
-## Environment Setup
-
-### Required Env Vars (Already Configured)
-- `VITE_SUPABASE_URL` — Supabase project URL
-- `VITE_SUPABASE_PUBLISHABLE_KEY` — Supabase public key
-- `SUPABASE_URL` — Same as above (server-side)
-- `SUPABASE_PUBLISHABLE_KEY` — Same as above (server-side)
-- `SUPABASE_SERVICE_ROLE_KEY` — Secret key (deployment only, never commit)
-
-### Optional Env Vars (Not Yet Configured)
-- `PAYPAL_ENVIRONMENT` — "sandbox" (default) or "live"
-- `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID` — PayPal credentials
-- `VITE_ADSENSE_ENABLED` — "false" (default, until approval)
-- `VITE_ADSENSE_CLIENT_ID`, `VITE_ADSENSE_SLOT_*` — AdSense slots
-- `VITE_TESSERACT_*` — Self-hosted OCR assets (uses CDN by default)
-
-## Known Limitations & TODOs
-
-1. **OCR Providers:** Invoice OCR, Receipt to Excel, PDF Invoice Parser are demo placeholders
-2. **Authentication:** Email verification and password recovery blocked locally (SMTP required)
-3. **Billing Testing:** Cannot test plans/trials/quota without logged-in user (email verification blocker)
-4. **PayPal Integration:** Sandbox only; live requires PayPal live credentials and domain verification
-5. **AdSense:** Disabled until account approval; currently shows placeholder ads
-
-## Testing Notes
-
-### Sign-Up Flow
-- Form validation (client-side Zod) works end-to-end
-- Supabase registration succeeds but email delivery blocked locally
-- Duplicate email returns neutral "You already have an account" message (no enumeration)
-
-### Login Flow
-- Valid credentials → session established, redirect to dashboard
-- Invalid credentials → localized error message
-- Unverified email → "Please verify your email" message
-- Session persists across refresh and new tabs
-
-### Protected Routes
-- Unauthenticated access to `/app/*` redirects to `/login?redirect=/app/...`
-- After login, redirect parameter automatically navigated
-
-### RLS Isolation
-- All private tables enforce `auth.uid() = user_id` at database level
-- Client queries without auth filter return empty (not 401)
-- Storage bucket uses foldername[1] path segment as isolation key
-
-## Debugging Tips
-
-- **Typecheck Errors:** Always run `npm run typecheck` before assuming code is correct
-- **Lint Issues:** Auto-fix most with `npm run lint -- --fix`
-- **Supabase Errors:** Check `src/lib/auth/errors.ts` mapping; raw errors logged but hidden from users
-- **Session Issues:** Check browser DevTools Application > Cookies for `sb-*` session tokens
-- **RLS Failures:** Query returns empty array for private tables when unauthenticated
-- **i18n Missing Keys:** Error message keys like `"auth.unknownError"` indicate missing i18n entry
-
-## Conventions & Style
-
-- **Naming:** camelCase for functions/variables, PascalCase for components/types, UPPER_SNAKE_CASE for constants
-- **Imports:** Absolute paths (`@/lib/...`) preferred; relative only within same directory
-- **Component Props:** Use Radix UI + Tailwind; no custom CSS unless design-system requires it
-- **Error Handling:** Never show raw Supabase messages; map to i18n keys
-- **Comments:** Only for non-obvious why, hidden constraints, or workarounds; avoid stating what the code does
-- **Git:** Create new commits rather than amending; include `Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>` trailer
-
-## References
-
-- [TanStack Start](https://tanstack.com/start/latest) — File-based routing, server functions
-- [Supabase Docs](https://supabase.com/docs) — Auth, RLS, realtime
-- [Zod](https://zod.dev/) — Schema validation
-- [Tailwind CSS](https://tailwindcss.com/) — Utility CSS
-- [React Query](https://tanstack.com/query/latest) — Server state management
+- **The OCR API is not operational** — no endpoint, no keys, no plan entitlement. `planAllowsProduct` returns `false` for coming-soon products on every plan. Tests in `src/content/products/products.test.ts` fail if any endpoint path, `Authorization`, `Bearer`, `X-RateLimit` or `YOUR_API_KEY` string reappears in product copy.
+- Email delivery (sign-up verification, password reset) needs SMTP configuration; those flows cannot be exercised locally.
+- AdSense stays disabled until account approval; a certified consent platform is a prerequisite.
+- PayPal live checkout needs live credentials, a verified domain and the registered webhook.
