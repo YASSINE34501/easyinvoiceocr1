@@ -75,7 +75,10 @@ function SignupPage() {
         .regex(/[A-Za-z]/, t("valid.passwordWeak"))
         .regex(/[0-9]/, t("valid.passwordWeak")),
       confirm: z.string(),
-      terms: z.literal(true, { message: t("valid.termsRequired") }),
+      // z.literal ignores a custom message in zod 3, so the untranslated default
+      // ("Invalid literal value, expected true") was what users actually saw, in
+      // all three locales. refine is the form that honours the message.
+      terms: z.boolean().refine((v) => v === true, { message: t("valid.termsRequired") }),
     })
     .refine((v) => v.password === v.confirm, {
       path: ["confirm"],

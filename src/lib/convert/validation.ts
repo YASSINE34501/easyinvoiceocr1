@@ -173,6 +173,11 @@ export function safeBaseName(filename: string): string {
     .replace(PATH_UNSAFE, "")
     .replace(CONTROL_CHARS, "")
     .replace(/\s+/g, " ")
+    .trim()
+    // Stripped after trim, not before: " .. .pdf" leaves a leading space, so a
+    // leading-dot strip running first sees no dot and the name survived as "..".
+    // Nothing is written server-side, so this was a nonsense download name
+    // rather than a traversal, but it was still wrong.
     .replace(/^\.+/, "")
     .trim()
     .slice(0, 80);

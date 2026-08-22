@@ -68,7 +68,8 @@ function ContactPage() {
     company: z.string().trim().max(120).optional(),
     topic: z.enum(["general", "support", "sales", "billing", "privacy", "security", "api"]),
     message: z.string().trim().min(20, t("valid.messageShort")).max(2000, t("valid.messageLong")),
-    consent: z.literal(true, { message: t("valid.consentRequired") }),
+    // See the note in $locale.signup.tsx: z.literal drops the custom message.
+    consent: z.boolean().refine((v) => v === true, { message: t("valid.consentRequired") }),
   });
 
   async function onSubmit(event: FormEvent) {
