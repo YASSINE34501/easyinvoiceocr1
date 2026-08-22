@@ -8,7 +8,7 @@
  */
 
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { locales } from "@/i18n";
 import {
   NOINDEX_SLUGS,
@@ -113,8 +113,25 @@ describe("indexability", () => {
   });
 
   it("keeps a non-production deployment out of the index", () => {
-    // VITE_SITE_URL is unset under test, which is exactly the preview case.
-    expect(robotsMeta("about").content).toBe("noindex, nofollow");
+    // The preview case is stubbed rather than inherited. This assertion used to
+    // rely on VITE_SITE_URL simply being absent from the environment, so it
+    // started failing the moment a developer put the production value in their
+    // local .env — reporting a fault in the guard when the guard was correct.
+    vi.stubEnv("VITE_SITE_URL", "");
+    try {
+      expect(robotsMeta("about").content).toBe("noindex, nofollow");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("indexes a public page once the deployment names the production origin", () => {
+    vi.stubEnv("VITE_SITE_URL", SITE_ORIGIN);
+    try {
+      expect(robotsMeta("about").content).toBe("index, follow");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
 

@@ -12,7 +12,7 @@
  */
 
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { locales, localeDir, localeFromPathname, localeHtmlLang } from "@/i18n";
 import { robotsMeta, isNoindexSlug } from "./seo";
 
@@ -75,9 +75,16 @@ describe("robots precedence", () => {
   });
 
   it("fails closed on a non-production deployment", () => {
-    // VITE_SITE_URL is unset under test, which is the preview/localhost case.
-    for (const slug of [...LEGAL, "about", "contact", "security", "blog", "documentation"]) {
-      expect(robotsMeta(slug).content, slug).toBe("noindex, nofollow");
+    // Stubbed, not inherited: this used to depend on VITE_SITE_URL being absent
+    // from the environment, so a developer with the production value in their
+    // local .env saw a failure here that said nothing about the code.
+    vi.stubEnv("VITE_SITE_URL", "");
+    try {
+      for (const slug of [...LEGAL, "about", "contact", "security", "blog", "documentation"]) {
+        expect(robotsMeta(slug).content, slug).toBe("noindex, nofollow");
+      }
+    } finally {
+      vi.unstubAllEnvs();
     }
   });
 
