@@ -111,7 +111,7 @@ async function withinRateLimit(sessionId: string): Promise<boolean> {
 }
 
 export const trackEvent = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => trackInput.parse(data))
+  .validator((data: unknown) => trackInput.parse(data))
   .handler(async ({ data }) => {
     // Consent gate. An anonymous visitor who has not accepted analytics is not
     // measured at all — no row, not even an anonymised one.

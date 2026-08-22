@@ -160,7 +160,7 @@ const planSelection = z.object({
  */
 export const createSubscriptionIntent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => planSelection.parse(data))
+  .validator((data: unknown) => planSelection.parse(data))
   .handler(async ({ data }) => {
     const { getPlanByCode } = await import("./entitlements.server");
     const { envPlanId, readPayPalConfig } = await import("@/lib/paypal/client.server");
@@ -199,7 +199,7 @@ const approvalInput = planSelection.extend({
  */
 export const confirmSubscriptionApproval = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => approvalInput.parse(data))
+  .validator((data: unknown) => approvalInput.parse(data))
   .handler(async ({ context, data }) => {
     const { getPlanByCode, resolveBillingState } = await import("./entitlements.server");
     const { recordApproval, syncSubscriptionFromPayPal } =
@@ -264,7 +264,7 @@ const cancelInput = z.object({ reason: z.string().trim().max(200).default("Cance
  */
 export const cancelMySubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => cancelInput.parse(data))
+  .validator((data: unknown) => cancelInput.parse(data))
   .handler(async ({ context, data }) => {
     const { getSubscription, resolveBillingState } = await import("./entitlements.server");
     const { cancelSubscription } = await import("@/lib/paypal/client.server");
@@ -362,7 +362,7 @@ export const runTrialNotifications = createServerFn({ method: "POST" })
 
 export const markNotificationRead = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .handler(async ({ context, data }) => {
     const { serverDb } = await import("@/lib/db.server");
     const db = await serverDb();

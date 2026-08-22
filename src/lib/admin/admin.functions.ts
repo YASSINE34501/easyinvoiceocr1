@@ -145,7 +145,7 @@ const planPatch = z.object({
 
 export const updatePlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => planPatch.parse(data))
+  .validator((data: unknown) => planPatch.parse(data))
   .handler(async ({ context, data }) => {
     const db = await assertAdmin(context.userId);
     const { id, ...patch } = data;
@@ -174,7 +174,7 @@ const settingPatch = z.object({
 
 export const updateSetting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => settingPatch.parse(data))
+  .validator((data: unknown) => settingPatch.parse(data))
   .handler(async ({ context, data }) => {
     const db = await assertAdmin(context.userId);
 
@@ -226,7 +226,7 @@ const statusPatch = z.object({
  */
 export const setSubscriptionStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => statusPatch.parse(data))
+  .validator((data: unknown) => statusPatch.parse(data))
   .handler(async ({ context, data }) => {
     const db = await assertAdmin(context.userId);
     // The previous status is read first so the trail records the transition,

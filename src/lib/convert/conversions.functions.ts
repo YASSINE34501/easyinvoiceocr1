@@ -36,7 +36,7 @@ type StartResult =
  */
 export const startConversion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => conversionJobInput.parse(data))
+  .validator((data: unknown) => conversionJobInput.parse(data))
   .handler(async ({ context, data }): Promise<StartResult> => {
     const { serverDb } = await import("@/lib/db.server");
     const db = await serverDb();
@@ -152,7 +152,7 @@ const completeInput = z.object({
 
 export const completeConversion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => completeInput.parse(data))
+  .validator((data: unknown) => completeInput.parse(data))
   .handler(async ({ context, data }) => {
     const { serverDb } = await import("@/lib/db.server");
     const db = await serverDb();
@@ -227,7 +227,7 @@ const failInput = z.object({
 
 export const failConversion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => failInput.parse(data))
+  .validator((data: unknown) => failInput.parse(data))
   .handler(async ({ context, data }) => {
     const { serverDb } = await import("@/lib/db.server");
     const db = await serverDb();
