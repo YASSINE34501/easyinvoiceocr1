@@ -52,7 +52,11 @@ export type WarningCode =
   | "total_mismatch"
   | "tax_rate_mismatch"
   | "low_ocr_confidence"
-  | "ambiguous_date";
+  | "ambiguous_date"
+  /** A document is missing an identifier, a date or a total it should carry. */
+  | "missing_key_fields"
+  /** Rows were still readable after the last table the parser consumed. */
+  | "unconsumed_content";
 
 export type ValidationWarning = {
   code: WarningCode;
@@ -224,28 +228,51 @@ function normaliseField(key: FieldKey, raw: string, options: ParseOptions): stri
 
 type ColumnMap = { column: ItemColumn; x: number }[];
 
-/** Finds the header row of the item table and the x position of each column. */
-function findItemColumns(lines: Line[]): { headerIndex: number; columns: ColumnMap } | null {
-  for (const [index, line] of lines.entries()) {
-    const cells = cellsOf(line);
-    if (cells.length < 2) continue;
+type ItemTable = { headerIndex: number; columns: ColumnMap };
 
-    const columns: ColumnMap = [];
-    const seen = new Set<ItemColumn>();
-    for (const cell of cells) {
-      const column = matchItemHeader(cell.text);
-      if (column && !seen.has(column)) {
-        seen.add(column);
-        columns.push({ column, x: cell.x });
-      }
-    }
-    // Two identified columns is the minimum that can carry a table; requiring a
-    // description plus one number avoids latching onto a summary block.
-    if (columns.length >= 2 && (seen.has("description") || seen.has("lineTotal"))) {
-      return { headerIndex: index, columns };
+/** Reads one line as a table header, or returns null when it is not one. */
+function headerAt(lines: Line[], index: number): ColumnMap | null {
+  const line = lines[index];
+  if (!line) return null;
+  const cells = cellsOf(line);
+  if (cells.length < 2) return null;
+
+  const columns: ColumnMap = [];
+  const seen = new Set<ItemColumn>();
+  for (const cell of cells) {
+    const column = matchItemHeader(cell.text);
+    if (column && !seen.has(column)) {
+      seen.add(column);
+      columns.push({ column, x: cell.x });
     }
   }
+  // Two identified columns is the minimum that can carry a table; requiring a
+  // description plus one number avoids latching onto a summary block.
+  if (columns.length >= 2 && (seen.has("description") || seen.has("lineTotal"))) {
+    return columns;
+  }
   return null;
+}
+
+/**
+ * Finds every item table in the document, not just the first.
+ *
+ * A multi-page invoice repeats its header on each page, and the reader hands us
+ * all pages concatenated. Returning only the first header meant every row after
+ * the first page's table was dropped — silently, because the rows that follow
+ * simply fall outside the one range that was ever read. Scanning for all
+ * headers keeps each page's rows and preserves document order.
+ *
+ * Headers that fall inside a table already consumed are skipped by the caller,
+ * so a reprinted header never starts a second table over the same rows.
+ */
+function findItemTables(lines: Line[]): ItemTable[] {
+  const tables: ItemTable[] = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const columns = headerAt(lines, index);
+    if (columns) tables.push({ headerIndex: index, columns });
+  }
+  return tables;
 }
 
 /** Assigns a cell to the nearest column that starts at or before it. */
@@ -260,32 +287,93 @@ function columnFor(cell: Cell, columns: ColumnMap, tolerance: number): ItemColum
   return best?.column ?? null;
 }
 
+/**
+ * How many consecutive non-row lines may sit inside one table before it is
+ * considered finished. A page break inserts a footer, a header and often a
+ * repeated address block between two halves of the same table, so a single
+ * stray line must not end it — but an unbounded gap would swallow the rest of
+ * the document.
+ */
+const MAX_GAP_LINES = 8;
+
+/**
+ * The labels that close an item table.
+ *
+ * Only the summary block ends it. The identifier, the dates and the party names
+ * are reprinted at the top of every page of a long invoice, so treating any
+ * label as a terminator cut the table at the first page break.
+ */
+const SUMMARY_LABELS: ReadonlySet<FieldKey> = new Set<FieldKey>([
+  "subtotal",
+  "discount",
+  "taxRate",
+  "taxAmount",
+  "total",
+]);
+
+/**
+ * Decides whether a line is an item row, given the table's columns.
+ *
+ * The test is positive rather than "anything that is not a terminator": a
+ * reprinted header block sits inside the same column band as the table, and a
+ * negative test let "Invoice Number: INV-2026-0042" through as a row. A real
+ * row always carries a number in a quantity, unit-price or amount column.
+ */
+function rowFrom(
+  line: Line,
+  columns: ColumnMap,
+  tolerance: number,
+): Partial<Record<ItemColumn, string>> | null {
+  const cells = cellsOf(line);
+  if (cells.length < 2) return null;
+
+  const row: Partial<Record<ItemColumn, string>> = {};
+  let mapped = 0;
+  let numeric = false;
+  for (const cell of cells) {
+    const column = columnFor(cell, columns, tolerance);
+    if (!column) continue;
+    mapped += 1;
+    row[column] = row[column] ? `${row[column]} ${cell.text}`.trim() : cell.text.trim();
+    if (column !== "description" && parseAmount(cell.text) !== null) numeric = true;
+  }
+
+  return mapped >= 2 && numeric ? row : null;
+}
+
 function extractLineItems(
   lines: Line[],
-  found: { headerIndex: number; columns: ColumnMap },
-): ExtractedLineItem[] {
+  found: ItemTable,
+): { items: ExtractedLineItem[]; endIndex: number } {
   const { headerIndex, columns } = found;
   const items: ExtractedLineItem[] = [];
   const tolerance = Math.max(40, (lines[headerIndex]?.size ?? 10) * 4);
+  let gap = 0;
+  let endIndex = headerIndex;
 
   for (let index = headerIndex + 1; index < lines.length; index += 1) {
     const line = lines[index]!;
-    const cells = cellsOf(line);
-    if (cells.length < 2) {
-      // A single-cell line ends the table unless it is clearly a continuation.
-      if (items.length > 0) break;
+
+    // A summary row ("Subtotal", "Total") terminates the item table. Only the
+    // summary block does: metadata labels reappear on every page.
+    const labelHit = matchFieldLabel(line.text);
+    if (labelHit && SUMMARY_LABELS.has(labelHit)) break;
+
+    // A repeated column header starts the next page of this same table. Skipping
+    // it keeps the titles out of the rows and lets the table continue.
+    if (headerAt(lines, index)) {
+      gap = 0;
+      endIndex = index;
       continue;
     }
 
-    // A summary row ("Subtotal", "Total") terminates the item table.
-    const labelHit = matchFieldLabel(line.text);
-    if (labelHit && labelHit !== "documentNumber") break;
-
-    const row: Partial<Record<ItemColumn, string>> = {};
-    for (const cell of cells) {
-      const column = columnFor(cell, columns, tolerance);
-      if (!column) continue;
-      row[column] = row[column] ? `${row[column]} ${cell.text}`.trim() : cell.text.trim();
+    const row = rowFrom(line, columns, tolerance);
+    if (!row) {
+      // Footers, addresses and reprinted headers sit between two halves of one
+      // table. Ending on the first of them is what lost every row after a page
+      // break; a bounded run of them keeps the table open without running away.
+      if (items.length > 0 && (gap += 1) > MAX_GAP_LINES) break;
+      continue;
     }
 
     const description = (row.description ?? "").trim();
@@ -294,8 +382,13 @@ function extractLineItems(
     const lineTotal = row.lineTotal ? parseAmount(row.lineTotal) : null;
 
     // A row with no description and no money on it is not an item.
-    if (!description && lineTotal === null && unitPrice === null) continue;
+    if (!description && lineTotal === null && unitPrice === null) {
+      if (items.length > 0 && (gap += 1) > MAX_GAP_LINES) break;
+      continue;
+    }
 
+    gap = 0;
+    endIndex = index;
     items.push({
       id: nextId(),
       description,
@@ -306,7 +399,55 @@ function extractLineItems(
     });
   }
 
-  return items;
+  return { items, endIndex };
+}
+
+/**
+ * Walks every table in the document and returns the rows in reading order.
+ *
+ * Tables that begin inside a range already consumed are skipped: a repeated
+ * page header is part of the table it continues, not the start of a new one.
+ */
+function extractAllLineItems(
+  lines: Line[],
+  tables: ItemTable[],
+): { items: ExtractedLineItem[]; lastIndex: number } {
+  const items: ExtractedLineItem[] = [];
+  let consumedTo = -1;
+
+  for (const table of tables) {
+    if (table.headerIndex <= consumedTo) continue;
+    const { items: rows, endIndex } = extractLineItems(lines, table);
+    items.push(...rows);
+    consumedTo = Math.max(consumedTo, endIndex);
+  }
+
+  return { items, lastIndex: consumedTo };
+}
+
+/**
+ * Reports whether anything after the parsed tables still looks like an item row.
+ *
+ * This is the backstop for the failure that motivated the multi-table work: if
+ * the extractor ever loses rows again, the document is flagged instead of being
+ * handed to the user as complete.
+ */
+function hasUnconsumedRows(lines: Line[], lastIndex: number, tables: ItemTable[]): boolean {
+  if (tables.length === 0) return false;
+  const columns = tables[0]!.columns;
+  const tolerance = Math.max(40, (lines[tables[0]!.headerIndex]?.size ?? 10) * 4);
+
+  for (let index = lastIndex + 1; index < lines.length; index += 1) {
+    const line = lines[index]!;
+
+    const labelHit = matchFieldLabel(line.text);
+    // Everything from the summary block onwards is fields, not rows.
+    if (labelHit && SUMMARY_LABELS.has(labelHit)) return false;
+
+    if (headerAt(lines, index)) return true;
+    if (rowFrom(line, columns, tolerance)) return true;
+  }
+  return false;
 }
 
 /* ------------------------------------------------------------------ */
@@ -422,14 +563,52 @@ function markReview(fields: ExtractedField[], key: FieldKey) {
  * a `no_fields_found` warning and `needsReview`, which the caller must treat as
  * a failed extraction rather than an empty success.
  */
+/**
+ * Reports rows that came back without any money on them.
+ *
+ * `hasUnconsumedRows` can only see rows it would have been able to parse, so a
+ * row lost to a ragged column layout is invisible to it — the same blind spot
+ * that dropped the row in the first place. Amounts are the independent signal:
+ * a document that states a subtotal, and whose table produced rows, but where
+ * not one row carries a line total, has lost its numbers somewhere between the
+ * page and the table. Requiring a stated amount keeps this quiet for the
+ * description-only tables that legitimately have no per-row prices.
+ */
+function amountsWereLost(fields: ExtractedField[], items: ExtractedLineItem[]): boolean {
+  if (items.length === 0) return false;
+  const stated = amountOf(fields, "subtotal") ?? amountOf(fields, "total");
+  if (stated === null) return false;
+  return items.every((item) => !item.lineTotal);
+}
+
+/**
+ * The fields a document of each kind has to carry before its extraction can be
+ * called confident.
+ *
+ * Deliberately narrow. An invoice without a number, a date or a total is not
+ * usable, so those three are required. A receipt is often just a total and a
+ * date — till slips rarely carry a document number — so only the total is
+ * required there. Anything wider than this would flag ordinary documents and
+ * teach people to ignore the review flag, which is the same failure as never
+ * raising it.
+ */
+function missingKeyFields(fields: ExtractedField[], kind: "invoice" | "receipt"): FieldKey[] {
+  const required: FieldKey[] =
+    kind === "invoice" ? ["documentNumber", "issueDate", "total"] : ["total"];
+  return required.filter((key) => {
+    const field = fields.find((f) => f.key === key);
+    return !field || !field.value || field.value.trim() === "";
+  });
+}
+
 export function parseDocument(lines: Line[], options: ParseOptions): ExtractedDocument {
   const usable = lines.filter((line) => line.text.trim().length > 0);
   const documentText = usable.map((line) => line.text).join("\n");
 
   const { fields, warnings: fieldWarnings } = extractFields(usable, options);
 
-  const found = findItemColumns(usable);
-  const lineItems = found ? extractLineItems(usable, found) : [];
+  const tables = findItemTables(usable);
+  const { items: lineItems, lastIndex } = extractAllLineItems(usable, tables);
 
   const warnings: ValidationWarning[] = [...fieldWarnings, ...validate(fields, lineItems)];
 
@@ -438,6 +617,18 @@ export function parseDocument(lines: Line[], options: ParseOptions): ExtractedDo
   }
   if (lineItems.length === 0) {
     warnings.push({ code: "no_line_items", fields: [] });
+  }
+
+  // A document that carries no identifier, no date or no total is not a
+  // confident extraction, however many other fields came back. Saying nothing
+  // here is what let a near-empty result be presented as verified.
+  const missing = missingKeyFields(fields, options.kind);
+  if (missing.length > 0) {
+    warnings.push({ code: "missing_key_fields", fields: missing });
+  }
+
+  if (hasUnconsumedRows(usable, lastIndex, tables) || amountsWereLost(fields, lineItems)) {
+    warnings.push({ code: "unconsumed_content", fields: [] });
   }
 
   const ocrConfidence = options.ocrConfidence ?? null;

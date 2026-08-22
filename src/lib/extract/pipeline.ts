@@ -11,6 +11,7 @@
  */
 
 import { openPdf, pageNeedsOcr } from "@/lib/convert/pdf";
+import { DEFAULT_MAX_FILE_BYTES, formatBytes } from "@/lib/convert/validation";
 import { linesFromPdfPage, type Line } from "@/lib/convert/layout";
 import { createOcrEngine, type OcrEngine, type OcrLanguage } from "@/lib/convert/ocr";
 import { decodeImage, drawToCanvas, type Rotation } from "@/lib/convert/images";
@@ -25,6 +26,8 @@ export type ExtractOptions = {
   onProgress?: ProgressReporter | undefined;
   signal?: AbortSignal | undefined;
   pageTimeoutMs?: number | undefined;
+  /** Overrides the shared upload ceiling; defaults to DEFAULT_MAX_FILE_BYTES. */
+  maxBytes?: number | undefined;
   rotation?: Rotation | undefined;
 };
 
@@ -167,6 +170,19 @@ export async function extractFromFile(
   options: ExtractOptions,
 ): Promise<ExtractedDocument> {
   if (file.size === 0) throw new ConversionError("file_empty", "file_empty");
+
+  // The converters enforce this through validateFile, but the extraction
+  // products never called it, so the "20 MB" the upload card advertises was not
+  // actually a limit here — an arbitrarily large file went straight into the
+  // reader. Nothing reaches a server either way, so this bounds the visitor's
+  // own tab rather than ours.
+  const maxBytes = options.maxBytes ?? DEFAULT_MAX_FILE_BYTES;
+  if (file.size > maxBytes) {
+    throw new ConversionError("file_too_large", "file_too_large", {
+      limit: formatBytes(maxBytes),
+      actual: formatBytes(file.size),
+    });
+  }
 
   const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
 

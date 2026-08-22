@@ -531,6 +531,10 @@ const en = {
   "convert.warn_tax_rate_mismatch": "The tax amount does not match the stated tax rate.",
   "convert.warn_low_ocr_confidence": "Recognition confidence was low; check every value.",
   "convert.warn_ambiguous_date": "A date was ambiguous and was left blank rather than guessed.",
+  "convert.warn_missing_key_fields":
+    "A required field was not found. Fill it in before you export.",
+  "convert.warn_unconsumed_content":
+    "Part of the document was not read. Check that every line item is present.",
   "convert.unavailableTitle": "Temporarily unavailable",
   "convert.unavailableBody":
     "This tool is not available right now. No sample or placeholder result will be shown.",
@@ -1059,6 +1063,10 @@ const fr: Record<MessageKey, string> = {
   "convert.warn_low_ocr_confidence":
     "La confiance de reconnaissance était faible ; vérifiez chaque valeur.",
   "convert.warn_ambiguous_date": "Une date était ambiguë et a été laissée vide plutôt que devinée.",
+  "convert.warn_missing_key_fields":
+    "Un champ obligatoire est introuvable. Renseignez-le avant d'exporter.",
+  "convert.warn_unconsumed_content":
+    "Une partie du document n'a pas été lue. Vérifiez que toutes les lignes sont présentes.",
   "convert.unavailableTitle": "Temporairement indisponible",
   "convert.unavailableBody":
     "Cet outil n'est pas disponible actuellement. Aucun résultat d'exemple ne sera affiché.",
@@ -1557,6 +1565,8 @@ const ar: Record<MessageKey, string> = {
   "convert.warn_tax_rate_mismatch": "مبلغ الضريبة لا يطابق النسبة المذكورة.",
   "convert.warn_low_ocr_confidence": "كانت درجة الثقة منخفضة؛ تحقّق من كل قيمة.",
   "convert.warn_ambiguous_date": "كان أحد التواريخ غامضًا فتُرك فارغًا بدل تخمينه.",
+  "convert.warn_missing_key_fields": "لم يُعثر على حقل مطلوب. أدخله قبل التصدير.",
+  "convert.warn_unconsumed_content": "لم يُقرأ جزء من المستند. تأكّد من وجود كل البنود.",
   "convert.unavailableTitle": "غير متاح مؤقتًا",
   "convert.unavailableBody": "هذه الأداة غير متاحة حاليًا. لن تُعرض أي نتيجة نموذجية.",
 
