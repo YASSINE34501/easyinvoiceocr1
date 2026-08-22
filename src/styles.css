@@ -137,6 +137,15 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* --font-arabic was declared but never applied to anything, so Arabic pages
+     rendered in Inter — which carries no Arabic — and fell back to whatever the
+     operating system happened to supply, while Tajawal was still downloaded on
+     every page in every locale. Binding it to the language makes the download
+     purposeful and gives Arabic the face the design intended. */
+  body:lang(ar) {
+    font-family: var(--font-arabic);
+  }
+
   :where(a, button, [tabindex]):focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;

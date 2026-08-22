@@ -17,8 +17,8 @@ import { AuthProvider } from "@/auth/AuthProvider";
 import { BillingProvider } from "@/billing/BillingProvider";
 import { CookieConsent } from "@/components/site/CookieConsent";
 import { useVisitorSession } from "@/lib/analytics/useVisitorSession";
-import { SOCIAL_IMAGE, absoluteUrl } from "@/config/seo";
-import { localeDir, localeFromPathname, localeHtmlLang } from "@/i18n";
+import { SITE_NAME, SITE_ORIGIN, SOCIAL_IMAGE, absoluteUrl } from "@/config/seo";
+import { locales, localeDir, localeFromPathname, localeHtmlLang } from "@/i18n";
 
 function NotFoundComponent() {
   return (
@@ -110,6 +110,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: "/icons/icon.svg", type: "image/svg+xml", sizes: "any" },
       { rel: "apple-touch-icon", href: "/icons/icon.svg" },
       { rel: "manifest", href: "/site.webmanifest" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        // The site-level entity. Product pages describe themselves with
+        // WebApplication and BreadcrumbList, and articles with BlogPosting, but
+        // nothing tied those to a site — so every page declared what it was
+        // without ever declaring what it belonged to. Declared once on the root
+        // so it appears on every page, which is what search engines expect.
+        //
+        // Carries no site-search markup: that would tell a search engine it may
+        // send queries to an on-site search endpoint, and this site has none.
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: SITE_NAME,
+          url: SITE_ORIGIN,
+          inLanguage: locales,
+        }),
+      },
     ],
   }),
 
