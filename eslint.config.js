@@ -9,7 +9,7 @@ export default tseslint.config(
   // public/tesseract holds ~61 MB of vendored worker, WASM and language data.
   // It is third-party build output, not source, and walking it makes a lint
   // run take minutes instead of seconds.
-  { ignores: ["dist", ".output", ".vinxi", "public/tesseract"] },
+  { ignores: ["dist", ".output", ".vercel", ".vinxi", "public/tesseract"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

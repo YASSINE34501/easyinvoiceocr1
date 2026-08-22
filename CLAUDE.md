@@ -98,6 +98,7 @@ npx vitest run -t "free allowance"
 ## Constraints & gotchas
 
 - **TypeScript is maximally strict**: `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature` (read env as `env["VITE_X"]`, not `env.VITE_X`), `noImplicitReturns`. Optional fields need an explicit `| undefined`.
+- **`vite` is pinned to 8.2.0 and `rolldown` is held at 1.2.2 by an `overrides` entry** — do not widen either, and do not `npm update` them without rebuilding and fetching a route from the bundle. rolldown 1.2.5 splits the SSR build so a chunk holding the `__exportAll` runtime helper imports back from a chunk that consumes it; the ESM cycle leaves the helper undefined and every SSR request dies with `__exportAll is not a function` — HTTP 500 on every route, on every deploy target. `npm run dev` cannot catch this: dev serves unbundled ESM and never runs rolldown. Verify with `node -e` against `.output/server/index.mjs` after a build, not with the dev server.
 - **`server-only` is banned** by an ESLint rule — name server modules `*.server.ts` instead.
 - **Migrations are forward-only and additive** (`supabase/migrations/`, 7 files); write every statement to be safely re-runnable and drop nothing.
 - Env: `.env` is git-ignored. Server names are `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` / `SUPABASE_SERVICE_ROLE_KEY`; PayPal uses `PAYPAL_ENV` (anything but `"live"` resolves to sandbox). `.env.example` documents every flag and its fail-closed behaviour.

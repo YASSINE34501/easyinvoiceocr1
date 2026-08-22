@@ -16,6 +16,9 @@ dist-ssr
 .nitro
 *.local
 
+# Vercel build output (nitro auto-targets Vercel when VERCEL is set)
+.vercel/
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

@@ -276,12 +276,19 @@ export const getIntegrationStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context.userId);
+
+    // Resolved through the same reader the PayPal client uses. Reading
+    // PAYPAL_ENVIRONMENT directly here made the console report "sandbox" on a
+    // deployment that set the documented PAYPAL_ENV and was actually live —
+    // the console has to agree with the code that picks the API host.
+    const { readPayPalEnvironment } = await import("@/lib/paypal/client.server");
+
     return {
       paypal: {
         clientId: Boolean(process.env["PAYPAL_CLIENT_ID"]),
         clientSecret: Boolean(process.env["PAYPAL_CLIENT_SECRET"]),
         webhookId: Boolean(process.env["PAYPAL_WEBHOOK_ID"]),
-        environment: process.env["PAYPAL_ENVIRONMENT"] ?? "sandbox",
+        environment: readPayPalEnvironment(),
       },
       adsense: {
         // Read from the build-time public config, so this reflects what the

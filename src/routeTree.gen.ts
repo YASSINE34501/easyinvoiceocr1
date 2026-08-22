@@ -37,6 +37,7 @@ import { Route as LocaleSecurityRouteImport } from './routes/$locale.security'
 import { Route as LocaleSignupRouteImport } from './routes/$locale.signup'
 import { Route as LocaleTermsRouteImport } from './routes/$locale.terms'
 import { Route as LocaleVerifyEmailRouteImport } from './routes/$locale.verify-email'
+import { Route as ApiContactRouteImport } from './routes/api/contact'
 import { Route as LocaleAppIndexRouteImport } from './routes/$locale.app.index'
 import { Route as LocaleAppAdminRouteImport } from './routes/$locale.app.admin'
 import { Route as LocaleAppBillingRouteImport } from './routes/$locale.app.billing'
@@ -186,6 +187,11 @@ const LocaleVerifyEmailRoute = LocaleVerifyEmailRouteImport.update({
   path: '/verify-email',
   getParentRoute: () => LocaleRoute,
 } as any)
+const ApiContactRoute = ApiContactRouteImport.update({
+  id: '/api/contact',
+  path: '/api/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LocaleAppIndexRoute = LocaleAppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/$locale/signup': typeof LocaleSignupRoute
   '/$locale/terms': typeof LocaleTermsRoute
   '/$locale/verify-email': typeof LocaleVerifyEmailRoute
+  '/api/contact': typeof ApiContactRoute
   '/$locale/': typeof LocaleIndexRoute
   '/$locale/app/admin': typeof LocaleAppAdminRoute
   '/$locale/app/billing': typeof LocaleAppBillingRoute
@@ -291,6 +298,7 @@ export interface FileRoutesByTo {
   '/$locale/signup': typeof LocaleSignupRoute
   '/$locale/terms': typeof LocaleTermsRoute
   '/$locale/verify-email': typeof LocaleVerifyEmailRoute
+  '/api/contact': typeof ApiContactRoute
   '/$locale': typeof LocaleIndexRoute
   '/$locale/app/admin': typeof LocaleAppAdminRoute
   '/$locale/app/billing': typeof LocaleAppBillingRoute
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/$locale/signup': typeof LocaleSignupRoute
   '/$locale/terms': typeof LocaleTermsRoute
   '/$locale/verify-email': typeof LocaleVerifyEmailRoute
+  '/api/contact': typeof ApiContactRoute
   '/$locale/': typeof LocaleIndexRoute
   '/$locale/app/admin': typeof LocaleAppAdminRoute
   '/$locale/app/billing': typeof LocaleAppBillingRoute
@@ -370,6 +379,7 @@ export interface FileRouteTypes {
     | '/$locale/signup'
     | '/$locale/terms'
     | '/$locale/verify-email'
+    | '/api/contact'
     | '/$locale/'
     | '/$locale/app/admin'
     | '/$locale/app/billing'
@@ -406,6 +416,7 @@ export interface FileRouteTypes {
     | '/$locale/signup'
     | '/$locale/terms'
     | '/$locale/verify-email'
+    | '/api/contact'
     | '/$locale'
     | '/$locale/app/admin'
     | '/$locale/app/billing'
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/$locale/signup'
     | '/$locale/terms'
     | '/$locale/verify-email'
+    | '/api/contact'
     | '/$locale/'
     | '/$locale/app/admin'
     | '/$locale/app/billing'
@@ -459,6 +471,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LocaleRoute: typeof LocaleRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiContactRoute: typeof ApiContactRoute
   ApiPaypalWebhookRoute: typeof ApiPaypalWebhookRoute
 }
 
@@ -660,6 +673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleVerifyEmailRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/api/contact': {
+      id: '/api/contact'
+      path: '/api/contact'
+      fullPath: '/api/contact'
+      preLoaderRoute: typeof ApiContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$locale/app/': {
       id: '/$locale/app/'
       path: '/'
@@ -806,6 +826,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LocaleRoute: LocaleRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiContactRoute: ApiContactRoute,
   ApiPaypalWebhookRoute: ApiPaypalWebhookRoute,
 }
 export const routeTree = rootRouteImport
