@@ -5,6 +5,7 @@ import { footerMenus, path } from "@/config/nav";
 import { localeLabels } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { openCookiePreferences } from "./CookieConsent";
+import { PaymentMarks } from "./PaymentMarks";
 
 export function Footer() {
   const locale = useLocale();
@@ -42,11 +43,16 @@ export function Footer() {
       </div>
 
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-4 py-5 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        {/* Three groups, so the bar needs more room than the previous two did:
+            it stays stacked and centred until lg, rather than crushing the
+            payment marks against the copyright on a tablet. */}
+        <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-4 px-4 py-5 text-center text-sm text-muted-foreground sm:px-6 lg:flex-row lg:justify-between lg:gap-6 lg:text-start">
           <p>
             © {new Date().getFullYear()} EasyInvoiceOCR. {t("footer.rights")}
           </p>
-          <div className="flex flex-wrap items-center gap-4">
+          <PaymentMarks label={t("footer.payments")} />
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               type="button"
               onClick={openCookiePreferences}

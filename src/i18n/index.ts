@@ -105,6 +105,7 @@ const en = {
   "footer.tagline":
     "OCR that converts invoices and receipts into structured data, in your browser.",
   "footer.rights": "All rights reserved.",
+  "footer.payments": "Payments handled by PayPal:",
   "footer.cookieSettings": "Cookie settings",
 
   // nav items
@@ -635,6 +636,7 @@ const fr: Record<MessageKey, string> = {
   "footer.tagline":
     "Une OCR qui transforme factures et reçus en données structurées, dans votre navigateur.",
   "footer.rights": "Tous droits réservés.",
+  "footer.payments": "Paiements gérés par PayPal :",
   "footer.cookieSettings": "Paramètres des cookies",
 
   "link.invoice-ocr": "OCR de factures",
@@ -1163,6 +1165,7 @@ const ar: Record<MessageKey, string> = {
 
   "footer.tagline": "تقنية OCR تحوّل الفواتير والإيصالات إلى بيانات منظَّمة، داخل متصفحك.",
   "footer.rights": "جميع الحقوق محفوظة.",
+  "footer.payments": "المدفوعات تتم عبر PayPal:",
   "footer.cookieSettings": "إعدادات ملفات تعريف الارتباط",
 
   "link.invoice-ocr": "قراءة الفواتير",
