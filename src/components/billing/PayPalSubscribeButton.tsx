@@ -45,17 +45,33 @@ export function PayPalSubscribeButton({
   >("loading");
   const [message, setMessage] = useState<string | null>(null);
 
-  // Callers pass an inline arrow, so onActivated is a new function on every
-  // parent render. Held in a ref and kept out of the effect's dependencies:
-  // when it was a dependency the effect re-ran on unrelated parent renders and
-  // appended a second full set of buttons to the same container, leaving the
-  // visitor looking at PayPal's buttons twice.
+  /**
+   * Everything the effect needs but must not re-run for.
+   *
+   * The effect below owns a PayPal button and closes it on cleanup, so it may
+   * only re-run when the button genuinely has to be rebuilt: a different plan,
+   * a different interval, a different language. Anything else in its dependency
+   * array destroys a checkout the visitor may be in the middle of.
+   *
+   * That is not hypothetical. createSubscription calls setStatus("approving"),
+   * which re-renders this component; with an unstable value in the array the
+   * effect re-ran on that very render and closed the button PayPal had just
+   * opened — the subscription was created at PayPal and the approval window
+   * then went away, which is precisely "I click and nothing happens".
+   *
+   * onActivated arrives as an inline arrow, and until useT was memoised the
+   * translator was a new closure on every render, so both were unstable.
+   */
   const onActivatedRef = useRef(onActivated);
+  const refreshRef = useRef(refresh);
+  const labelRef = useRef(t);
   useEffect(() => {
     onActivatedRef.current = onActivated;
-  }, [onActivated]);
+    refreshRef.current = refresh;
+    labelRef.current = t;
+  });
 
-  const label = useCallback((key: MessageKey) => t(key), [t]);
+  const label = useCallback((key: MessageKey) => labelRef.current(key), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -103,7 +119,7 @@ export function PayPalSubscribeButton({
           const result = await confirmSubscriptionApproval({
             data: { planCode, interval, subscriptionId: data.subscriptionID },
           });
-          await refresh();
+          await refreshRef.current();
           if (result.ok) {
             toast.success(label("billing.activated"));
             onActivatedRef.current?.(result.state);
@@ -132,7 +148,8 @@ export function PayPalSubscribeButton({
       void Promise.resolve(instance?.close?.()).catch(() => {});
       container?.replaceChildren();
     };
-  }, [planCode, interval, locale, refresh, label]);
+    // Only these three. See the refs above.
+  }, [planCode, interval, locale, label]);
 
   return (
     <div>

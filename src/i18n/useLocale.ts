@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import {
   asLocale,
@@ -15,9 +16,24 @@ export function useLocale(): Locale {
   return asLocale(pathname.split("/")[1]);
 }
 
+/**
+ * The translator for the current locale.
+ *
+ * Memoised on the locale, so the same function comes back on every render until
+ * the language actually changes. It used to build a new closure each time,
+ * which is invisible almost everywhere — a translated string is a translated
+ * string — and quietly poisonous in the one place it matters: a dependency
+ * array. Any effect listing `t`, or a `useCallback` derived from it, re-ran on
+ * every single render. For an effect that owns a third-party widget and tears
+ * it down on cleanup, that means the widget is destroyed and rebuilt whenever
+ * the component renders for any reason at all.
+ */
 export function useT() {
   const locale = useLocale();
-  return (key: MessageKey, params?: MessageParams) => translate(locale, key, params);
+  return useMemo(
+    () => (key: MessageKey, params?: MessageParams) => translate(locale, key, params),
+    [locale],
+  );
 }
 
 export type Translator = ReturnType<typeof useT>;
