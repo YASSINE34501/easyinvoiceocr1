@@ -8,7 +8,7 @@
  */
 
 import { type MessageKey } from "@/i18n";
-import { navProducts, productLabelKey } from "@/config/products";
+import { navProducts, productLabelKey, type ProductDefinition } from "@/config/products";
 
 export { locales, defaultLocale, localeLabels, type Locale } from "@/i18n";
 export { path } from "@/config/routing";
@@ -56,10 +56,50 @@ export const headerMenus: NavGroup[] = [
   { titleKey: "nav.company", items: companyLinks },
 ];
 
-/** Footer columns, in display order. */
-export const footerMenus: NavGroup[] = [
-  ...headerMenus,
-  { titleKey: "nav.legal", items: legalLinks },
+/**
+ * Footer columns, in display order.
+ *
+ * A column may hold more than one titled group. The footer used to give every
+ * header menu a column of its own, which put eight products beside a column of
+ * three and left the row visibly lopsided. Splitting the products by the kind
+ * the registry already records, and pairing the shorter menus, evens the
+ * columns without dropping a single link — the footer is the site-wide internal
+ * link surface, so a link removed here is removed from every page.
+ *
+ * The product split is derived rather than listed: a new extraction tool joins
+ * the first column and a new converter the second, with no edit here.
+ */
+export type FooterColumn = { groups: NavGroup[] };
+
+const productsOfKind = (kind: ProductDefinition["kind"]): NavLink[] =>
+  navProducts
+    .filter((product) => product.kind === kind)
+    .map((product) => ({ labelKey: productLabelKey(product.slug), slug: product.slug }));
+
+export const footerColumns: FooterColumn[] = [
+  { groups: [{ titleKey: "nav.extract", items: productsOfKind("extraction") }] },
+  {
+    groups: [
+      // The API sits with the converters rather than alone: one link is not a
+      // column, and it is the other thing the site turns a document into.
+      {
+        titleKey: "nav.convert",
+        items: [...productsOfKind("converter"), ...productsOfKind("api")],
+      },
+    ],
+  },
+  {
+    groups: [
+      { titleKey: "nav.solutions", items: solutionLinks },
+      { titleKey: "nav.resources", items: resourceLinks },
+    ],
+  },
+  {
+    groups: [
+      { titleKey: "nav.company", items: companyLinks },
+      { titleKey: "nav.legal", items: legalLinks },
+    ],
+  },
 ];
 
 export const authSlugs = {

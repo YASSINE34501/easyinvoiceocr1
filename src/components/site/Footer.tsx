@@ -1,7 +1,7 @@
-import { Globe } from "lucide-react";
+import { Globe, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 import { AppLink } from "./AppLink";
-import { footerMenus, path } from "@/config/nav";
+import { footerColumns, path } from "@/config/nav";
 import { localeLabels } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { openCookiePreferences } from "./CookieConsent";
@@ -14,29 +14,49 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-[1200px] px-4 py-14 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(5,minmax(0,1fr))]">
-          <div className="min-w-0">
+        {/* Two columns on a phone so the short groups pair up instead of
+            becoming one long scroll, then five once there is room: the brand
+            and four link columns. items-start keeps the columns top-aligned
+            when one runs longer than the rest. */}
+        <div className="grid grid-cols-2 items-start gap-8 md:grid-cols-5 md:gap-10">
+          <div className="col-span-2 min-w-0 md:col-span-1">
             <Logo />
             <p className="mt-4 max-w-[240px] text-sm leading-relaxed text-muted-foreground">
               {t("footer.tagline")}
             </p>
+            {/* Recognition runs in the browser, which is the strongest thing
+                this site can say about privacy — worth saying beside the logo
+                rather than only on the security page it links to. */}
+            <AppLink
+              href={path("security", locale)}
+              className="mt-5 inline-flex max-w-[240px] items-start gap-2 text-xs leading-relaxed text-muted-foreground transition-colors hover:text-navy"
+            >
+              <ShieldCheck className="mt-px size-4 shrink-0 text-primary" aria-hidden="true" />
+              {t("footer.security")}
+            </AppLink>
           </div>
 
-          {footerMenus.map((col) => (
-            <div key={col.titleKey} className="min-w-0">
-              <h3 className="text-sm font-semibold text-navy">{t(col.titleKey)}</h3>
-              <ul className="mt-4 space-y-2.5">
-                {col.items.map((item) => (
-                  <li key={item.slug}>
-                    <AppLink
-                      href={path(item.slug, locale)}
-                      className="text-sm text-muted-foreground transition-colors hover:text-navy"
-                    >
-                      {t(item.labelKey)}
-                    </AppLink>
-                  </li>
-                ))}
-              </ul>
+          {footerColumns.map((column, columnIndex) => (
+            <div key={columnIndex} className="min-w-0 space-y-8">
+              {column.groups.map((group) => (
+                <div key={group.titleKey}>
+                  <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-navy">
+                    {t(group.titleKey)}
+                  </h3>
+                  <ul className="space-y-2.5">
+                    {group.items.map((item) => (
+                      <li key={item.slug}>
+                        <AppLink
+                          href={path(item.slug, locale)}
+                          className="text-sm text-muted-foreground transition-colors hover:text-navy"
+                        >
+                          {t(item.labelKey)}
+                        </AppLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           ))}
         </div>

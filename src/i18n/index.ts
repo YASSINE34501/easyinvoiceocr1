@@ -68,6 +68,8 @@ type Dict = Record<string, string>;
 const en = {
   // chrome
   "nav.product": "Product",
+  "nav.extract": "Extract data",
+  "nav.convert": "Convert files",
   "nav.solutions": "Solutions",
   "nav.resources": "Resources",
   "nav.company": "Company",
@@ -105,6 +107,7 @@ const en = {
   "footer.tagline":
     "OCR that converts invoices and receipts into structured data, in your browser.",
   "footer.rights": "All rights reserved.",
+  "footer.security": "Files are read in your browser and never uploaded.",
   "footer.payments": "Payments handled by PayPal:",
   "footer.cookieSettings": "Cookie settings",
 
@@ -599,6 +602,8 @@ export type MessageKey = keyof typeof en;
 
 const fr: Record<MessageKey, string> = {
   "nav.product": "Produit",
+  "nav.extract": "Extraire les données",
+  "nav.convert": "Convertir des fichiers",
   "nav.solutions": "Solutions",
   "nav.resources": "Ressources",
   "nav.company": "Entreprise",
@@ -636,6 +641,7 @@ const fr: Record<MessageKey, string> = {
   "footer.tagline":
     "Une OCR qui transforme factures et reçus en données structurées, dans votre navigateur.",
   "footer.rights": "Tous droits réservés.",
+  "footer.security": "Les fichiers sont lus dans votre navigateur, jamais téléversés.",
   "footer.payments": "Paiements gérés par PayPal :",
   "footer.cookieSettings": "Paramètres des cookies",
 
@@ -1129,6 +1135,8 @@ const fr: Record<MessageKey, string> = {
 
 const ar: Record<MessageKey, string> = {
   "nav.product": "المنتج",
+  "nav.extract": "استخراج البيانات",
+  "nav.convert": "تحويل الملفات",
   "nav.solutions": "الحلول",
   "nav.resources": "الموارد",
   "nav.company": "الشركة",
@@ -1165,6 +1173,7 @@ const ar: Record<MessageKey, string> = {
 
   "footer.tagline": "تقنية OCR تحوّل الفواتير والإيصالات إلى بيانات منظَّمة، داخل متصفحك.",
   "footer.rights": "جميع الحقوق محفوظة.",
+  "footer.security": "تُقرأ الملفات داخل متصفحك ولا تُرفع أبدًا.",
   "footer.payments": "المدفوعات تتم عبر PayPal:",
   "footer.cookieSettings": "إعدادات ملفات تعريف الارتباط",
 
