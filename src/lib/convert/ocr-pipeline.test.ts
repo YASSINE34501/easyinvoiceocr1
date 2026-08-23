@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { linesFromOcr } from "./ocr";
-import { pageNeedsOcr } from "./pdf";
+import { isRtlText, pageNeedsOcr, storeFor, toLogicalOrder } from "./pdf";
 import { blocksFromLines } from "./layout";
 import type { PdfPageText, PdfTextItem } from "./pdf";
 
@@ -179,5 +179,92 @@ describe("recognised lines become document blocks", () => {
     const blocks = blocksFromLines([line("فاتورة رقم ٢٠٢٦ المجموع الكلي", 100, 16)]);
     // Direction is detected from the characters themselves, not declared.
     expect(blocks.some((b) => "dir" in b && b.dir === "rtl")).toBe(true);
+  });
+});
+
+describe("finding the store an image lives in", () => {
+  /**
+   * pdf.js keeps an image one page uses in that page's own store, and promotes
+   * one that several pages share to the document-wide store, renaming it with a
+   * `g_` prefix. Asking the page store for a shared object never calls back, so
+   * a logo repeated on every page was waited out and dropped: a three-page
+   * fixture converted with the two pictures from page one present and the
+   * identical picture on page two missing, until both stores were consulted.
+   */
+  const page = { objs: { get() {} }, commonObjs: { get() {} } };
+
+  it("asks the shared store first for a g_-prefixed name", () => {
+    const stores = storeFor(page, "g_d1_img_p1_1");
+    expect(stores[0]).toBe(page.commonObjs);
+  });
+
+  it("asks the page store first for a page-local name", () => {
+    const stores = storeFor(page, "img_p0_1");
+    expect(stores[0]).toBe(page.objs);
+  });
+
+  it("always consults both, because the prefix is a hint and not a guarantee", () => {
+    expect(storeFor(page, "g_d1_img_p1_1")).toHaveLength(2);
+    expect(storeFor(page, "img_p0_1")).toHaveLength(2);
+  });
+
+  it("copes with a page that exposes no shared store at all", () => {
+    const lonely = { objs: { get() {} } };
+    expect(storeFor(lonely, "g_d1_x")).toEqual([lonely.objs]);
+    expect(storeFor(lonely, "img_p0_1")).toEqual([lonely.objs]);
+  });
+});
+
+describe("undoing the layout pdf.js has already applied to Arabic", () => {
+  /**
+   * getTextContent runs the bidi algorithm and returns visual order, flagging
+   * the item rtl. Word runs its own bidi on whatever it is given, so passing
+   * that through means the line is reversed twice and an Arabic invoice opens
+   * reading backwards.
+   *
+   * Measured on a PDF whose text layer emits فاتورة رقم ٢٠٢٦: pdf.js returned
+   * that sequence fully reversed, and the exported document contained the
+   * reversed form. After restoring logical order the same fixture produced
+   * فاتورة, رقم, المجموع and ٢٠٢٦ intact.
+   */
+  it("restores the exact line pdf.js returned for an Arabic fixture", () => {
+    // Measured, not invented: this is what getTextContent handed back for a
+    // text layer emitting فاتورة رقم ٢٠٢٦. Note the Arabic words are reversed
+    // while the digit run is not — that is what bidi visual order looks like,
+    // and it is why undoing it is not a plain reverse.
+    const asPdfJsReturnedIt = "٢٠٢٦ مقر ةروتاف";
+    expect(toLogicalOrder(asPdfJsReturnedIt)).toBe("فاتورة رقم ٢٠٢٦");
+  });
+
+  it("keeps a digit run reading left to right", () => {
+    // Whole-string reverse alone would leave 6202 here.
+    expect(toLogicalOrder("٢٠٢٦ ةروتاف")).toBe("فاتورة ٢٠٢٦");
+  });
+
+  it("keeps a Latin word reading left to right inside an Arabic line", () => {
+    expect(toLogicalOrder("EUR عومجملا")).toBe("المجموع EUR");
+  });
+
+  it("leaves text with no right-to-left character completely alone", () => {
+    for (const text of [
+      "Les coûts sont restés stables",
+      "Total: 2 040,00 EUR",
+      "2026/08/23 (Ref. INV-2026-014)",
+      "",
+    ]) {
+      expect(toLogicalOrder(text)).toBe(text);
+    }
+  });
+
+  it("is its own inverse for a pure Arabic run", () => {
+    const logical = "المجموع الكلي";
+    expect(toLogicalOrder(toLogicalOrder(logical))).toBe(logical);
+  });
+
+  it("recognises which runs are right-to-left at all", () => {
+    expect(isRtlText("فاتورة")).toBe(true);
+    expect(isRtlText("שלום")).toBe(true);
+    expect(isRtlText("Facture")).toBe(false);
+    expect(isRtlText("2 040,00 EUR")).toBe(false);
   });
 });

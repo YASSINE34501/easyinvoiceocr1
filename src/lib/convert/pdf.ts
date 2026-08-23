@@ -124,7 +124,9 @@ export async function openPdf(data: ArrayBuffer): Promise<PdfHandle> {
         const scaleX = Math.hypot(transform[0] ?? 1, transform[1] ?? 0);
         const scaleY = Math.hypot(transform[2] ?? 0, transform[3] ?? 1);
         items.push({
-          str: raw.str,
+          // pdf.js has already applied bidi and returns visual order; Word
+          // applies its own, so the layout is undone here.
+          str: raw.dir === "rtl" ? toLogicalOrder(raw.str) : raw.str,
           x: transform[4] ?? 0,
           y: transform[5] ?? 0,
           width: raw.width,
@@ -248,20 +250,53 @@ type PdfImageObject = {
  * callback that fires when the object is ready; a bounded wait keeps one
  * undecodable object from stalling the conversion.
  */
+export type ObjectStore = { get(name: string, callback: (value: unknown) => void): void };
+
+/**
+ * Which store holds an object.
+ *
+ * pdf.js keeps images a single page uses in that page's own store and promotes
+ * one that several pages share to the document-wide store, naming it with a
+ * `g_` prefix when it does. Asking the page store for a shared object simply
+ * never calls back, so a logo repeated on every page but the first was waited
+ * out and dropped — the pictures on page one arrived and the identical picture
+ * on page two did not.
+ */
+export function storeFor(page: { objs: ObjectStore; commonObjs?: ObjectStore }, name: string) {
+  const stores = name.startsWith("g_")
+    ? [page.commonObjs, page.objs]
+    : [page.objs, page.commonObjs];
+  return stores.filter((store): store is ObjectStore => Boolean(store));
+}
+
 function resolveImageObject(
-  page: { objs: { get(name: string, callback: (value: unknown) => void): void } },
+  page: { objs: ObjectStore; commonObjs?: ObjectStore },
   name: string,
 ): Promise<PdfImageObject> {
+  const stores = storeFor(page, name);
+
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error("image_timeout")), 10_000);
-    try {
-      page.objs.get(name, (value) => {
-        clearTimeout(timer);
-        resolve(value as PdfImageObject);
-      });
-    } catch (error) {
+    // Shorter than a page timeout on purpose: this races the wrong store as
+    // well as a genuinely undecodable object, and the fallback still has to
+    // run afterwards.
+    const timer = setTimeout(() => reject(new Error("image_timeout")), 4_000);
+    let settled = false;
+    const done = (value: unknown) => {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
-      reject(error instanceof Error ? error : new Error("image_unavailable"));
+      resolve(value as PdfImageObject);
+    };
+
+    // Both stores are asked; whichever holds it answers first and the other
+    // never calls back. Asking only the likely one costs the picture whenever
+    // the guess is wrong.
+    for (const store of stores) {
+      try {
+        store.get(name, done);
+      } catch {
+        // A store that refuses outright is simply not the one holding it.
+      }
     }
   });
 }
@@ -325,4 +360,47 @@ async function encodeImageObject(object: PdfImageObject): Promise<PdfPageImage |
     widthPx: width,
     heightPx: height,
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* Bidirectional text                                                  */
+/* ------------------------------------------------------------------ */
+
+// Arabic, Hebrew and their presentation forms — the ranges that make a run
+// right-to-left. Digits and Latin are deliberately excluded: inside an Arabic
+// line they read left to right and must survive the flip below.
+const RTL_CHARACTER =
+  /[\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\uFB1D-\uFDFF\uFE70-\uFEFF]/;
+// Runs that keep their own direction inside a right-to-left line.
+const NEUTRAL_RUN =
+  /[0-9\u0660-\u0669\u06F0-\u06F9A-Za-z\u00C0-\u024F][-0-9\u0660-\u0669\u06F0-\u06F9A-Za-z\u00C0-\u024F.,:/]*/g;
+
+/**
+ * Restores logical order to a right-to-left string pdf.js has already laid out.
+ *
+ * getTextContent runs the bidi algorithm and hands back **visual** order,
+ * flagging the item as rtl. Word does its own bidi on the text it is given, so
+ * storing what pdf.js returns means the line is reversed twice and an Arabic
+ * invoice opens reading backwards. Measured on a PDF whose text layer emits
+ * فاتورة رقم ٢٠٢٦: pdf.js returned exactly that sequence reversed.
+ *
+ * Undoing it is a reverse of the whole string, which puts the Arabic right, and
+ * then a second reverse of each digit or Latin run, which puts back the parts
+ * that read left to right inside an Arabic line — 2026 must not become 6202.
+ *
+ * This is the inverse of a layout that has already been applied, not a bidi
+ * implementation. A line mixing several scripts in more than one direction can
+ * still come out imperfect; being wrong about the ordering of a mixed run is a
+ * far smaller failure than every Arabic document exporting reversed.
+ */
+export function toLogicalOrder(text: string): string {
+  if (!RTL_CHARACTER.test(text)) return text;
+
+  const reversed = [...text].reverse().join("");
+  return reversed.replace(NEUTRAL_RUN, (run) => [...run].reverse().join(""));
+}
+
+/** Whether a run of text should be treated as right-to-left. */
+export function isRtlText(text: string): boolean {
+  return RTL_CHARACTER.test(text);
 }
