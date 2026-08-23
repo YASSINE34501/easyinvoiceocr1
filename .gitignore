@@ -44,3 +44,6 @@ public/tesseract/
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch written by the Supabase CLI.
+supabase/.temp/
