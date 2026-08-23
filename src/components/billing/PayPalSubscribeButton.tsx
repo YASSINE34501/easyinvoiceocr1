@@ -1,14 +1,20 @@
 /**
- * PayPal subscription button.
+ * PayPal subscription buttons.
+ *
+ * These are PayPal's own Smart Payment Buttons, drawn by PayPal inside its own
+ * iframes — the yellow PayPal button and, for anyone without a PayPal account,
+ * the dark Debit or Credit Card button. The card funding source is requested
+ * explicitly rather than left to default eligibility, because it is the one
+ * most visitors here need and silently losing it looks like the site simply
+ * does not take cards.
  *
  * The browser is given exactly two things by the server: the public client id
  * and the plan id it authorised. When PayPal returns a subscription id, that id
  * is sent back for server-side verification — the callback itself grants
- * nothing. The screen then polls until PayPal (directly or by webhook) reports
- * the subscription active.
+ * nothing.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -16,60 +22,10 @@ import {
   createSubscriptionIntent,
 } from "@/lib/billing/billing.functions";
 import { useBilling } from "@/billing/BillingProvider";
-import { useT } from "@/i18n/useLocale";
+import { loadPayPalSdk, sdkUrl, type ButtonInstance, type PayPalNamespace } from "./paypal-sdk";
+import { useLocale, useT } from "@/i18n/useLocale";
+import type { MessageKey } from "@/i18n";
 import type { BillingState } from "@/lib/billing/types";
-
-type PayPalButtonsConfig = {
-  style?: Record<string, string>;
-  createSubscription: (
-    data: unknown,
-    actions: { subscription: { create: (input: { plan_id: string }) => Promise<string> } },
-  ) => Promise<string>;
-  onApprove: (data: { subscriptionID?: string | null }) => Promise<void> | void;
-  onCancel?: () => void;
-  onError?: (error: unknown) => void;
-};
-
-type PayPalNamespace = {
-  Buttons: (config: PayPalButtonsConfig) => { render: (target: HTMLElement) => Promise<void> };
-};
-
-let sdkPromise: Promise<PayPalNamespace> | null = null;
-
-/** Loads the PayPal JS SDK once, with subscription intent. */
-function loadPayPalSdk(clientId: string): Promise<PayPalNamespace> {
-  if (sdkPromise) return sdkPromise;
-
-  sdkPromise = new Promise<PayPalNamespace>((resolve, reject) => {
-    const existing = (window as unknown as { paypal?: PayPalNamespace }).paypal;
-    if (existing) {
-      resolve(existing);
-      return;
-    }
-
-    const script = document.createElement("script");
-    const params = new URLSearchParams({
-      "client-id": clientId,
-      vault: "true",
-      intent: "subscription",
-      components: "buttons",
-    });
-    script.src = `https://www.paypal.com/sdk/js?${params.toString()}`;
-    script.async = true;
-    script.onload = () => {
-      const namespace = (window as unknown as { paypal?: PayPalNamespace }).paypal;
-      if (namespace) resolve(namespace);
-      else reject(new Error("paypal_sdk_unavailable"));
-    };
-    script.onerror = () => reject(new Error("paypal_sdk_unavailable"));
-    document.head.appendChild(script);
-  }).catch((error) => {
-    sdkPromise = null;
-    throw error;
-  });
-
-  return sdkPromise;
-}
 
 export function PayPalSubscribeButton({
   planCode,
@@ -81,17 +37,30 @@ export function PayPalSubscribeButton({
   onActivated?: (state: BillingState) => void;
 }) {
   const t = useT();
+  const locale = useLocale();
   const { refresh } = useBilling();
   const containerRef = useRef<HTMLDivElement>(null);
-  const renderedRef = useRef(false);
   const [status, setStatus] = useState<
     "loading" | "ready" | "approving" | "verifying" | "unavailable"
   >("loading");
   const [message, setMessage] = useState<string | null>(null);
 
+  // Callers pass an inline arrow, so onActivated is a new function on every
+  // parent render. Held in a ref and kept out of the effect's dependencies:
+  // when it was a dependency the effect re-ran on unrelated parent renders and
+  // appended a second full set of buttons to the same container, leaving the
+  // visitor looking at PayPal's buttons twice.
+  const onActivatedRef = useRef(onActivated);
+  useEffect(() => {
+    onActivatedRef.current = onActivated;
+  }, [onActivated]);
+
+  const label = useCallback((key: MessageKey) => t(key), [t]);
+
   useEffect(() => {
     let cancelled = false;
-    renderedRef.current = false;
+    let instance: ButtonInstance | null = null;
+    const container = containerRef.current;
 
     (async () => {
       const intent = await createSubscriptionIntent({ data: { planCode, interval } });
@@ -99,55 +68,58 @@ export function PayPalSubscribeButton({
 
       if (!intent.ok) {
         setStatus("unavailable");
-        setMessage(t("billing.paypalUnavailable"));
+        setMessage(label("billing.paypalUnavailable"));
         return;
       }
 
       let sdk: PayPalNamespace;
       try {
-        sdk = await loadPayPalSdk(intent.clientId);
+        sdk = await loadPayPalSdk(sdkUrl(intent.clientId, locale));
       } catch {
         if (!cancelled) {
           setStatus("unavailable");
-          setMessage(t("billing.paypalUnavailable"));
+          setMessage(label("billing.paypalUnavailable"));
         }
         return;
       }
-      if (cancelled || !containerRef.current || renderedRef.current) return;
+      if (cancelled || !container) return;
 
-      renderedRef.current = true;
+      // Whatever a previous run drew is removed first. Rendering into a
+      // container that still holds an old set is what produced duplicates.
+      container.replaceChildren();
       setStatus("ready");
+      setMessage(null);
 
-      await sdk
-        .Buttons({
-          style: { layout: "vertical", shape: "rect", label: "subscribe" },
-          createSubscription: (_data, actions) => {
-            setStatus("approving");
-            // The plan id comes from the server's answer, never from the page.
-            return actions.subscription.create({ plan_id: intent.paypalPlanId });
-          },
-          onApprove: async (data) => {
-            if (!data.subscriptionID) return;
-            setStatus("verifying");
-            const result = await confirmSubscriptionApproval({
-              data: { planCode, interval, subscriptionId: data.subscriptionID },
-            });
-            await refresh();
-            if (result.ok) {
-              toast.success(t("billing.activated"));
-              onActivated?.(result.state);
-            } else {
-              setMessage(t("conv.err.internal_error"));
-              setStatus("unavailable");
-            }
-          },
-          onCancel: () => setStatus("ready"),
-          onError: (error) => {
-            console.error("[paypal] button error", (error as Error)?.name ?? "unknown");
-            setStatus("ready");
-          },
-        })
-        .render(containerRef.current);
+      instance = sdk.Buttons({
+        style: { layout: "vertical", shape: "rect", label: "subscribe" },
+        createSubscription: (_data, actions) => {
+          setStatus("approving");
+          // The plan id comes from the server's answer, never from the page.
+          return actions.subscription.create({ plan_id: intent.paypalPlanId });
+        },
+        onApprove: async (data) => {
+          if (!data.subscriptionID) return;
+          setStatus("verifying");
+          const result = await confirmSubscriptionApproval({
+            data: { planCode, interval, subscriptionId: data.subscriptionID },
+          });
+          await refresh();
+          if (result.ok) {
+            toast.success(label("billing.activated"));
+            onActivatedRef.current?.(result.state);
+          } else {
+            setMessage(label("conv.err.internal_error"));
+            setStatus("unavailable");
+          }
+        },
+        onCancel: () => setStatus("ready"),
+        onError: (error) => {
+          console.error("[paypal] button error", (error as Error)?.name ?? "unknown");
+          setStatus("ready");
+        },
+      });
+
+      await instance.render(container);
     })().catch((error) => {
       console.error("[paypal] setup failed", (error as Error).name);
       if (!cancelled) setStatus("unavailable");
@@ -155,8 +127,12 @@ export function PayPalSubscribeButton({
 
     return () => {
       cancelled = true;
+      // Closing tells PayPal to tear its iframes down; emptying the container
+      // covers the case where close() is unavailable or already resolved.
+      void Promise.resolve(instance?.close?.()).catch(() => {});
+      container?.replaceChildren();
     };
-  }, [planCode, interval, refresh, t, onActivated]);
+  }, [planCode, interval, locale, refresh, label]);
 
   return (
     <div>

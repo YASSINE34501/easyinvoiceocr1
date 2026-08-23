@@ -414,6 +414,7 @@ const en = {
   "choose.subscribeBody":
     "Go straight to a paid plan through PayPal. Choosing this does not start the free trial.",
   "choose.subscribeCta": "Continue to PayPal",
+  "choose.selectPlanFirst": "Select a plan above to continue.",
   "choose.exclusive": "You can use the trial or subscribe — never both at once.",
 
   "trial.daysLeft": "{days} days left in your trial",
@@ -943,6 +944,7 @@ const fr: Record<MessageKey, string> = {
   "choose.subscribeBody":
     "Passez directement à une offre payante via PayPal. Ce choix ne déclenche pas l'essai gratuit.",
   "choose.subscribeCta": "Continuer vers PayPal",
+  "choose.selectPlanFirst": "Choisissez une offre ci-dessus pour continuer.",
   "choose.exclusive": "Essai ou abonnement — jamais les deux en même temps.",
 
   "trial.daysLeft": "{days} jours restants dans votre essai",
@@ -1453,6 +1455,7 @@ const ar: Record<MessageKey, string> = {
   "choose.subscribeBody":
     "انتقل مباشرة إلى باقة مدفوعة عبر PayPal. هذا الخيار لا يبدأ التجربة المجانية.",
   "choose.subscribeCta": "المتابعة إلى PayPal",
+  "choose.selectPlanFirst": "اختر باقة أعلاه للمتابعة.",
   "choose.exclusive": "إما التجربة أو الاشتراك — لا يعملان معًا أبدًا.",
 
   "trial.daysLeft": "تبقّى {days} يومًا في تجربتك",

@@ -51,7 +51,11 @@ function ChoosePlanPage() {
   const { user, loading: authLoading } = useAuth();
   const { state, refresh } = useBilling();
   const [interval, setInterval] = useState<"month" | "year">("month");
-  const [selected, setSelected] = useState<"pro" | "business" | null>(null);
+  // Pro is selected on arrival so PayPal's buttons are on screen straight away.
+  // With nothing selected the card showed only the words "Continue to PayPal",
+  // which reads as a button, does nothing when clicked, and gives no hint that
+  // a plan has to be picked first — so the page looked like a broken checkout.
+  const [selected, setSelected] = useState<"pro" | "business" | null>("pro");
   const consent = useConsent();
 
   /**
@@ -265,7 +269,7 @@ function ChoosePlanPage() {
                   onActivated={() => navigate({ to: "/$locale/app/billing", params: { locale } })}
                 />
               ) : (
-                <p className="text-xs text-muted-foreground">{t("choose.subscribeCta")}</p>
+                <p className="text-xs text-muted-foreground">{t("choose.selectPlanFirst")}</p>
               )}
             </div>
           </div>
