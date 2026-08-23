@@ -10,6 +10,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   envPlanId,
+  checkoutBlockedReason,
   isLiveCheckoutEnabled,
   missingPayPalConfig,
   readPayPalConfig,
@@ -190,5 +191,57 @@ describe("isLiveCheckoutEnabled — fails closed", () => {
     configureFully();
     process.env["PAYPAL_LIVE_CHECKOUT_ENABLED"] = "true";
     expect(isLiveCheckoutEnabled()).toBe(true);
+  });
+});
+
+describe("checkoutBlockedReason — the gate checkout actually calls", () => {
+  /**
+   * isLiveCheckoutEnabled was correct, documented and tested, and no production
+   * code path called it, so live checkout opened whatever it said. The rule is
+   * now a value the handler must consult, and these are what keep it consulted.
+   */
+  it("blocks when PayPal is not configured at all", () => {
+    delete process.env["PAYPAL_CLIENT_ID"];
+    delete process.env["PAYPAL_CLIENT_SECRET"];
+    expect(checkoutBlockedReason()).toBe("paypal_not_configured");
+  });
+
+  it("blocks live checkout when the owner has not opted in", () => {
+    configureFully();
+    process.env["PAYPAL_ENV"] = "live";
+    delete process.env["PAYPAL_LIVE_CHECKOUT_ENABLED"];
+    expect(checkoutBlockedReason()).toBe("paypal_not_configured");
+  });
+
+  it("blocks live checkout when opted in but a plan id is missing", () => {
+    // Without every plan id the button can open on a plan that cannot be
+    // created, and without the webhook id nothing that is paid for activates.
+    configureFully();
+    process.env["PAYPAL_ENV"] = "live";
+    process.env["PAYPAL_LIVE_CHECKOUT_ENABLED"] = "true";
+    delete process.env["PAYPAL_BUSINESS_YEARLY_PLAN_ID"];
+    expect(checkoutBlockedReason()).toBe("paypal_not_configured");
+  });
+
+  it("blocks live checkout when the webhook id is missing", () => {
+    configureFully();
+    process.env["PAYPAL_ENV"] = "live";
+    process.env["PAYPAL_LIVE_CHECKOUT_ENABLED"] = "true";
+    delete process.env["PAYPAL_WEBHOOK_ID"];
+    expect(checkoutBlockedReason()).toBe("paypal_not_configured");
+  });
+
+  it("allows live checkout only with complete configuration and an explicit opt-in", () => {
+    configureFully();
+    process.env["PAYPAL_ENV"] = "live";
+    process.env["PAYPAL_LIVE_CHECKOUT_ENABLED"] = "true";
+    expect(checkoutBlockedReason()).toBeNull();
+  });
+
+  it("allows sandbox without the opt-in, since it moves no real money", () => {
+    configureFully();
+    process.env["PAYPAL_ENV"] = "sandbox";
+    delete process.env["PAYPAL_LIVE_CHECKOUT_ENABLED"];
+    expect(checkoutBlockedReason()).toBeNull();
   });
 });

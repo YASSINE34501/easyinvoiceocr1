@@ -163,10 +163,27 @@ export const createSubscriptionIntent = createServerFn({ method: "POST" })
   .validator((data: unknown) => planSelection.parse(data))
   .handler(async ({ data }) => {
     const { getPlanByCode } = await import("./entitlements.server");
-    const { envPlanId, readPayPalConfig } = await import("@/lib/paypal/client.server");
+    const { checkoutBlockedReason, envPlanId, readPayPalConfig } =
+      await import("@/lib/paypal/client.server");
 
-    const config = readPayPalConfig();
-    if (!config) return { ok: false as const, error: "paypal_not_configured" as const };
+    // The opt-in gate, on the one path that can open a real payment window.
+    //
+    // isLiveCheckoutEnabled has always existed and has always been documented
+    // as the rule that live checkout opens only when every credential and plan
+    // id is present and the account owner has explicitly said go. Nothing
+    // outside its own test ever called it, so the rule was written down and not
+    // enforced: a deployment holding live credentials would open a real payment
+    // window with, for instance, no PAYPAL_WEBHOOK_ID — and without that id
+    // every webhook fails verification, so the money is taken and the
+    // subscription never activates.
+    const blocked = checkoutBlockedReason();
+    if (blocked) {
+      console.error("[paypal] checkout blocked:", blocked);
+      return { ok: false as const, error: blocked };
+    }
+
+    // Non-null: checkoutBlockedReason returns paypal_not_configured otherwise.
+    const config = readPayPalConfig()!;
 
     const plan = await getPlanByCode(data.planCode);
     if (!plan || !plan.active) return { ok: false as const, error: "plan_unavailable" as const };

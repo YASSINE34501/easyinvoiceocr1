@@ -13,6 +13,7 @@
 
 import { sortedProducts } from "@/config/products";
 import { serverDb } from "@/lib/db.server";
+import { envPlanId } from "@/lib/paypal/client.server";
 import {
   EMPTY_ENTITLEMENTS,
   maskSubscriptionId,
@@ -103,7 +104,17 @@ export function toPublicPlan(row: PlanRow): PublicPlan {
     comingSoon: Array.isArray(row.coming_soon) ? row.coming_soon : [],
     features: row.features ?? {},
     sortOrder: row.sort_order,
-    paypalConfigured: Boolean(row.paypal_monthly_plan_id || row.paypal_yearly_plan_id),
+    // Resolved the same way checkout resolves it: the column is an operator
+    // override and the environment is the default, so a plan whose columns are
+    // null is still configured when the environment names its ids. Reading the
+    // column alone reported "not configured" for a plan that checkout could
+    // open perfectly well.
+    paypalConfigured: Boolean(
+      row.paypal_monthly_plan_id ??
+      envPlanId(row.code, "month") ??
+      row.paypal_yearly_plan_id ??
+      envPlanId(row.code, "year"),
+    ),
   };
 }
 

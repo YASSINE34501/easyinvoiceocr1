@@ -372,3 +372,22 @@ export async function verifyWebhookSignature(
     return false;
   }
 }
+
+/**
+ * Whether checkout may open, and why not when it may not.
+ *
+ * Exists so the rule is a value that can be asserted rather than a condition
+ * buried in a handler. isLiveCheckoutEnabled was written, documented and tested
+ * but never called by anything, so live checkout opened regardless of it; a
+ * decision that is returned rather than performed is much harder to leave
+ * unwired by accident.
+ *
+ * Sandbox is always allowed: it moves no real money, and demanding the opt-in
+ * there would only make testing harder.
+ */
+export function checkoutBlockedReason(): "paypal_not_configured" | null {
+  const config = readPayPalConfig();
+  if (!config) return "paypal_not_configured";
+  if (config.environment !== "live") return null;
+  return isLiveCheckoutEnabled() ? null : "paypal_not_configured";
+}
