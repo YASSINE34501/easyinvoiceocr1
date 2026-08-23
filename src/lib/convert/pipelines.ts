@@ -65,6 +65,42 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 /* PDF to Word                                                         */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Reports whether a rendered page carries no marks at all.
+ *
+ * Sampled on a grid rather than read pixel by pixel: a 1700 px page is several
+ * megabytes, and a page holding any content puts a dark pixel somewhere in a
+ * coarse grid almost immediately. The threshold is deliberately generous, so
+ * scanner grain and off-white paper still count as content and only a page that
+ * is uniformly near-white is treated as empty.
+ */
+function isBlankCanvas(canvas: HTMLCanvasElement): boolean {
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) return false;
+
+  const STEP = 8;
+  const DARK_ENOUGH = 240;
+  try {
+    const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < canvas.height; y += STEP) {
+      for (let x = 0; x < canvas.width; x += STEP) {
+        const i = (y * canvas.width + x) * 4;
+        const alpha = data[i + 3] ?? 0;
+        if (alpha === 0) continue;
+        const r = data[i] ?? 255;
+        const g = data[i + 1] ?? 255;
+        const b = data[i + 2] ?? 255;
+        if (r < DARK_ENOUGH || g < DARK_ENOUGH || b < DARK_ENOUGH) return false;
+      }
+    }
+    return true;
+  } catch {
+    // A tainted or oversized canvas cannot be read. Treat it as content so the
+    // page still goes through recognition rather than being silently dropped.
+    return false;
+  }
+}
+
 export async function pdfToRecognisedPages(
   file: File,
   options: PipelineOptions,
@@ -106,7 +142,6 @@ export async function pdfToRecognisedPages(
         continue;
       }
 
-      usedOcr = true;
       onProgress?.({
         stage: "ocr",
         percent: 5 + Math.round((pageNumber / pdf.pageCount) * 85),
@@ -114,10 +149,31 @@ export async function pdfToRecognisedPages(
         pageCount: pdf.pageCount,
       });
 
-      if (!engine) engine = await createOcrEngine(options.ocrLanguage);
       // 1700 px wide is around 200 dpi for A4 — enough for reliable recognition
       // without spending memory on a 4000 px canvas per page.
       const canvas = await withTimeout(pdf.renderPage(pageNumber, 1700), timeout);
+
+      // A page with no text layer is usually a scan, but it can also be a
+      // genuinely empty page — a separator sheet, or the back of a duplex scan.
+      // Those were still sent through Tesseract, which spent seconds per page
+      // recognising nothing. Sampling the rendered pixels costs microseconds
+      // and the canvas is already in hand, so the blank case is settled before
+      // the engine is even started.
+      if (isBlankCanvas(canvas)) {
+        canvas.width = 0;
+        canvas.height = 0;
+        pages.push({
+          index: pageNumber,
+          blocks: [],
+          text: "",
+          confidence: null,
+          usedOcr: false,
+        });
+        continue;
+      }
+
+      usedOcr = true;
+      if (!engine) engine = await createOcrEngine(options.ocrLanguage);
       const result = await withTimeout(engine.recognize(canvas), timeout);
       canvas.width = 0;
       canvas.height = 0;
