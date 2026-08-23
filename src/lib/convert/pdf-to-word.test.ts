@@ -228,3 +228,55 @@ describe("the document Word will actually open", () => {
     expect(xmlSafe(CONTROL + VERTICAL_TAB + UNIT_SEP)).toBe("");
   });
 });
+
+describe("pictures in the source reach the document", () => {
+  /**
+   * PDF -> Word read the text layer and nothing else, so a report with figures
+   * converted cleanly and opened in Word with the figures gone and nothing to
+   * say so. Confirmed against a real PDF in a browser before the fix (zero
+   * image blocks) and after it (one, 160x120, wired to a media part Word can
+   * resolve). These pin the model contract that carries them.
+   */
+  function image(widthPx: number, heightPx: number): DocBlock {
+    return { kind: "image", data: new Uint8Array([1, 2, 3]), type: "png", widthPx, heightPx };
+  }
+
+  it("keeps an image block alongside the text of its page", () => {
+    const model = pagesToModel([page(1, [para("Figure 1 follows."), image(160, 120)])], "r.pdf");
+    expect(model.blocks.filter((b) => b.kind === "image")).toHaveLength(1);
+    expect(model.blocks.some((b) => "text" in b && b.text === "Figure 1 follows.")).toBe(true);
+  });
+
+  it("keeps each page's images with that page across a page break", () => {
+    const model = pagesToModel(
+      [page(1, [para("one"), image(100, 100)]), page(2, [para("two"), image(200, 50)])],
+      "r.pdf",
+    );
+    const kinds = model.blocks.map((b) => b.kind);
+    // image, pageBreak, ... — the break must fall between the two pages' images
+    const firstImage = kinds.indexOf("image");
+    const breakAt = kinds.indexOf("pageBreak");
+    const lastImage = kinds.lastIndexOf("image");
+    expect(firstImage).toBeLessThan(breakAt);
+    expect(lastImage).toBeGreaterThan(breakAt);
+  });
+
+  it("does not invent an image for a page that has none", () => {
+    const model = pagesToModel([page(1, [para("text only")])], "r.pdf");
+    expect(model.blocks.some((b) => b.kind === "image")).toBe(false);
+  });
+
+  it("counts a picture as content, so an image-only page is not 'empty'", () => {
+    // assertUsableModel accepts images as well as text; a page that is one
+    // scanned figure must not be rejected as an empty conversion.
+    expect(() =>
+      assertUsableModel({
+        baseName: "x",
+        blocks: [image(400, 300)],
+        pageCount: 1,
+        usedOcr: false,
+        dir: "ltr",
+      }),
+    ).not.toThrow();
+  });
+});

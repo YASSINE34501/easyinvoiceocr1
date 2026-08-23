@@ -132,6 +132,23 @@ export async function pdfToRecognisedPages(
           pageCount: pdf.pageCount,
         });
         const blocks = blocksFromPdfPage(pageText);
+
+        // The pictures on the page go in after its text. Placing them exactly
+        // where they sat would need the full paint order; appending keeps them
+        // on the page they came from, which is the part that matters — before
+        // this they were dropped altogether and a converted report arrived in
+        // Word with its figures missing and nothing to say so.
+        const images = await withTimeout(pdf.getPageImages(pageNumber), timeout);
+        for (const image of images) {
+          blocks.push({
+            kind: "image",
+            data: image.data,
+            type: image.type,
+            widthPx: image.widthPx,
+            heightPx: image.heightPx,
+          });
+        }
+
         pages.push({
           index: pageNumber,
           blocks,
