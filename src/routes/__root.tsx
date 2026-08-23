@@ -12,7 +12,6 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { BillingProvider } from "@/billing/BillingProvider";
 import { CookieConsent } from "@/components/site/CookieConsent";
@@ -43,11 +42,11 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+  // The console is the whole reporting path. A boundary-caught error is not
+  // rethrown to window.onerror by production React, so without this line a
+  // rendering failure would leave nothing behind to diagnose it from.
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

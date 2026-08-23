@@ -1,12 +1,12 @@
 /**
  * Google sign-in, through Supabase's own OAuth endpoint.
  *
- * This replaces `@lovable.dev/cloud-auth-js`, which sent the browser to a
- * relative broker path — `/~oauth/initiate` — that nothing in this application
- * serves. On the dev server that path returns HTTP 404, so clicking "Google"
- * navigated to a not-found page and the visitor never reached Google. The
- * broker is part of Lovable's own hosting, not of the app, so the same would
- * happen on any other host.
+ * This replaces the hosted auth broker the project shipped with, which sent the
+ * browser to a relative path — `/~oauth/initiate` — that nothing in this
+ * application serves. On the dev server that path returns HTTP 404, so clicking
+ * "Google" navigated to a not-found page and the visitor never reached Google.
+ * That broker belongs to the original editor's hosting rather than to the app,
+ * so the same would happen on any other host.
  *
  * Supabase's endpoint is already configured: GET /auth/v1/authorize?provider=google
  * answers 302 to accounts.google.com with a client id set, and returns to
