@@ -252,6 +252,31 @@ export async function applyWebhookEvent(event: {
       return { handled: result.applied, note: result.reason ?? result.status };
     }
 
+    /**
+     * A refund the merchant issued, which is money going back out but is not a
+     * delinquency: the subscription keeps running until it is separately
+     * cancelled, and PayPal sends that as its own event. It therefore gets its
+     * own branch rather than joining the failure cases below — putting it there
+     * would mark a paying customer past_due and tell them their payment failed
+     * because they were given money back.
+     *
+     * PAYMENT.SALE.REVERSED stays with the failures: a reversal is money taken
+     * back by PayPal or the bank, and that does mean the subscription is in
+     * trouble. Both are recorded as payment_refunded so gross revenue is net of
+     * money returned either way.
+     */
+    case "PAYMENT.SALE.REFUNDED": {
+      const { data: existing } = await db
+        .from("user_subscriptions")
+        .select("id")
+        .eq("provider_subscription_id", subscriptionId)
+        .maybeSingle();
+      if (!existing) return { handled: false, note: "unknown_subscription" };
+
+      await recordPaymentEvent("payment_refunded", event, subscriptionId, resource);
+      return { handled: true, note: "refund_recorded" };
+    }
+
     case "BILLING.SUBSCRIPTION.PAYMENT.FAILED":
     case "PAYMENT.SALE.DENIED":
     case "PAYMENT.SALE.REVERSED": {

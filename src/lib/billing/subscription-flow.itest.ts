@@ -165,3 +165,61 @@ describe("webhook -> database -> entitlement", () => {
     expect(result.note).toBe("no_subscription_id");
   }, 30_000);
 });
+
+describe("a refund is money returned, not a delinquency", () => {
+  /**
+   * PAYMENT.SALE.REFUNDED used to fall through to ignored_event_type, so a
+   * merchant refund changed nothing and never reached revenue analytics. It
+   * must not join the payment-failure cases either: refunding someone is not a
+   * reason to mark them past_due and tell them their payment failed.
+   */
+  const REFUND_SUB = `I-ITEST-REFUND-${Date.now()}`;
+
+  it("records the refund and leaves the subscription running", async () => {
+    const { applyWebhookEvent } = await import("@/lib/paypal/subscriptions.server");
+
+    // Put the fixture back to active under a new provider id, so this assertion
+    // is about the refund event and not about the past_due the earlier test
+    // left behind. Filtered on the fixture id: an unfiltered PATCH here would
+    // rewrite every subscription in the project, including real ones.
+    await api(`/rest/v1/user_subscriptions?provider_subscription_id=eq.${PROVIDER_SUB_ID}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "active", provider_subscription_id: REFUND_SUB }),
+    });
+
+    const result = await applyWebhookEvent({
+      id: `WH-ITEST-REFUND-${Date.now()}`,
+      event_type: "PAYMENT.SALE.REFUNDED",
+      create_time: new Date().toISOString(),
+      resource: { billing_agreement_id: REFUND_SUB, amount: { total: "14.00", currency: "USD" } },
+    });
+
+    expect(result.handled).toBe(true);
+    expect(result.note).toBe("refund_recorded");
+
+    const row = await api(
+      `/rest/v1/user_subscriptions?select=status&provider_subscription_id=eq.${REFUND_SUB}`,
+    );
+    // Still active: a refund does not suspend anyone.
+    expect(row.body[0].status).toBe("active");
+  }, 30_000);
+
+  it("does not tell the customer their payment failed", async () => {
+    const notifications = await api(
+      `/rest/v1/user_notifications?select=kind&user_id=eq.${userId}&kind=eq.payment_failed`,
+    );
+    // Exactly the one from the earlier payment-failure test, and no more.
+    expect(notifications.body.length).toBe(1);
+  }, 30_000);
+
+  it("refuses a refund naming a subscription nobody owns", async () => {
+    const { applyWebhookEvent } = await import("@/lib/paypal/subscriptions.server");
+    const result = await applyWebhookEvent({
+      id: `WH-ITEST-REFUND-UNKNOWN-${Date.now()}`,
+      event_type: "PAYMENT.SALE.REFUNDED",
+      resource: { billing_agreement_id: "I-NOBODY-OWNS-THIS" },
+    });
+    expect(result.handled).toBe(false);
+    expect(result.note).toBe("unknown_subscription");
+  }, 30_000);
+});
