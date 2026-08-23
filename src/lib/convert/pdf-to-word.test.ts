@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { blocksToText, pagesToModel, type RecognisedPage } from "./pipelines";
-import { assertUsableModel, toModel } from "./docx";
+import { assertUsableModel, toModel, xmlSafe } from "./docx";
 import type { DocBlock } from "./types";
 
 /**
@@ -175,5 +175,56 @@ describe("toModel carries the document identity through", () => {
   it("records whether the text came from recognition rather than a text layer", () => {
     expect(toModel("scan", [para("x")], 1, true, "ltr").usedOcr).toBe(true);
     expect(toModel("native", [para("x")], 1, false, "ltr").usedOcr).toBe(false);
+  });
+});
+
+describe("the document Word will actually open", () => {
+  /**
+   * A .docx is a zip full of XML, and XML 1.0 forbids the C0 control range
+   * apart from tab, newline and carriage return. A PDF text layer and OCR both
+   * emit those bytes routinely, and the docx library writes what it is handed —
+   * so one stray 0x0B produced a file that packed correctly, passed a zip
+   * signature check, and then made Word refuse the whole document with
+   * "Word encountered an error trying to open the file".
+   */
+  const CONTROL = String.fromCharCode(0x03);
+  const VERTICAL_TAB = String.fromCharCode(0x0b);
+  const UNIT_SEP = String.fromCharCode(0x1f);
+
+  it("removes the control characters XML cannot carry", () => {
+    const dirty = `Invoice${CONTROL} total${VERTICAL_TAB} 2040.00${UNIT_SEP}`;
+    expect(xmlSafe(dirty)).toBe("Invoice total 2040.00");
+  });
+
+  it("keeps the three whitespace characters XML does allow", () => {
+    expect(xmlSafe("a\tb\nc\rd")).toBe("a\tb\nc\rd");
+  });
+
+  it("leaves ordinary text untouched, in every language the site supports", () => {
+    expect(xmlSafe("Revenue grew")).toBe("Revenue grew");
+    expect(xmlSafe("Les coûts sont restés stables — société")).toBe(
+      "Les coûts sont restés stables — société",
+    );
+    expect(xmlSafe("فاتورة رقم ٢٠٢٦ — المجموع")).toBe("فاتورة رقم ٢٠٢٦ — المجموع");
+    expect(xmlSafe("Total: 2 040,00 €")).toBe("Total: 2 040,00 €");
+  });
+
+  it("keeps a matched surrogate pair, which is one real character", () => {
+    // An emoji is two code units that belong together; splitting it would
+    // corrupt the text just as surely as leaving a lone half would.
+    expect(xmlSafe("total 💶 due")).toBe("total 💶 due");
+  });
+
+  it("drops a lone surrogate, which is not a valid XML character", () => {
+    expect(xmlSafe(`bad${String.fromCharCode(0xd800)}half`)).toBe("badhalf");
+    expect(xmlSafe(`${String.fromCharCode(0xdc00)}trailing`)).toBe("trailing");
+  });
+
+  it("strips the DEL and C1 range as well", () => {
+    expect(xmlSafe(`a${String.fromCharCode(0x7f)}b${String.fromCharCode(0x9f)}c`)).toBe("abc");
+  });
+
+  it("returns an empty string rather than throwing on control-only input", () => {
+    expect(xmlSafe(CONTROL + VERTICAL_TAB + UNIT_SEP)).toBe("");
   });
 });
