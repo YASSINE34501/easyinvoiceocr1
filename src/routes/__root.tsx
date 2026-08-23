@@ -17,7 +17,7 @@ import { AuthProvider } from "@/auth/AuthProvider";
 import { BillingProvider } from "@/billing/BillingProvider";
 import { CookieConsent } from "@/components/site/CookieConsent";
 import { useVisitorSession } from "@/lib/analytics/useVisitorSession";
-import { SITE_NAME, SITE_ORIGIN, SOCIAL_IMAGE, absoluteUrl } from "@/config/seo";
+import { SITE_NAME, SITE_ORIGIN, SOCIAL_IMAGE, absoluteUrl, verificationMeta } from "@/config/seo";
 import { locales, localeDir, localeFromPathname, localeHtmlLang } from "@/i18n";
 
 function NotFoundComponent() {
@@ -95,6 +95,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // link renders as a bare text stub.
       { property: "og:image", content: absoluteUrl(SOCIAL_IMAGE) },
       { name: "twitter:image", content: absoluteUrl(SOCIAL_IMAGE) },
+      // Ownership verification for Search Console and Bing Webmaster Tools.
+      // Empty unless a token is configured, so no preview deployment advertises
+      // itself as the verified property.
+      ...verificationMeta(),
     ],
     links: [
       { rel: "stylesheet", href: appCss },

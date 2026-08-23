@@ -163,3 +163,34 @@ export function socialMeta(input: {
     { name: "twitter:image", content: absoluteUrl(input.image ?? SOCIAL_IMAGE) },
   ];
 }
+
+/**
+ * Search-engine ownership verification, as meta tags.
+ *
+ * Two things Google accepts are easy to confuse. The HTML-file method issues a
+ * token shaped `google` + 16 hex characters and asks for a file of that name at
+ * the site root; the HTML-tag method issues a longer opaque string and asks for
+ * a meta tag. They are not interchangeable — putting a file token into a meta
+ * tag produces a tag Google reads and rejects, which is worse than no tag,
+ * because the property then sits unverified with nothing obviously wrong.
+ *
+ * So the token is read from the environment rather than compiled in, and the
+ * tag is emitted only when one is set. An unset variable renders nothing.
+ */
+export function verificationMeta(): MetaTag[] {
+  const tags: MetaTag[] = [];
+
+  const google = import.meta.env["VITE_GOOGLE_SITE_VERIFICATION"];
+  // A file token in this variable would be silently wrong, so it is refused
+  // here rather than shipped as a tag that cannot verify.
+  if (typeof google === "string" && google.trim() !== "" && !/^google[0-9a-f]{16}$/i.test(google)) {
+    tags.push({ name: "google-site-verification", content: google.trim() });
+  }
+
+  const bing = import.meta.env["VITE_BING_SITE_VERIFICATION"];
+  if (typeof bing === "string" && bing.trim() !== "") {
+    tags.push({ name: "msvalidate.01", content: bing.trim() });
+  }
+
+  return tags;
+}
