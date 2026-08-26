@@ -62,16 +62,15 @@ export function Footer() {
         </div>
       </div>
 
+      <PaymentMarks label={t("footer.paymentsTitle")} />
+
       <div className="border-t border-border">
-        {/* Three groups, so the bar needs more room than the previous two did:
-            it stays stacked and centred until lg, rather than crushing the
-            payment marks against the copyright on a tablet. */}
+        {/* Copyright, cookie settings and language. The payment marks moved to
+            their own strip above, so this band is back to two groups. */}
         <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-4 px-4 py-5 text-center text-sm text-muted-foreground sm:px-6 lg:flex-row lg:justify-between lg:gap-6 lg:text-start">
           <p>
             © {new Date().getFullYear()} EasyInvoiceOCR. {t("footer.rights")}
           </p>
-          <PaymentMarks label={t("footer.payments")} />
-
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               type="button"

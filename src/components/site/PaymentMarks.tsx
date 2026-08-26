@@ -1,17 +1,21 @@
 /**
- * The payment marks shown in the footer.
+ * The accepted payment methods, shown once in the footer on every page.
  *
- * These are simplified marks drawn here, not the brands' official logo files.
- * Mastercard's interlocking circles are exact because they are pure geometry;
- * Visa and PayPal are wordmarks set in the page's own typeface rather than the
- * custom lettering each brand uses. That is a deliberate trade: it keeps the
- * footer free of embedded binaries and of logo files that go stale, at the cost
- * of not being pixel-accurate to the brand guidelines. Anyone who needs the
- * official artwork should take it from the Visa, Mastercard and PayPal brand
- * centres, which also carry the usage rules that come with it.
+ * Only what can be paid with is listed. PayPal is the provider, and the SDK is
+ * asked for the card funding source explicitly, which the live buttons confirm
+ * as eligible — so Visa and Mastercard belong here. American Express, Apple Pay
+ * and Google Pay are not shown: nothing in this project establishes that they
+ * are available, and a payment method advertised in a footer and then missing
+ * at checkout is worse than one that was never promised.
  *
- * They are muted by default and come up to full colour on hover, so the footer
- * reads as information rather than as advertising.
+ * The marks are drawn here rather than shipped as logo files. Mastercard's
+ * interlocking circles are exact, being pure geometry, with the overlap
+ * produced by clipping one circle against the other; Visa and PayPal are
+ * wordmarks set in the page's own typeface rather than the custom lettering
+ * each brand uses. That keeps the footer free of binaries and of logo files
+ * that go stale, at the cost of not matching brand guidelines to the pixel.
+ * The official artwork lives in each brand's own centre, together with the
+ * usage rules that come with it.
  */
 
 const WORDMARK_FONT =
@@ -21,7 +25,7 @@ function PayPalMark() {
   return (
     <svg
       viewBox="0 0 72 24"
-      className="h-5 w-auto"
+      className="h-4 w-auto"
       role="img"
       aria-label="PayPal"
       focusable="false"
@@ -44,7 +48,7 @@ function PayPalMark() {
 
 function VisaMark() {
   return (
-    <svg viewBox="0 0 52 24" className="h-5 w-auto" role="img" aria-label="Visa" focusable="false">
+    <svg viewBox="0 0 52 24" className="h-4 w-auto" role="img" aria-label="Visa" focusable="false">
       <text
         x="0"
         y="18"
@@ -65,14 +69,14 @@ function MastercardMark() {
   return (
     <svg
       viewBox="0 0 32 24"
-      className="h-5 w-auto"
+      className="h-4 w-auto"
       role="img"
       aria-label="Mastercard"
       focusable="false"
     >
       <defs>
-        {/* The overlap is the left circle clipping the right one, which gives
-            the exact lens shape rather than an approximation of it. */}
+        {/* Clipping one circle against the other gives the exact lens shape
+            rather than an approximation of it. */}
         <clipPath id="eio-mc-overlap">
           <circle cx="12" cy="12" r="9" />
         </clipPath>
@@ -84,22 +88,40 @@ function MastercardMark() {
   );
 }
 
+const MARKS = [VisaMark, MastercardMark, PayPalMark] as const;
+
 export function PaymentMarks({ label }: { label: string }) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      {/* One group, so hovering anywhere in the row lifts all three together
-          instead of making them flicker one at a time. */}
-      <span className="group inline-flex items-center gap-3">
-        {[PayPalMark, VisaMark, MastercardMark].map((Mark, i) => (
-          <span
-            key={i}
-            className="opacity-60 grayscale transition duration-200 group-hover:opacity-100 group-hover:grayscale-0"
-          >
-            <Mark />
-          </span>
-        ))}
-      </span>
+    /* Its own strip above the copyright line, separated by the same hairline
+       the footer already uses between its other bands. */
+    <div className="border-t border-border/70">
+      <div className="mx-auto max-w-[1200px] px-4 py-7 text-center sm:px-6">
+        {/* A paragraph, not a heading. This strip is on every page, and a
+            heading here would insert an entry into every page outline that has
+            nothing to do with that page. The list is associated with the label
+            instead, so a screen reader still announces what the marks are. */}
+        <p
+          id="footer-payment-methods"
+          className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        >
+          {label}
+        </p>
+        {/* Wraps on a narrow screen instead of overflowing; the marks stay the
+            same small size at every width. */}
+        <ul
+          aria-labelledby="footer-payment-methods"
+          className="mt-4 flex flex-wrap items-center justify-center gap-3"
+        >
+          {MARKS.map((Mark, i) => (
+            <li
+              key={i}
+              className="grid h-9 w-[68px] place-items-center rounded-lg border border-border bg-card px-3 shadow-panel"
+            >
+              <Mark />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
