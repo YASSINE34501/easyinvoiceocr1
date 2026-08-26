@@ -1,6 +1,12 @@
 /**
  * The accepted payment methods, shown in the footer bottom bar on every page.
  *
+ * The wordmarks carry direction="ltr" explicitly. An SVG text element inherits
+ * the page direction, and under dir="rtl" the glyphs are laid out from x="0"
+ * leftwards — outside the viewBox, so Visa and PayPal rendered as empty tiles
+ * on the Arabic site while Mastercard, being pure geometry, was unaffected.
+ * A brand wordmark reads left to right in every language.
+ *
  * Deliberately small and unlabelled: an indicator that payment is possible,
  * sitting between the copyright and the cookie settings without asking for more
  * room than either.
@@ -37,6 +43,7 @@ function PayPalMark() {
       <text
         x="0"
         y="18"
+        direction="ltr"
         fontFamily={WORDMARK_FONT}
         fontSize="18"
         fontWeight="700"
@@ -56,6 +63,7 @@ function VisaMark() {
       <text
         x="0"
         y="18"
+        direction="ltr"
         fontFamily={WORDMARK_FONT}
         fontSize="18"
         fontWeight="800"
