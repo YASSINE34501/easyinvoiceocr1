@@ -1,5 +1,9 @@
 /**
- * The accepted payment methods, shown once in the footer on every page.
+ * The accepted payment methods, shown in the footer bottom bar on every page.
+ *
+ * Deliberately small and unlabelled: an indicator that payment is possible,
+ * sitting between the copyright and the cookie settings without asking for more
+ * room than either.
  *
  * Only what can be paid with is listed. PayPal is the provider, and the SDK is
  * asked for the card funding source explicitly, which the live buttons confirm
@@ -90,38 +94,29 @@ function MastercardMark() {
 
 const MARKS = [VisaMark, MastercardMark, PayPalMark] as const;
 
+/**
+ * @param label Names the group for assistive technology. It is not rendered:
+ * the bar carries no visible heading, and an unlabelled row of three logos
+ * announces as nothing useful.
+ */
 export function PaymentMarks({ label }: { label: string }) {
   return (
-    /* Its own strip above the copyright line, separated by the same hairline
-       the footer already uses between its other bands. */
-    <div className="border-t border-border/70">
-      <div className="mx-auto max-w-[1200px] px-4 py-7 text-center sm:px-6">
-        {/* A paragraph, not a heading. This strip is on every page, and a
-            heading here would insert an entry into every page outline that has
-            nothing to do with that page. The list is associated with the label
-            instead, so a screen reader still announces what the marks are. */}
-        <p
-          id="footer-payment-methods"
-          className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+    <ul
+      aria-label={label}
+      /* No direction handling of its own. The bar is a flex row, so the browser
+         mirrors the order under dir="rtl" and Visa lands at the reading start,
+         while the marks inside are never transformed — a logo is never shown
+         backwards. */
+      className="flex flex-wrap items-center justify-center gap-2"
+    >
+      {MARKS.map((Mark, i) => (
+        <li
+          key={i}
+          className="grid h-7 w-[58px] place-items-center rounded-md border border-border bg-card"
         >
-          {label}
-        </p>
-        {/* Wraps on a narrow screen instead of overflowing; the marks stay the
-            same small size at every width. */}
-        <ul
-          aria-labelledby="footer-payment-methods"
-          className="mt-4 flex flex-wrap items-center justify-center gap-3"
-        >
-          {MARKS.map((Mark, i) => (
-            <li
-              key={i}
-              className="grid h-9 w-[68px] place-items-center rounded-lg border border-border bg-card px-3 shadow-panel"
-            >
-              <Mark />
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+          <Mark />
+        </li>
+      ))}
+    </ul>
   );
 }

@@ -62,15 +62,18 @@ export function Footer() {
         </div>
       </div>
 
-      <PaymentMarks label={t("footer.paymentsTitle")} />
-
       <div className="border-t border-border">
-        {/* Copyright, cookie settings and language. The payment marks moved to
-            their own strip above, so this band is back to two groups. */}
+        {/* Three groups on one line once there is room: copyright, the payment
+            marks, then cookie settings and language. Ordinary flex, so under
+            dir="rtl" the browser mirrors the order and the copyright starts at
+            the right — no positioning tricks and no direction-specific
+            margins. Below lg it stacks in the same reading order. */}
         <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-4 px-4 py-5 text-center text-sm text-muted-foreground sm:px-6 lg:flex-row lg:justify-between lg:gap-6 lg:text-start">
           <p>
             © {new Date().getFullYear()} EasyInvoiceOCR. {t("footer.rights")}
           </p>
+          <PaymentMarks label={t("footer.paymentsTitle")} />
+
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button
               type="button"
