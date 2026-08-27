@@ -85,9 +85,6 @@ export function Hero() {
   const { hero, languages } = home;
   return (
     <section className="hero-glow relative overflow-hidden border-b border-border/70">
-      {/* Decorative only; the ruling is masked away before it reaches the copy. */}
-      <div className="ruled pointer-events-none absolute inset-0" aria-hidden="true" />
-
       <Container className="relative grid gap-12 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-14 lg:py-20">
         <div className="min-w-0">
           <p className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-card/80 py-1.5 ps-2 pe-3.5 text-xs font-semibold text-accent-foreground shadow-card backdrop-blur">
@@ -98,12 +95,11 @@ export function Hero() {
             <span className="text-muted-foreground">{languages.items.join(" · ")}</span>
           </p>
 
-          <h1 className="mt-5 max-w-[15ch] text-[34px] font-extrabold leading-[1.08] tracking-[-0.025em] text-navy sm:text-[42px] lg:max-w-none lg:text-[46px] xl:text-[50px]">
-            {hero.h1Line1}
-            <br className="hidden sm:block" /> <span className="brand-text">{hero.h1Line2}</span>
+          <h1 className="mt-5 text-balance text-[34px] font-extrabold leading-[1.08] tracking-[-0.025em] text-navy sm:text-[40px] lg:text-[44px] xl:text-[48px]">
+            {hero.h1Line1} <span className="brand-text">{hero.h1Line2}</span>
           </h1>
 
-          <p className="mt-6 max-w-[540px] text-[16px] leading-[1.65] text-ink-soft">
+          <p className="mt-6 max-w-[52ch] text-pretty text-[16px] leading-[1.65] text-ink-soft">
             {hero.description}
           </p>
 

@@ -9,7 +9,7 @@
 
 import { useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowRight, FileUp, UploadCloud } from "lucide-react";
+import { Check, FileUp, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
@@ -78,7 +78,7 @@ export function UploadCard() {
           go(event.dataTransfer.files?.[0]);
         }}
         className={cn(
-          "cursor-pointer rounded-xl border-2 border-dashed border-border bg-surface/60 px-6 py-10 text-center transition-colors",
+          "cursor-pointer rounded-xl border-2 border-dashed border-border/80 bg-surface/50 px-5 py-9 text-center transition-colors hover:border-primary/40 hover:bg-pale-green/40",
           dragActive && "border-primary bg-pale-green",
           error && "border-destructive/60",
         )}
@@ -92,7 +92,9 @@ export function UploadCard() {
         />
 
         <UploadCloud className="mx-auto size-8 text-primary" aria-hidden="true" />
-        <p className="mt-3 text-sm font-semibold text-navy">{t("convert.dropHere")}</p>
+        <p className="mx-auto mt-3 max-w-[30ch] text-balance text-sm font-semibold text-navy">
+          {t("convert.dropHere")}
+        </p>
         <p id="upload-hint" className="mt-1 text-xs text-muted-foreground">
           PDF, JPG, PNG · {siteConfig.maxUploadMb} MB
         </p>
@@ -112,11 +114,14 @@ export function UploadCard() {
         )}
       </div>
 
-      <p className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-        {t("free.noCard")}
-        <ArrowRight className="size-3.5 text-primary" aria-hidden="true" />
-        {t("free.afterFive")}
-      </p>
+      <ul className="mt-4 space-y-1.5 border-t border-border pt-4">
+        {[t("free.noCard"), t("free.afterFive")].map((line) => (
+          <li key={line} className="flex gap-2 text-xs leading-relaxed text-muted-foreground">
+            <Check className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
+            <span className="min-w-0">{line}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
