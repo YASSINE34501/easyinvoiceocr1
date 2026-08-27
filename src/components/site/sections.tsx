@@ -194,32 +194,46 @@ export function AudienceStrip() {
  */
 export function ProductCards() {
   const locale = useLocale();
+  const { tools } = homeFor(locale as Locale);
   return (
-    <section className="bg-surface pb-10 pt-12">
-      <Container className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {homepageProducts.map((product) => {
-          const Icon = product.icon;
-          const copy = product.copy[locale];
-          return (
-            <AppLink
-              key={product.slug}
-              href={path(product.slug, locale)}
-              className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-card"
-            >
-              <span className="grid size-10 place-items-center rounded-xl bg-pale-green">
-                <Icon className="size-5 text-primary" aria-hidden="true" />
-              </span>
-              <h3 className="mt-4 text-[15px] font-semibold text-navy">{copy.name}</h3>
-              <p className="mt-1.5 flex-1 text-xs leading-relaxed text-muted-foreground">
-                {copy.card}
-              </p>
-              <ArrowRight
-                className="mt-4 hidden size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:block rtl:rotate-180"
-                aria-hidden="true"
-              />
-            </AppLink>
-          );
-        })}
+    <section className="bg-surface pb-16 pt-16">
+      <Container>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <SectionHead title={tools.heading} lede={tools.lede} align="start" />
+          <AppLink
+            href={path("pdf-tools", locale)}
+            className="group inline-flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-primary hover:underline"
+          >
+            {tools.allTools}
+            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+          </AppLink>
+        </div>
+
+        <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {homepageProducts.map((product) => {
+            const Icon = product.icon;
+            const copy = product.copy[locale];
+            return (
+              <AppLink
+                key={product.slug}
+                href={path(product.slug, locale)}
+                className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-card"
+              >
+                <span className="grid size-10 place-items-center rounded-xl bg-pale-green">
+                  <Icon className="size-5 text-primary" aria-hidden="true" />
+                </span>
+                <h3 className="mt-4 text-[15px] font-semibold text-navy">{copy.name}</h3>
+                <p className="mt-1.5 flex-1 text-xs leading-relaxed text-muted-foreground">
+                  {copy.card}
+                </p>
+                <ArrowRight
+                  className="mt-4 hidden size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:block rtl:rotate-180"
+                  aria-hidden="true"
+                />
+              </AppLink>
+            );
+          })}
+        </div>
       </Container>
     </section>
   );

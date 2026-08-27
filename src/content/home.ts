@@ -35,6 +35,12 @@ export type HomeContent = {
     badges: [string, string, string];
   };
   audience: { heading: string };
+  /**
+   * The product grid under the hero. It had no heading at all, which left the
+   * homepage jumping from the hero straight into a row of cards with nothing
+   * saying what they were.
+   */
+  tools: { heading: string; lede: string; allTools: string };
   languages: {
     label: string;
     /** Exactly the recognition models that ship. */
@@ -75,6 +81,11 @@ const en: HomeContent = {
   },
   audience: {
     heading: "Built for accountants, small businesses and finance teams",
+  },
+  tools: {
+    heading: "Start with the tool you need",
+    lede: "Read invoices and receipts into a spreadsheet, or convert a document to another format. Everything runs in your browser.",
+    allTools: "Browse every tool",
   },
   languages: {
     label: "Recognition languages:",
@@ -210,6 +221,11 @@ const fr: HomeContent = {
   },
   audience: {
     heading: "Conçu pour les cabinets comptables, les TPE et les équipes financières",
+  },
+  tools: {
+    heading: "Commencez par l'outil qu'il vous faut",
+    lede: "Lisez factures et reçus vers un tableur, ou convertissez un document vers un autre format. Tout s'exécute dans votre navigateur.",
+    allTools: "Voir tous les outils",
   },
   languages: {
     label: "Langues reconnues :",
@@ -350,6 +366,11 @@ const ar: HomeContent = {
   },
   audience: {
     heading: "مصمَّم للمحاسبين والشركات الصغيرة وفرق المالية",
+  },
+  tools: {
+    heading: "ابدأ بالأداة التي تحتاجها",
+    lede: "اقرأ الفواتير والإيصالات إلى جدول بيانات، أو حوّل مستندًا إلى صيغة أخرى. كل ذلك يجري داخل متصفحك.",
+    allTools: "تصفَّح كل الأدوات",
   },
   languages: {
     label: "لغات التعرّف:",

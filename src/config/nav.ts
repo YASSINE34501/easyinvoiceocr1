@@ -52,12 +52,40 @@ export const legalLinks: NavLink[] = [
   { labelKey: "link.cookies", slug: "cookies" },
 ];
 
-/** Header dropdowns, in display order. */
-export const headerMenus: NavGroup[] = [
-  { titleKey: "nav.product", items: productLinks },
-  { titleKey: "nav.solutions", items: solutionLinks },
-  { titleKey: "nav.resources", items: resourceLinks },
-  { titleKey: "nav.company", items: companyLinks },
+/** Products that read a document and return data. The specialisation. */
+export const invoiceOcrLinks: NavLink[] = navProducts
+  .filter((product) => product.kind === "extraction" || product.kind === "api")
+  .map((product) => ({ labelKey: productLabelKey(product.slug), slug: product.slug }));
+
+/** Products that turn one file format into another. */
+export const converterLinks: NavLink[] = navProducts
+  .filter((product) => product.kind === "converter")
+  .map((product) => ({ labelKey: productLabelKey(product.slug), slug: product.slug }));
+
+/** A menu column. A title is optional: a single-column menu needs no heading. */
+export type NavColumn = { titleKey?: MessageKey; items: NavLink[] };
+
+export type HeaderMenu = { titleKey: MessageKey; columns: NavColumn[] };
+
+/**
+ * Header dropdowns, in display order.
+ *
+ * The PDF tools menu is not here — it is built from the tools registry by
+ * components/pdftools/PdfMegaMenu, so a tool added there appears in the header
+ * without an edit to this file. The header renders it between the first and
+ * second entries below.
+ */
+export const headerMenus: HeaderMenu[] = [
+  { titleKey: "nav.invoiceOcr", columns: [{ items: invoiceOcrLinks }] },
+  { titleKey: "nav.converters", columns: [{ items: converterLinks }] },
+  {
+    titleKey: "nav.resources",
+    columns: [
+      { titleKey: "nav.learn", items: resourceLinks },
+      { titleKey: "nav.solutions", items: solutionLinks },
+      { titleKey: "nav.company", items: companyLinks },
+    ],
+  },
 ];
 
 /**

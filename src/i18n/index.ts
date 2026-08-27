@@ -68,6 +68,9 @@ type Dict = Record<string, string>;
 const en = {
   // chrome
   "nav.product": "Product",
+  "nav.invoiceOcr": "Invoice & OCR",
+  "nav.converters": "Converters",
+  "nav.learn": "Learn",
   "nav.extract": "Extract data",
   "nav.convert": "Convert files",
   "nav.solutions": "Solutions",
@@ -604,6 +607,9 @@ export type MessageKey = keyof typeof en;
 
 const fr: Record<MessageKey, string> = {
   "nav.product": "Produit",
+  "nav.invoiceOcr": "Facture & OCR",
+  "nav.converters": "Convertisseurs",
+  "nav.learn": "Apprendre",
   "nav.extract": "Extraire les données",
   "nav.convert": "Convertir des fichiers",
   "nav.solutions": "Solutions",
@@ -1139,6 +1145,9 @@ const fr: Record<MessageKey, string> = {
 
 const ar: Record<MessageKey, string> = {
   "nav.product": "المنتج",
+  "nav.invoiceOcr": "الفواتير وOCR",
+  "nav.converters": "المحوِّلات",
+  "nav.learn": "تعلَّم",
   "nav.extract": "استخراج البيانات",
   "nav.convert": "تحويل الملفات",
   "nav.solutions": "الحلول",

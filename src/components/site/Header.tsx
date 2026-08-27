@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ChevronDown, Globe, Menu, X, User } from "lucide-react";
 import { Logo } from "./Logo";
 import { AppLink, useIsActive } from "./AppLink";
@@ -27,15 +27,12 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
-function NavDropdown({
-  label,
-  items,
-}: {
-  label: string;
-  items: { label: string; href: string }[];
-}) {
+type RenderedColumn = { title?: string; items: { label: string; href: string }[] };
+
+function NavDropdown({ label, columns }: { label: string; columns: RenderedColumn[] }) {
   const isActive = useIsActive();
-  const sectionActive = items.some((i) => isActive(i.href));
+  const sectionActive = columns.some((c) => c.items.some((i) => isActive(i.href)));
+  const wide = columns.length > 1;
 
   return (
     <DropdownMenu>
@@ -50,20 +47,34 @@ function NavDropdown({
         {label}
         <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-60 rounded-xl">
-        {items.map((item) => (
-          <DropdownMenuItem key={item.href} asChild>
-            <AppLink
-              href={item.href}
-              className={cn(
-                "cursor-pointer text-sm",
-                isActive(item.href) && "font-semibold text-primary",
+      <DropdownMenuContent
+        align="start"
+        className={cn("rounded-xl", wide ? "w-[min(92vw,620px)] p-4" : "w-64")}
+      >
+        <div className={cn(wide && "grid gap-x-6 gap-y-4 sm:grid-cols-3")}>
+          {columns.map((column, index) => (
+            <div key={column.title ?? index}>
+              {column.title && (
+                <p className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  {column.title}
+                </p>
               )}
-            >
-              {item.label}
-            </AppLink>
-          </DropdownMenuItem>
-        ))}
+              {column.items.map((item) => (
+                <DropdownMenuItem key={item.href} asChild>
+                  <AppLink
+                    href={item.href}
+                    className={cn(
+                      "cursor-pointer text-sm",
+                      isActive(item.href) && "font-semibold text-primary",
+                    )}
+                  >
+                    {item.label}
+                  </AppLink>
+                </DropdownMenuItem>
+              ))}
+            </div>
+          ))}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -123,7 +134,10 @@ export function Header() {
 
   const menus = headerMenus.map((menu) => ({
     title: t(menu.titleKey as MessageKey),
-    items: menu.items.map((i) => ({ label: t(i.labelKey), href: path(i.slug, locale) })),
+    columns: menu.columns.map((column) => ({
+      ...(column.titleKey ? { title: t(column.titleKey) } : {}),
+      items: column.items.map((i) => ({ label: t(i.labelKey), href: path(i.slug, locale) })),
+    })),
   }));
 
   const accountHref = path(authSlugs.settings, locale);
@@ -155,11 +169,11 @@ export function Header() {
         </AppLink>
 
         <nav className="hidden items-center gap-0.5 xl:flex" aria-label={t("nav.main")}>
-          {menus.map((menu) => (
-            <NavDropdown key={menu.title} label={menu.title} items={menu.items} />
-          ))}
-          {/* Added alongside the existing menus, not in place of one. */}
+          <NavDropdown key={menus[0]!.title} label={menus[0]!.title} columns={menus[0]!.columns} />
           <PdfMegaMenu />
+          {menus.slice(1).map((menu) => (
+            <NavDropdown key={menu.title} label={menu.title} columns={menu.columns} />
+          ))}
           <AppLink
             href={`${path("", locale)}#pricing`}
             className="rounded-md px-2 py-1.5 text-sm font-medium text-navy/80 transition-colors hover:text-navy"
@@ -240,36 +254,52 @@ export function Header() {
             </div>
             <nav className="overflow-y-auto px-4 py-2 pb-10" aria-label={t("nav.mobile")}>
               <Accordion type="single" collapsible>
-                {menus.map((menu) => (
-                  <AccordionItem key={menu.title} value={menu.title}>
-                    <AccordionTrigger className="text-sm font-semibold text-navy">
-                      {menu.title}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <ul className="space-y-1 pb-1">
-                        {menu.items.map((item) => (
-                          <li key={item.href}>
-                            <AppLink
-                              href={item.href}
-                              onClick={() => setOpen(false)}
-                              className="block py-2.5 text-sm text-muted-foreground"
-                            >
-                              {item.label}
-                            </AppLink>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
+                {menus.map((menu, index) => (
+                  <Fragment key={menu.title}>
+                    <AccordionItem value={menu.title}>
+                      <AccordionTrigger className="text-sm font-semibold text-navy">
+                        {menu.title}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-4 pb-1">
+                          {menu.columns.map((column, columnIndex) => (
+                            <div key={column.title ?? columnIndex}>
+                              {column.title && (
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                                  {column.title}
+                                </p>
+                              )}
+                              <ul>
+                                {column.items.map((item) => (
+                                  <li key={item.href}>
+                                    <AppLink
+                                      href={item.href}
+                                      onClick={() => setOpen(false)}
+                                      className="block py-2.5 text-sm text-muted-foreground"
+                                    >
+                                      {item.label}
+                                    </AppLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                    {/* Same order as the desktop row. */}
+                    {index === 0 && (
+                      <AccordionItem value="pdf-tools-menu">
+                        <AccordionTrigger className="text-sm font-semibold text-navy">
+                          {pdfToolsCopy(locale).index.eyebrow}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <PdfMenuMobile onNavigate={() => setOpen(false)} />
+                        </AccordionContent>
+                      </AccordionItem>
+                    )}
+                  </Fragment>
                 ))}
-                <AccordionItem value="pdf-tools">
-                  <AccordionTrigger className="text-sm font-semibold text-navy">
-                    {pdfToolsCopy(locale).index.eyebrow}
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <PdfMenuMobile onNavigate={() => setOpen(false)} />
-                  </AccordionContent>
-                </AccordionItem>
               </Accordion>
               <AppLink
                 href={`${path("", locale)}#pricing`}
