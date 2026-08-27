@@ -91,43 +91,34 @@ export const headerMenus: HeaderMenu[] = [
 /**
  * Footer columns, in display order.
  *
- * A column may hold more than one titled group. The footer used to give every
- * header menu a column of its own, which put eight products beside a column of
- * three and left the row visibly lopsided. Splitting the products by the kind
- * the registry already records, and pairing the shorter menus, evens the
- * columns without dropping a single link — the footer is the site-wide internal
- * link surface, so a link removed here is removed from every page.
+ * A column may hold more than one titled group. The footer is the site-wide
+ * internal link surface, so a link removed here is removed from every page —
+ * nothing is dropped, only regrouped to match the header.
  *
- * The product split is derived rather than listed: a new extraction tool joins
- * the first column and a new converter the second, with no edit here.
+ * Three columns here, not four: the footer renders the PDF tools column
+ * itself, between the first and second of these, because those names come
+ * from the tools content rather than the message dictionary. With the brand
+ * column that keeps the grid at five.
+ *
+ * The lists are derived rather than listed out, so a new product joins the
+ * right column with no edit here.
  */
 export type FooterColumn = { groups: NavGroup[] };
 
-const productsOfKind = (kind: ProductDefinition["kind"]): NavLink[] =>
-  navProducts
-    .filter((product) => product.kind === kind)
-    .map((product) => ({ labelKey: productLabelKey(product.slug), slug: product.slug }));
-
 export const footerColumns: FooterColumn[] = [
-  { groups: [{ titleKey: "nav.extract", items: productsOfKind("extraction") }] },
+  // The OCR API sits with the extraction products rather than with the
+  // converters: it is an OCR endpoint, not a file conversion, and grouping it
+  // here matches the header.
+  { groups: [{ titleKey: "nav.invoiceOcr", items: invoiceOcrLinks }] },
   {
     groups: [
-      // The API sits with the converters rather than alone: one link is not a
-      // column, and it is the other thing the site turns a document into.
-      {
-        titleKey: "nav.convert",
-        items: [...productsOfKind("converter"), ...productsOfKind("api")],
-      },
-    ],
-  },
-  {
-    groups: [
-      { titleKey: "nav.solutions", items: solutionLinks },
+      { titleKey: "nav.converters", items: converterLinks },
       { titleKey: "nav.resources", items: resourceLinks },
     ],
   },
   {
     groups: [
+      { titleKey: "nav.solutions", items: solutionLinks },
       { titleKey: "nav.company", items: companyLinks },
       { titleKey: "nav.legal", items: legalLinks },
     ],

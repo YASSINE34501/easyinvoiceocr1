@@ -1,7 +1,10 @@
+import { Fragment } from "react";
 import { Globe, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 import { AppLink } from "./AppLink";
 import { footerColumns, path } from "@/config/nav";
+import { PDF_TOOLS, pdfToolPath } from "@/lib/pdftools/registry";
+import { pdfToolsCopy } from "@/content/pdftools";
 import { localeLabels } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { openCookiePreferences } from "./CookieConsent";
@@ -37,27 +40,52 @@ export function Footer() {
           </div>
 
           {footerColumns.map((column, columnIndex) => (
-            <div key={columnIndex} className="min-w-0 space-y-8">
-              {column.groups.map((group) => (
-                <div key={group.titleKey}>
+            <Fragment key={columnIndex}>
+              {/* Invoice & OCR, then the PDF tools, then the rest — the same
+                  order as the header. The tools are rendered here rather than
+                  from config because their names live in the tools content,
+                  not in the message dictionary. */}
+              {columnIndex === 1 && (
+                <div className="min-w-0">
                   <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-navy">
-                    {t(group.titleKey)}
+                    {pdfToolsCopy(locale).index.eyebrow}
                   </h3>
-                  <ul className="space-y-2.5">
-                    {group.items.map((item) => (
-                      <li key={item.slug}>
+                  <ul className="space-y-3">
+                    {PDF_TOOLS.map((tool) => (
+                      <li key={tool.slug}>
                         <AppLink
-                          href={path(item.slug, locale)}
+                          href={pdfToolPath(tool.slug, locale)}
                           className="text-sm text-muted-foreground transition-colors hover:text-navy"
                         >
-                          {t(item.labelKey)}
+                          {pdfToolsCopy(locale).tools[tool.slug].name}
                         </AppLink>
                       </li>
                     ))}
                   </ul>
                 </div>
-              ))}
-            </div>
+              )}
+              <div className="min-w-0 space-y-8">
+                {column.groups.map((group) => (
+                  <div key={group.titleKey}>
+                    <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-navy">
+                      {t(group.titleKey)}
+                    </h3>
+                    <ul className="space-y-2.5">
+                      {group.items.map((item) => (
+                        <li key={item.slug}>
+                          <AppLink
+                            href={path(item.slug, locale)}
+                            className="text-sm text-muted-foreground transition-colors hover:text-navy"
+                          >
+                            {t(item.labelKey)}
+                          </AppLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </Fragment>
           ))}
         </div>
       </div>
