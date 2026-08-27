@@ -247,6 +247,7 @@ const en = {
   "cookie.acceptAll": "Accept all",
   "cookie.rejectAll": "Reject non-essential",
   "cookie.manage": "Manage preferences",
+  "cookie.close": "Close",
   "cookie.essential": "Essential cookies",
   "cookie.essentialBody":
     "Required for login, security and remembering your cookie choice. These cannot be turned off.",
@@ -783,6 +784,7 @@ const fr: Record<MessageKey, string> = {
   "cookie.acceptAll": "Tout accepter",
   "cookie.rejectAll": "Refuser les non essentiels",
   "cookie.manage": "Gérer les préférences",
+  "cookie.close": "Fermer",
   "cookie.essential": "Cookies essentiels",
   "cookie.essentialBody":
     "Nécessaires à la connexion, à la sécurité et à la mémorisation de votre choix. Non désactivables.",
@@ -1306,6 +1308,7 @@ const ar: Record<MessageKey, string> = {
   "cookie.acceptAll": "قبول الكل",
   "cookie.rejectAll": "رفض غير الأساسية",
   "cookie.manage": "إدارة التفضيلات",
+  "cookie.close": "إغلاق",
   "cookie.essential": "ملفات أساسية",
   "cookie.essentialBody": "ضرورية لتسجيل الدخول والأمان وتذكّر اختيارك. لا يمكن إيقافها.",
   "cookie.preferences": "ملفات التفضيلات",

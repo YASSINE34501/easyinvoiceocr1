@@ -188,7 +188,10 @@ export function CookieConsent() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent
+          closeLabel={t("cookie.close")}
+          className="max-h-[85vh] overflow-y-auto sm:max-w-lg"
+        >
           <DialogHeader>
             <DialogTitle>{t("cookie.title")}</DialogTitle>
             <DialogDescription>{t("cookie.dialogDesc")}</DialogDescription>

@@ -84,7 +84,12 @@ function LanguageSelector({ className }: { className?: string }) {
         )}
       >
         <Globe className="size-4 opacity-70" aria-hidden="true" />
-        {localeLabels[locale]}
+        {/* The code is the visible label; the full name is what is
+            announced, so a screen reader does not hear "ar العربية". */}
+        <span className="uppercase" aria-hidden="true">
+          {locale}
+        </span>
+        <span className="sr-only">{localeLabels[locale]}</span>
         <ChevronDown className="size-3.5 opacity-60" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44 rounded-xl">
@@ -144,12 +149,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/80 bg-background/90 backdrop-blur">
-      <div className="mx-auto grid h-16 max-w-[1200px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 sm:px-6 lg:flex lg:justify-between">
-        <AppLink href={path("", locale)} className="min-w-0" aria-label={t("nav.homeAria")}>
+      <div className="mx-auto grid h-16 max-w-[1200px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 sm:px-6 xl:flex xl:justify-between">
+        <AppLink href={path("", locale)} className="shrink-0" aria-label={t("nav.homeAria")}>
           <Logo />
         </AppLink>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label={t("nav.main")}>
+        <nav className="hidden items-center gap-0.5 xl:flex" aria-label={t("nav.main")}>
           {menus.map((menu) => (
             <NavDropdown key={menu.title} label={menu.title} items={menu.items} />
           ))}
@@ -163,7 +168,7 @@ export function Header() {
           </AppLink>
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2.5 xl:flex">
           <LanguageSelector />
           {!loading && user ? (
             <DropdownMenu>
@@ -207,7 +212,7 @@ export function Header() {
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <button
-              className="grid size-11 place-items-center rounded-lg border border-border text-navy lg:hidden"
+              className="grid size-11 place-items-center rounded-lg border border-border text-navy xl:hidden"
               aria-label={open ? t("nav.menuClose") : t("nav.menuOpen")}
               aria-expanded={open}
             >
@@ -215,7 +220,13 @@ export function Header() {
             </button>
           </SheetTrigger>
           {/* Radix Dialog locks background scroll and traps focus while open. */}
-          <SheetContent side="right" className="w-full max-w-sm overflow-x-hidden p-0">
+          {/* The drawer header below renders its own close button: translated,
+              a full 44px, and on the correct side in Arabic. */}
+          <SheetContent
+            side="right"
+            showClose={false}
+            className="w-full max-w-sm overflow-x-hidden p-0"
+          >
             <SheetTitle className="sr-only">{t("nav.siteNavigation")}</SheetTitle>
             <div className="flex h-16 items-center justify-between border-b border-border px-4">
               <Logo />
