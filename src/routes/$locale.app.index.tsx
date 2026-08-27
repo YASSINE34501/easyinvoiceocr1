@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CreditCard, FileText, LogOut, Settings, Upload } from "lucide-react";
+import { ArrowRight, CreditCard, FileText, LogOut, Settings, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, signOut } from "@/auth/AuthProvider";
 import { PageLayout, PageHero, Section } from "@/components/site/PageLayout";
@@ -10,26 +10,42 @@ import { PlanStatusBanner } from "@/components/billing/PlanStatusBanner";
 import { Button } from "@/components/ui/button";
 import { authSlugs, path } from "@/config/nav";
 import { converterProducts } from "@/config/products";
-import { formatDate } from "@/i18n";
+import { asLocale, formatDate } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { useNavigate } from "@tanstack/react-router";
 import { robotsMeta } from "@/config/seo";
 
+/** Tab title and description per locale; the page itself is noindex. */
+const meta = {
+  en: {
+    title: "Dashboard — EasyInvoiceOCR",
+    description: "Your workspace: process documents and review extractions.",
+  },
+  fr: {
+    title: "Tableau de bord — EasyInvoiceOCR",
+    description: "Votre espace de travail : traitez vos documents et relisez les extractions.",
+  },
+  ar: {
+    title: "لوحة التحكم — EasyInvoiceOCR",
+    description: "مساحة عملك: عالج مستنداتك وراجع نتائج الاستخراج.",
+  },
+} as const;
+
 export const Route = createFileRoute("/$locale/app/")({
   component: Dashboard,
-  head: () => ({
-    meta: [
-      { title: "Dashboard — EasyInvoiceOCR" },
-      robotsMeta("app"),
-      {
-        name: "description",
-        content: "Your EasyInvoiceOCR workspace: upload documents and review extractions.",
-      },
-      { property: "og:title", content: "Dashboard — EasyInvoiceOCR" },
-      { property: "og:description", content: "Your EasyInvoiceOCR workspace." },
-      { property: "og:type", content: "website" },
-    ],
-  }),
+  head: ({ params }) => {
+    const { title, description } = meta[asLocale(params.locale)];
+    return {
+      meta: [
+        { title },
+        robotsMeta("app"),
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+      ],
+    };
+  },
 });
 
 function Dashboard() {
@@ -80,8 +96,8 @@ function Dashboard() {
     <PageLayout breadcrumbs={[{ label: t("cta.dashboard") }]}>
       <PageHero
         eyebrow={t("cta.dashboard")}
-        title={displayName ? `Welcome back, ${displayName}` : t("cta.dashboard")}
-        lede="Upload a document to extract its data, then export it to Excel, CSV or JSON."
+        title={displayName ? t("dash.welcome", { name: displayName }) : t("cta.dashboard")}
+        lede={t("dash.lede")}
       >
         <div className="flex flex-wrap gap-3">
           <Button asChild variant="outline" className="h-11 rounded-lg font-semibold text-navy">
@@ -112,7 +128,16 @@ function Dashboard() {
         <PlanStatusBanner />
       </Section>
 
-      <Section title="Converters" id="converters">
+      <Section title={t("nav.converters")} id="converters">
+        <div className="mb-5">
+          <AppLink
+            href={path("pdf-tools", locale)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+          >
+            {t("dash.allTools")}
+            <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+          </AppLink>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {converterProducts.map((product) => {
             const Icon = product.icon;
@@ -120,12 +145,12 @@ function Dashboard() {
               <AppLink
                 key={product.slug}
                 href={path(product.slug, locale)}
-                className="rounded-xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40"
+                className="card-lift flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-card"
               >
-                <span className="grid size-9 place-items-center rounded-lg bg-pale-green">
-                  <Icon className="size-4 text-primary" aria-hidden="true" />
+                <span className="grid size-10 place-items-center rounded-xl bg-pale-green">
+                  <Icon className="size-5 text-primary" aria-hidden="true" />
                 </span>
-                <h3 className="mt-3 text-sm font-semibold text-navy">
+                <h3 className="mt-4 text-[15px] font-semibold text-navy">
                   {product.copy[locale].name}
                 </h3>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
@@ -137,20 +162,20 @@ function Dashboard() {
         </div>
       </Section>
 
-      <Section title="Process a document" id="workspace" muted>
+      <Section title={t("dash.workspace")} id="workspace" muted>
         <ExtractionWorkspace kind="invoice" />
       </Section>
 
-      <Section title="Recent documents" muted>
+      <Section title={t("dash.recent")} muted>
         {documents.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="rounded-2xl border border-dashed border-border bg-card px-6 py-10 text-center">
             <Upload className="mx-auto size-6 text-muted-foreground" aria-hidden="true" />
-            <p className="mt-3 text-sm text-muted-foreground">
-              You haven't saved any documents yet. Processed files you save will appear here.
+            <p className="mx-auto mt-3 max-w-[46ch] text-sm leading-relaxed text-muted-foreground">
+              {t("dash.empty")}
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
             {documents.map((doc) => (
               <li key={doc.id} className="flex items-center gap-3 p-4">
                 <FileText className="size-4 shrink-0 text-primary" aria-hidden="true" />
