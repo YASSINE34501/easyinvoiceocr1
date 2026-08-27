@@ -30,6 +30,7 @@ import { Route as LocaleLoginRouteImport } from './routes/$locale.login'
 import { Route as LocaleOcrApiRouteImport } from './routes/$locale.ocr-api'
 import { Route as LocalePdfInvoiceParserRouteImport } from './routes/$locale.pdf-invoice-parser'
 import { Route as LocalePdfToWordRouteImport } from './routes/$locale.pdf-to-word'
+import { Route as LocalePdfToolsRouteImport } from './routes/$locale.pdf-tools'
 import { Route as LocalePrivacyRouteImport } from './routes/$locale.privacy'
 import { Route as LocaleReceiptToExcelRouteImport } from './routes/$locale.receipt-to-excel'
 import { Route as LocaleResetPasswordRouteImport } from './routes/$locale.reset-password'
@@ -44,6 +45,7 @@ import { Route as LocaleAppBillingRouteImport } from './routes/$locale.app.billi
 import { Route as LocaleAppSettingsRouteImport } from './routes/$locale.app.settings'
 import { Route as LocaleBlogIndexRouteImport } from './routes/$locale.blog.index'
 import { Route as LocaleBlogSlugRouteImport } from './routes/$locale.blog.$slug'
+import { Route as LocalePdfToolRouteImport } from './routes/$locale.pdf.$tool'
 import { Route as LocaleSolutionsSlugRouteImport } from './routes/$locale.solutions.$slug'
 import { Route as ApiPaypalWebhookRouteImport } from './routes/api.paypal.webhook'
 
@@ -152,6 +154,11 @@ const LocalePdfToWordRoute = LocalePdfToWordRouteImport.update({
   path: '/pdf-to-word',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocalePdfToolsRoute = LocalePdfToolsRouteImport.update({
+  id: '/pdf-tools',
+  path: '/pdf-tools',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocalePrivacyRoute = LocalePrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -222,6 +229,11 @@ const LocaleBlogSlugRoute = LocaleBlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocalePdfToolRoute = LocalePdfToolRouteImport.update({
+  id: '/pdf/$tool',
+  path: '/pdf/$tool',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleSolutionsSlugRoute = LocaleSolutionsSlugRouteImport.update({
   id: '/solutions/$slug',
   path: '/solutions/$slug',
@@ -254,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/$locale/ocr-api': typeof LocaleOcrApiRoute
   '/$locale/pdf-invoice-parser': typeof LocalePdfInvoiceParserRoute
   '/$locale/pdf-to-word': typeof LocalePdfToWordRoute
+  '/$locale/pdf-tools': typeof LocalePdfToolsRoute
   '/$locale/privacy': typeof LocalePrivacyRoute
   '/$locale/receipt-to-excel': typeof LocaleReceiptToExcelRoute
   '/$locale/reset-password': typeof LocaleResetPasswordRoute
@@ -267,6 +280,7 @@ export interface FileRoutesByFullPath {
   '/$locale/app/billing': typeof LocaleAppBillingRoute
   '/$locale/app/settings': typeof LocaleAppSettingsRoute
   '/$locale/blog/$slug': typeof LocaleBlogSlugRoute
+  '/$locale/pdf/$tool': typeof LocalePdfToolRoute
   '/$locale/solutions/$slug': typeof LocaleSolutionsSlugRoute
   '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
   '/$locale/app/': typeof LocaleAppIndexRoute
@@ -291,6 +305,7 @@ export interface FileRoutesByTo {
   '/$locale/ocr-api': typeof LocaleOcrApiRoute
   '/$locale/pdf-invoice-parser': typeof LocalePdfInvoiceParserRoute
   '/$locale/pdf-to-word': typeof LocalePdfToWordRoute
+  '/$locale/pdf-tools': typeof LocalePdfToolsRoute
   '/$locale/privacy': typeof LocalePrivacyRoute
   '/$locale/receipt-to-excel': typeof LocaleReceiptToExcelRoute
   '/$locale/reset-password': typeof LocaleResetPasswordRoute
@@ -304,6 +319,7 @@ export interface FileRoutesByTo {
   '/$locale/app/billing': typeof LocaleAppBillingRoute
   '/$locale/app/settings': typeof LocaleAppSettingsRoute
   '/$locale/blog/$slug': typeof LocaleBlogSlugRoute
+  '/$locale/pdf/$tool': typeof LocalePdfToolRoute
   '/$locale/solutions/$slug': typeof LocaleSolutionsSlugRoute
   '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
   '/$locale/app': typeof LocaleAppIndexRoute
@@ -331,6 +347,7 @@ export interface FileRoutesById {
   '/$locale/ocr-api': typeof LocaleOcrApiRoute
   '/$locale/pdf-invoice-parser': typeof LocalePdfInvoiceParserRoute
   '/$locale/pdf-to-word': typeof LocalePdfToWordRoute
+  '/$locale/pdf-tools': typeof LocalePdfToolsRoute
   '/$locale/privacy': typeof LocalePrivacyRoute
   '/$locale/receipt-to-excel': typeof LocaleReceiptToExcelRoute
   '/$locale/reset-password': typeof LocaleResetPasswordRoute
@@ -344,6 +361,7 @@ export interface FileRoutesById {
   '/$locale/app/billing': typeof LocaleAppBillingRoute
   '/$locale/app/settings': typeof LocaleAppSettingsRoute
   '/$locale/blog/$slug': typeof LocaleBlogSlugRoute
+  '/$locale/pdf/$tool': typeof LocalePdfToolRoute
   '/$locale/solutions/$slug': typeof LocaleSolutionsSlugRoute
   '/api/paypal/webhook': typeof ApiPaypalWebhookRoute
   '/$locale/app/': typeof LocaleAppIndexRoute
@@ -372,6 +390,7 @@ export interface FileRouteTypes {
     | '/$locale/ocr-api'
     | '/$locale/pdf-invoice-parser'
     | '/$locale/pdf-to-word'
+    | '/$locale/pdf-tools'
     | '/$locale/privacy'
     | '/$locale/receipt-to-excel'
     | '/$locale/reset-password'
@@ -385,6 +404,7 @@ export interface FileRouteTypes {
     | '/$locale/app/billing'
     | '/$locale/app/settings'
     | '/$locale/blog/$slug'
+    | '/$locale/pdf/$tool'
     | '/$locale/solutions/$slug'
     | '/api/paypal/webhook'
     | '/$locale/app/'
@@ -409,6 +429,7 @@ export interface FileRouteTypes {
     | '/$locale/ocr-api'
     | '/$locale/pdf-invoice-parser'
     | '/$locale/pdf-to-word'
+    | '/$locale/pdf-tools'
     | '/$locale/privacy'
     | '/$locale/receipt-to-excel'
     | '/$locale/reset-password'
@@ -422,6 +443,7 @@ export interface FileRouteTypes {
     | '/$locale/app/billing'
     | '/$locale/app/settings'
     | '/$locale/blog/$slug'
+    | '/$locale/pdf/$tool'
     | '/$locale/solutions/$slug'
     | '/api/paypal/webhook'
     | '/$locale/app'
@@ -448,6 +470,7 @@ export interface FileRouteTypes {
     | '/$locale/ocr-api'
     | '/$locale/pdf-invoice-parser'
     | '/$locale/pdf-to-word'
+    | '/$locale/pdf-tools'
     | '/$locale/privacy'
     | '/$locale/receipt-to-excel'
     | '/$locale/reset-password'
@@ -461,6 +484,7 @@ export interface FileRouteTypes {
     | '/$locale/app/billing'
     | '/$locale/app/settings'
     | '/$locale/blog/$slug'
+    | '/$locale/pdf/$tool'
     | '/$locale/solutions/$slug'
     | '/api/paypal/webhook'
     | '/$locale/app/'
@@ -624,6 +648,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocalePdfToWordRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/pdf-tools': {
+      id: '/$locale/pdf-tools'
+      path: '/pdf-tools'
+      fullPath: '/$locale/pdf-tools'
+      preLoaderRoute: typeof LocalePdfToolsRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/privacy': {
       id: '/$locale/privacy'
       path: '/privacy'
@@ -722,6 +753,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleBlogSlugRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/pdf/$tool': {
+      id: '/$locale/pdf/$tool'
+      path: '/pdf/$tool'
+      fullPath: '/$locale/pdf/$tool'
+      preLoaderRoute: typeof LocalePdfToolRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/solutions/$slug': {
       id: '/$locale/solutions/$slug'
       path: '/solutions/$slug'
@@ -775,6 +813,7 @@ interface LocaleRouteChildren {
   LocaleOcrApiRoute: typeof LocaleOcrApiRoute
   LocalePdfInvoiceParserRoute: typeof LocalePdfInvoiceParserRoute
   LocalePdfToWordRoute: typeof LocalePdfToWordRoute
+  LocalePdfToolsRoute: typeof LocalePdfToolsRoute
   LocalePrivacyRoute: typeof LocalePrivacyRoute
   LocaleReceiptToExcelRoute: typeof LocaleReceiptToExcelRoute
   LocaleResetPasswordRoute: typeof LocaleResetPasswordRoute
@@ -784,6 +823,7 @@ interface LocaleRouteChildren {
   LocaleVerifyEmailRoute: typeof LocaleVerifyEmailRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
   LocaleBlogSlugRoute: typeof LocaleBlogSlugRoute
+  LocalePdfToolRoute: typeof LocalePdfToolRoute
   LocaleSolutionsSlugRoute: typeof LocaleSolutionsSlugRoute
   LocaleBlogIndexRoute: typeof LocaleBlogIndexRoute
 }
@@ -806,6 +846,7 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleOcrApiRoute: LocaleOcrApiRoute,
   LocalePdfInvoiceParserRoute: LocalePdfInvoiceParserRoute,
   LocalePdfToWordRoute: LocalePdfToWordRoute,
+  LocalePdfToolsRoute: LocalePdfToolsRoute,
   LocalePrivacyRoute: LocalePrivacyRoute,
   LocaleReceiptToExcelRoute: LocaleReceiptToExcelRoute,
   LocaleResetPasswordRoute: LocaleResetPasswordRoute,
@@ -815,6 +856,7 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleVerifyEmailRoute: LocaleVerifyEmailRoute,
   LocaleIndexRoute: LocaleIndexRoute,
   LocaleBlogSlugRoute: LocaleBlogSlugRoute,
+  LocalePdfToolRoute: LocalePdfToolRoute,
   LocaleSolutionsSlugRoute: LocaleSolutionsSlugRoute,
   LocaleBlogIndexRoute: LocaleBlogIndexRoute,
 }

@@ -21,6 +21,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { PdfMegaMenu, PdfMenuMobile } from "@/components/pdftools/PdfMegaMenu";
+import { pdfToolsCopy } from "@/content/pdftools";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -151,6 +153,8 @@ export function Header() {
           {menus.map((menu) => (
             <NavDropdown key={menu.title} label={menu.title} items={menu.items} />
           ))}
+          {/* Added alongside the existing menus, not in place of one. */}
+          <PdfMegaMenu />
           <AppLink
             href={`${path("", locale)}#pricing`}
             className="rounded-md px-2 py-1.5 text-sm font-medium text-navy/80 transition-colors hover:text-navy"
@@ -189,7 +193,7 @@ export function Header() {
             <>
               <AppLink
                 href={loginHref}
-                className="text-sm font-medium text-navy/80 transition-colors hover:text-navy"
+                className="whitespace-nowrap text-sm font-medium text-navy/80 transition-colors hover:text-navy"
               >
                 {t("cta.login")}
               </AppLink>
@@ -247,6 +251,14 @@ export function Header() {
                     </AccordionContent>
                   </AccordionItem>
                 ))}
+                <AccordionItem value="pdf-tools">
+                  <AccordionTrigger className="text-sm font-semibold text-navy">
+                    {pdfToolsCopy(locale).index.eyebrow}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <PdfMenuMobile onNavigate={() => setOpen(false)} />
+                  </AccordionContent>
+                </AccordionItem>
               </Accordion>
               <AppLink
                 href={`${path("", locale)}#pricing`}

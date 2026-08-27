@@ -28,34 +28,91 @@ import { useQuery } from "@tanstack/react-query";
 import { UploadCard } from "./UploadCard";
 import { AppLink } from "./AppLink";
 import { homeFor } from "@/content/home";
-import { authSlugs, path } from "@/config/nav";
+import { authSlugs, path, solutionLinks } from "@/config/nav";
 import { homepageProducts } from "@/config/products";
 import { getPublicPlans } from "@/lib/billing/billing.functions";
 import { useLocale, useT } from "@/i18n/useLocale";
 import type { Locale } from "@/i18n";
 import type { MessageKey } from "@/i18n";
 import { cn } from "@/lib/utils";
+import type { LucideIcon } from "lucide-react";
 
 const Container = ({ className, children }: { className?: string; children: React.ReactNode }) => (
   <div className={cn("mx-auto w-full max-w-[1200px] px-4 sm:px-6", className)}>{children}</div>
 );
 
+/**
+ * One header for every section.
+ *
+ * The page previously had three different heading treatments — centred bold,
+ * centred bold with a lede, and a bare left-aligned h2 — which is why it read
+ * as a stack of unrelated blocks rather than one page.
+ */
+function SectionHead({
+  eyebrow,
+  title,
+  lede,
+  align = "center",
+}: {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  align?: "center" | "start";
+}) {
+  const centred = align === "center";
+  return (
+    <div className={cn("max-w-[720px]", centred && "mx-auto text-center")}>
+      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+      <h2
+        className={cn(
+          "text-[26px] font-bold leading-tight tracking-[-0.02em] text-navy sm:text-[32px]",
+          eyebrow && "mt-3",
+        )}
+      >
+        {title}
+      </h2>
+      {lede && (
+        <p className={cn("mt-4 text-[15px] leading-relaxed text-ink-soft", centred && "mx-auto")}>
+          {lede}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function Hero() {
   const home = homeFor(useLocale() as Locale);
-  const { hero } = home;
+  const { hero, languages } = home;
   return (
-    <section className="hero-glow border-b border-border/70">
-      <Container className="grid gap-10 py-12 lg:grid-cols-[1.05fr_1fr] lg:items-start lg:gap-14 lg:py-16">
+    <section className="hero-glow relative overflow-hidden border-b border-border/70">
+      {/* Decorative only; the ruling is masked away before it reaches the copy. */}
+      <div className="ruled pointer-events-none absolute inset-0" aria-hidden="true" />
+
+      <Container className="relative grid gap-12 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-14 lg:py-20">
         <div className="min-w-0">
-          <h1 className="text-[34px] font-extrabold leading-[1.1] tracking-tight text-navy sm:text-[44px] lg:text-[48px]">
+          <p className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-card/80 py-1.5 ps-2 pe-3.5 text-xs font-semibold text-accent-foreground shadow-card backdrop-blur">
+            <span className="grid size-5 place-items-center rounded-full bg-pale-green">
+              <Sparkles className="size-3 text-primary" aria-hidden="true" />
+            </span>
+            {languages.label}
+            <span className="text-muted-foreground">{languages.items.join(" · ")}</span>
+          </p>
+
+          <h1 className="mt-5 max-w-[15ch] text-[34px] font-extrabold leading-[1.08] tracking-[-0.025em] text-navy sm:text-[42px] lg:max-w-none lg:text-[46px] xl:text-[50px]">
             {hero.h1Line1}
-            <br className="hidden sm:block" /> {hero.h1Line2}
+            <br className="hidden sm:block" /> <span className="brand-text">{hero.h1Line2}</span>
           </h1>
-          <p className="mt-5 max-w-[520px] text-[15px] leading-relaxed text-muted-foreground">
+
+          <p className="mt-6 max-w-[540px] text-[16px] leading-[1.65] text-ink-soft">
             {hero.description}
           </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Button asChild size="lg" className="h-12 rounded-xl px-6 text-[15px] font-semibold">
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button
+              asChild
+              size="lg"
+              className="h-12 w-full rounded-xl px-7 text-[15px] font-semibold shadow-glow sm:w-auto"
+            >
               <a href="#upload">
                 <Upload className="size-4" aria-hidden="true" /> {hero.primaryCta}
               </a>
@@ -64,113 +121,74 @@ export function Hero() {
               asChild
               size="lg"
               variant="outline"
-              className="h-12 rounded-xl border-border px-6 text-[15px] font-semibold text-navy"
+              className="h-12 w-full rounded-xl border-border bg-card/70 px-6 text-[15px] font-semibold text-navy backdrop-blur sm:w-auto"
             >
               <a href="#how-it-works">
                 <Play className="size-4" aria-hidden="true" /> {hero.secondaryCta}
               </a>
             </Button>
           </div>
-          <ul className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+
+          <ul className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[13px] text-muted-foreground">
             {hero.badges.map((t) => (
               <li key={t} className="flex items-center gap-1.5">
-                <CheckCircle2 className="size-3.5 text-primary" aria-hidden="true" />
+                <CheckCircle2 className="size-4 text-primary" aria-hidden="true" />
                 {t}
               </li>
             ))}
           </ul>
         </div>
 
-        <UploadCard />
+        {/* The upload card is the subject of the hero, so it gets the one
+            brand-tinted shadow on the page. */}
+        <div className="relative">
+          <div
+            className="absolute -inset-4 -z-10 rounded-[2rem] bg-primary/5 blur-2xl"
+            aria-hidden="true"
+          />
+          <UploadCard />
+        </div>
       </Container>
     </section>
   );
 }
 
-const marks = ["cube", "target", "peaks", "chevrons", "dots", "waves"];
+const audienceIcons: LucideIcon[] = [Building2, Receipt, BadgeCheck, Code2];
 
 export function AudienceStrip() {
-  const { audience } = homeFor(useLocale() as Locale);
+  const locale = useLocale();
+  const t = useT();
+  const { audience } = homeFor(locale as Locale);
+
   return (
-    <section className="bg-surface py-10">
+    <section className="border-b border-border/70 bg-surface py-12">
       <Container>
-        <h2 className="text-center text-sm font-semibold text-navy">{audience.heading}</h2>
-        <ul className="mt-7 grid grid-cols-3 items-center gap-6 sm:grid-cols-6">
-          {marks.map((m) => (
-            <li key={m} className="flex justify-center">
-              <AbstractMark variant={m} />
-            </li>
-          ))}
+        <h2 className="text-center text-[13px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {audience.heading}
+        </h2>
+        <ul className="mx-auto mt-7 grid max-w-[900px] grid-cols-2 gap-3 sm:grid-cols-4">
+          {solutionLinks.map((link, index) => {
+            const Icon = audienceIcons[index] ?? Building2;
+            return (
+              <li key={link.slug}>
+                <AppLink
+                  href={path(link.slug, locale)}
+                  className="card-lift flex h-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 shadow-card"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-pale-blue">
+                    <Icon className="size-4 text-navy" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 text-[13px] font-semibold text-navy">
+                    {t(link.labelKey)}
+                  </span>
+                </AppLink>
+              </li>
+            );
+          })}
         </ul>
       </Container>
     </section>
   );
-}
-
-function AbstractMark({ variant }: { variant: string }) {
-  const cls = "size-9 text-navy/25";
-  switch (variant) {
-    case "cube":
-      return (
-        <svg viewBox="0 0 24 24" className={cls} fill="currentColor" aria-hidden="true">
-          <path d="M12 2 3 7v10l9 5 9-5V7l-9-5Zm0 2.3 6.6 3.7L12 11.7 5.4 8 12 4.3Z" />
-        </svg>
-      );
-    case "target":
-      return (
-        <svg
-          viewBox="0 0 24 24"
-          className={cls}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-        >
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="4" />
-        </svg>
-      );
-    case "peaks":
-      return (
-        <svg viewBox="0 0 24 24" className={cls} fill="currentColor" aria-hidden="true">
-          <path d="M2 20 9 6l4 8 3-5 6 11H2Z" />
-        </svg>
-      );
-    case "chevrons":
-      return (
-        <svg
-          viewBox="0 0 24 24"
-          className={cls}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          aria-hidden="true"
-        >
-          <path d="m7 6 5 6-5 6M15 6l5 6-5 6" />
-        </svg>
-      );
-    case "dots":
-      return (
-        <svg viewBox="0 0 24 24" className={cls} fill="currentColor" aria-hidden="true">
-          {[4, 9, 14, 19].map((y) =>
-            [4, 9, 14, 19].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.3" />),
-          )}
-        </svg>
-      );
-    default:
-      return (
-        <svg
-          viewBox="0 0 24 24"
-          className={cls}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          aria-hidden="true"
-        >
-          <path d="M2 9c3-3 5 3 8 0s5 3 8 0M2 15c3-3 5 3 8 0s5 3 8 0" />
-        </svg>
-      );
-  }
 }
 
 /**
@@ -181,7 +199,7 @@ function AbstractMark({ variant }: { variant: string }) {
 export function ProductCards() {
   const locale = useLocale();
   return (
-    <section className="bg-surface pb-8">
+    <section className="bg-surface pb-10 pt-12">
       <Container className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {homepageProducts.map((product) => {
           const Icon = product.icon;
@@ -190,36 +208,22 @@ export function ProductCards() {
             <AppLink
               key={product.slug}
               href={path(product.slug, locale)}
-              className="group rounded-xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40"
+              className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-card"
             >
-              <span className="grid size-9 place-items-center rounded-lg bg-pale-green">
-                <Icon className="size-4 text-primary" aria-hidden="true" />
+              <span className="grid size-10 place-items-center rounded-xl bg-pale-green">
+                <Icon className="size-5 text-primary" aria-hidden="true" />
               </span>
-              <h3 className="mt-3 text-sm font-semibold text-navy">{copy.name}</h3>
-              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{copy.card}</p>
+              <h3 className="mt-4 text-[15px] font-semibold text-navy">{copy.name}</h3>
+              <p className="mt-1.5 flex-1 text-xs leading-relaxed text-muted-foreground">
+                {copy.card}
+              </p>
+              <ArrowRight
+                className="mt-4 hidden size-4 text-primary opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 sm:block rtl:rotate-180"
+                aria-hidden="true"
+              />
             </AppLink>
           );
         })}
-      </Container>
-    </section>
-  );
-}
-
-export function LanguageStrip() {
-  const { languages } = homeFor(useLocale() as Locale);
-  return (
-    <section className="bg-surface pb-12">
-      <Container>
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 rounded-xl border border-border bg-card px-6 py-3.5 text-xs text-muted-foreground shadow-card">
-          <span className="flex items-center gap-1.5 font-semibold text-navy">
-            <Globe className="size-4" aria-hidden="true" /> {languages.label}
-          </span>
-          {/* Exactly the models that ship. The previous list advertised six
-              languages, three of which had no recognition model at all. */}
-          {languages.items.map((label) => (
-            <span key={label}>{label}</span>
-          ))}
-        </div>
       </Container>
     </section>
   );
@@ -229,23 +233,24 @@ export function HowItWorks() {
   const { howItWorks } = homeFor(useLocale() as Locale);
   const steps = howItWorks.steps.map((step, index) => ({ n: index + 1, ...step }));
   return (
-    <section id="how-it-works" className="py-16">
+    <section id="how-it-works" className="py-20">
       <Container>
-        <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          {howItWorks.heading}
-        </h2>
-        <ol className="mt-10 grid gap-10 md:grid-cols-3">
+        <SectionHead title={howItWorks.heading} />
+        <ol className="relative mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+          {/* The rule ties the three steps into one sequence. Hidden on small
+              screens, where the steps stack and the line would run sideways
+              through nothing. */}
+          <span
+            className="absolute inset-x-0 top-4 hidden h-px bg-gradient-to-r from-transparent via-border to-transparent md:block"
+            aria-hidden="true"
+          />
           {steps.map((s) => (
             <li key={s.n} className="relative">
-              <div className="flex items-center gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {s.n}
-                </span>
-                <h3 className="text-[15px] font-semibold text-navy">{s.title}</h3>
-              </div>
-              <p className="mt-3 max-w-[280px] text-sm leading-relaxed text-muted-foreground">
-                {s.body}
-              </p>
+              <span className="grid size-9 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground shadow-glow ring-8 ring-background">
+                {s.n}
+              </span>
+              <h3 className="mt-5 text-[16px] font-semibold text-navy">{s.title}</h3>
+              <p className="mt-2.5 max-w-[320px] text-sm leading-relaxed text-ink-soft">{s.body}</p>
             </li>
           ))}
         </ol>
@@ -258,16 +263,11 @@ export function ExtractSection() {
   const { extract } = homeFor(useLocale() as Locale);
   const fields = extract.fields;
   return (
-    <section className="bg-surface py-16">
-      <Container className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+    <section className="border-y border-border/70 bg-surface py-20">
+      <Container className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div className="min-w-0">
-          <h2 className="text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-            {extract.heading}
-          </h2>
-          <p className="mt-4 max-w-[400px] text-sm leading-relaxed text-muted-foreground">
-            {extract.description}
-          </p>
-          <ul className="mt-6 space-y-3">
+          <SectionHead title={extract.heading} lede={extract.description} align="start" />
+          <ul className="mt-7 space-y-3">
             {fields.map((f) => (
               <li key={f} className="flex items-center gap-2.5 text-sm text-navy">
                 <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden="true" />
@@ -278,7 +278,7 @@ export function ExtractSection() {
         </div>
 
         <figure
-          className="grid gap-4 rounded-2xl border border-border bg-card p-4 shadow-panel sm:grid-cols-[1.4fr_1fr]"
+          className="grid gap-4 rounded-2xl border border-border bg-card p-4 shadow-lift sm:grid-cols-[1.4fr_1fr]"
           aria-label={extract.previewAlt}
         >
           <InvoicePreview sampleLabel={extract.sampleLabel} />
@@ -391,22 +391,20 @@ export function Workflows() {
     ...card,
   }));
   return (
-    <section className="py-16">
+    <section className="py-20">
       <Container>
-        <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          {copy.heading}
-        </h2>
-        <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <SectionHead title={copy.heading} />
+        <div className="mt-11 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {workflows.map(({ icon: Icon, title, body }) => (
             <div
               key={title}
-              className="rounded-xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-panel"
+              className="card-lift rounded-2xl border border-border bg-card p-6 shadow-card"
             >
-              <span className="grid size-9 place-items-center rounded-lg bg-pale-blue">
-                <Icon className="size-4 text-navy" aria-hidden="true" />
+              <span className="grid size-10 place-items-center rounded-xl bg-pale-blue">
+                <Icon className="size-5 text-navy" aria-hidden="true" />
               </span>
-              <h3 className="mt-3 text-sm font-semibold text-navy">{title}</h3>
-              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{body}</p>
+              <h3 className="mt-4 text-[15px] font-semibold text-navy">{title}</h3>
+              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
             </div>
           ))}
         </div>
@@ -424,24 +422,17 @@ export function GlobalSection() {
     ...card,
   }));
   return (
-    <section className="bg-surface py-16">
+    <section className="border-y border-border/70 bg-surface py-20">
       <Container>
-        <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          {copy.heading}
-        </h2>
-        <p className="mx-auto mt-3 max-w-[640px] text-center text-sm text-muted-foreground">
-          {copy.description}
-        </p>
-        <div className="mt-9 grid gap-8 md:grid-cols-3">
+        <SectionHead title={copy.heading} lede={copy.description} />
+        <div className="mt-11 grid gap-6 md:grid-cols-3">
           {global.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="flex gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-pale-blue">
-                <Icon className="size-4 text-navy" aria-hidden="true" />
+            <div key={title} className="rounded-2xl border border-border bg-card p-6 shadow-card">
+              <span className="grid size-10 place-items-center rounded-xl bg-pale-green">
+                <Icon className="size-5 text-primary" aria-hidden="true" />
               </span>
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold text-navy">{title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{body}</p>
-              </div>
+              <h3 className="mt-4 text-[15px] font-semibold text-navy">{title}</h3>
+              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
             </div>
           ))}
         </div>
@@ -518,19 +509,17 @@ export function Pricing() {
   return (
     <section id="pricing" className="py-16">
       <Container>
-        <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          {t("pricing.heading")}
-        </h2>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
-          {t("free.tryFree")} — {t("free.noCard")}. {t("free.afterFive")}.
-        </p>
+        <SectionHead
+          title={t("pricing.heading")}
+          lede={`${t("free.tryFree")} — ${t("free.noCard")}. ${t("free.afterFive")}.`}
+        />
 
         {(isError || unavailable) && (
           <p className="mt-6 text-center text-sm text-muted-foreground">{t("plan.unavailable")}</p>
         )}
 
-        <div className="mt-6 flex justify-center">
-          <div className="inline-flex rounded-full border border-border bg-surface p-1">
+        <div className="mt-8 flex justify-center">
+          <div className="inline-flex rounded-full border border-border bg-surface p-1 shadow-card">
             {[
               [t("pricing.monthly"), false],
               [t("pricing.yearly"), true],
@@ -540,8 +529,10 @@ export function Pricing() {
                 onClick={() => setYearly(Boolean(val))}
                 aria-pressed={yearly === val}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
-                  yearly === val ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+                  "rounded-full px-5 py-2 text-xs font-semibold transition-colors",
+                  yearly === val
+                    ? "bg-primary text-primary-foreground shadow-card"
+                    : "text-muted-foreground hover:text-navy",
                 )}
               >
                 {String(label)}
@@ -550,25 +541,27 @@ export function Pricing() {
           </div>
         </div>
 
-        <div className="mt-9 grid gap-5 md:grid-cols-3">
+        <div className="mt-10 grid items-start gap-5 md:grid-cols-3">
           {plans.map((p) => (
             <div
               key={p.id}
               className={cn(
-                "relative rounded-2xl border border-border bg-card p-6 shadow-card",
-                p.popular && "border-primary shadow-panel",
+                "relative flex h-full flex-col rounded-2xl border border-border bg-card p-6 shadow-card",
+                // The recommended plan is raised rather than merely outlined,
+                // so the eye lands on it before it reads three equal columns.
+                p.popular && "border-primary/60 shadow-lift md:-mt-3 md:py-8",
               )}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-bold text-navy">{p.name}</h3>
                 {p.popular && (
-                  <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold text-primary-foreground">
+                  <span className="brand-surface rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
                     {t("pricing.mostPopular")}
                   </span>
                 )}
               </div>
-              <p className="mt-4">
-                <span className="text-3xl font-extrabold text-navy">
+              <p className="mt-5">
+                <span className="text-[40px] font-extrabold leading-none tracking-[-0.03em] text-navy">
                   {yearly && p.yearlyPrice === null
                     ? "—"
                     : `$${yearly ? p.yearlyPrice : p.monthlyPrice}`}
@@ -577,12 +570,15 @@ export function Pricing() {
                   {yearly ? t("plan.perYear") : t("plan.perMonth")}
                 </span>
               </p>
-              <p className="mt-2 text-xs text-muted-foreground">{p.blurb}</p>
-              <ul className="mt-5 space-y-2.5">
+              <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">{p.blurb}</p>
+              <ul className="mt-6 flex-1 space-y-3 border-t border-border pt-6">
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-xs text-navy">
-                    <Check className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
-                    {f}
+                  <li
+                    key={f}
+                    className="flex items-start gap-2.5 text-[13px] leading-relaxed text-navy"
+                  >
+                    <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="min-w-0">{f}</span>
                   </li>
                 ))}
               </ul>
@@ -590,7 +586,7 @@ export function Pricing() {
                 asChild
                 variant={p.popular ? "default" : "outline"}
                 className={cn(
-                  "mt-6 h-10 w-full rounded-lg font-semibold",
+                  "mt-7 h-11 w-full rounded-xl font-semibold",
                   !p.popular && "border-border text-navy",
                 )}
               >
@@ -612,12 +608,10 @@ export function Pricing() {
 export function Faq() {
   const { faq } = homeFor(useLocale() as Locale);
   return (
-    <section className="pb-16">
+    <section className="pb-20">
       <Container className="max-w-[860px]">
-        <h2 className="text-center text-2xl font-bold tracking-tight text-navy sm:text-[28px]">
-          {faq.heading}
-        </h2>
-        <Accordion type="single" collapsible className="mt-8 space-y-3">
+        <SectionHead title={faq.heading} />
+        <Accordion type="single" collapsible className="mt-10 space-y-3">
           {faq.items.map((f, i) => (
             <AccordionItem
               key={f.q}
@@ -644,23 +638,25 @@ export function FinalCta() {
   return (
     <section className="pb-16">
       <Container>
-        <div className="grid items-center gap-6 rounded-2xl bg-primary px-6 py-8 sm:grid-cols-[1fr_auto] sm:px-10">
+        <div className="brand-surface relative grid items-center gap-6 overflow-hidden rounded-3xl px-6 py-10 shadow-lift sm:grid-cols-[1fr_auto] sm:px-12">
           <div className="flex min-w-0 items-center gap-4">
-            <span className="hidden size-12 shrink-0 place-items-center rounded-full bg-primary-foreground/15 sm:grid">
-              <Download className="size-5 text-primary-foreground" aria-hidden="true" />
+            <span className="hidden size-14 shrink-0 place-items-center rounded-2xl bg-primary-foreground/15 backdrop-blur sm:grid">
+              <Download className="size-6 text-primary-foreground" aria-hidden="true" />
             </span>
             <div className="min-w-0">
-              <h2 className="text-xl font-bold text-primary-foreground sm:text-2xl">
+              <h2 className="text-[22px] font-bold leading-tight tracking-[-0.01em] text-primary-foreground sm:text-[26px]">
                 {finalCta.heading}
               </h2>
-              <p className="mt-1.5 text-sm text-primary-foreground/85">{finalCta.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-primary-foreground/85">
+                {finalCta.body}
+              </p>
             </div>
           </div>
           <div className="text-center">
             <Button
               asChild
               variant="secondary"
-              className="h-11 w-full rounded-lg px-6 font-semibold text-navy sm:w-auto"
+              className="h-12 w-full rounded-xl px-7 font-semibold text-navy shadow-card sm:w-auto"
             >
               <a href="#upload">
                 {finalCta.cta} <ArrowRight className="size-4" aria-hidden="true" />

@@ -10,7 +10,6 @@ import {
   GlobalSection,
   Hero,
   HowItWorks,
-  LanguageStrip,
   Pricing,
   ProductCards,
   Workflows,
@@ -103,7 +102,6 @@ function Index() {
         <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
           <AdSlot name="home_below_hero" variant="banner" />
         </div>
-        <LanguageStrip />
         <HowItWorks />
         <ExtractSection />
         <Workflows />

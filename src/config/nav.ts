@@ -31,6 +31,10 @@ export const solutionLinks: NavLink[] = [
 
 export const resourceLinks: NavLink[] = [
   { labelKey: "link.documentation", slug: "documentation" },
+  // The free PDF tools index. It sits with the resources rather than with the
+  // products: nothing here is sold, and putting it among the eight products
+  // would blur what the plans actually pay for.
+  { labelKey: "link.pdf-tools", slug: "pdf-tools" },
   { labelKey: "link.api-reference", slug: "api-reference" },
   { labelKey: "link.help", slug: "help" },
   { labelKey: "link.blog", slug: "blog" },

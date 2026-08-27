@@ -52,8 +52,23 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-arabic: "Tajawal", "Noto Sans Arabic", "Inter", sans-serif;
+  --color-tool-organise: var(--tool-organise);
+  --color-tool-organise-soft: var(--tool-organise-soft);
+  --color-tool-edit: var(--tool-edit);
+  --color-tool-edit-soft: var(--tool-edit-soft);
+  --color-tool-convert: var(--tool-convert);
+  --color-tool-convert-soft: var(--tool-convert-soft);
+  --color-tool-intelligence: var(--tool-intelligence);
+  --color-tool-intelligence-soft: var(--tool-intelligence-soft);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--brand-soft);
+  --color-ink-soft: var(--ink-soft);
   --shadow-card: 0 1px 2px oklch(0.22 0.08 265 / 0.04), 0 8px 24px oklch(0.22 0.08 265 / 0.05);
   --shadow-panel: 0 2px 6px oklch(0.22 0.08 265 / 0.05), 0 24px 60px oklch(0.22 0.08 265 / 0.08);
+  /* One step above panel, for the element a section is built around. */
+  --shadow-lift: 0 4px 10px oklch(0.22 0.08 265 / 0.06), 0 40px 90px oklch(0.22 0.08 265 / 0.12);
+  /* Brand-tinted, for the hero's upload card only. */
+  --shadow-glow: 0 20px 60px oklch(0.54 0.144 162.5 / 0.2);
 }
 
 :root {
@@ -66,9 +81,9 @@
   --card-foreground: oklch(0.22 0.08 265);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.08 265);
-  --primary: oklch(0.634 0.144 162.5);
+  --primary: oklch(0.54 0.144 162.5);
   --primary-foreground: oklch(1 0 0);
-  --primary-hover: oklch(0.567 0.13 162.5);
+  --primary-hover: oklch(0.475 0.132 162.5);
   --secondary: oklch(0.97 0.006 247);
   --secondary-foreground: oklch(0.22 0.08 265);
   --muted: oklch(0.97 0.006 247);
@@ -79,17 +94,30 @@
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.906 0.012 249);
   --input: oklch(0.906 0.012 249);
-  --ring: oklch(0.634 0.144 162.5);
+  --ring: oklch(0.54 0.144 162.5);
   --pale-green: oklch(0.963 0.026 165);
   --pale-blue: oklch(0.973 0.015 245);
+  --tool-organise: oklch(0.552 0.132 162.5);
+  --tool-organise-soft: oklch(0.955 0.032 165);
+  --tool-edit: oklch(0.53 0.16 285);
+  --tool-edit-soft: oklch(0.955 0.028 288);
+  --tool-convert: oklch(0.53 0.14 245);
+  --tool-convert-soft: oklch(0.953 0.028 245);
+  --tool-intelligence: oklch(0.58 0.13 65);
+  --tool-intelligence-soft: oklch(0.958 0.035 75);
+  /* Darker end of the brand ramp, for gradients that need somewhere to go. */
+  --brand-deep: oklch(0.472 0.118 168);
+  --brand-soft: oklch(0.918 0.052 168);
+  /* Body copy that should sit between navy and muted. */
+  --ink-soft: oklch(0.412 0.043 258);
   --sidebar: oklch(0.984 0.003 247.858);
   --sidebar-foreground: oklch(0.22 0.08 265);
-  --sidebar-primary: oklch(0.634 0.144 162.5);
+  --sidebar-primary: oklch(0.54 0.144 162.5);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.963 0.026 165);
   --sidebar-accent-foreground: oklch(0.22 0.08 265);
   --sidebar-border: oklch(0.906 0.012 249);
-  --sidebar-ring: oklch(0.634 0.144 162.5);
+  --sidebar-ring: oklch(0.54 0.144 162.5);
 }
 
 .dark {
@@ -115,6 +143,17 @@
   --ring: oklch(0.66 0.15 162.5);
   --pale-green: oklch(0.3 0.05 165);
   --pale-blue: oklch(0.28 0.04 250);
+  --tool-organise: oklch(0.78 0.13 162.5);
+  --tool-organise-soft: oklch(0.32 0.05 165);
+  --tool-edit: oklch(0.76 0.14 285);
+  --tool-edit-soft: oklch(0.3 0.05 288);
+  --tool-convert: oklch(0.76 0.12 245);
+  --tool-convert-soft: oklch(0.3 0.045 245);
+  --tool-intelligence: oklch(0.79 0.12 70);
+  --tool-intelligence-soft: oklch(0.31 0.05 70);
+  --brand-deep: oklch(0.72 0.14 168);
+  --brand-soft: oklch(0.34 0.06 168);
+  --ink-soft: oklch(0.82 0.02 258);
   --sidebar: oklch(0.22 0.06 265);
   --sidebar-foreground: oklch(0.984 0.003 247.858);
   --sidebar-primary: oklch(0.66 0.15 162.5);
@@ -154,8 +193,64 @@
 
 @utility hero-glow {
   background:
-    radial-gradient(60% 60% at 85% 10%, var(--color-pale-blue) 0%, transparent 70%),
-    radial-gradient(50% 50% at 5% 90%, var(--color-pale-green) 0%, transparent 70%);
+    radial-gradient(52% 48% at 88% 4%, var(--color-pale-blue) 0%, transparent 68%),
+    radial-gradient(46% 44% at 2% 96%, var(--color-pale-green) 0%, transparent 66%),
+    radial-gradient(80% 60% at 50% -10%, oklch(0.54 0.144 162.5 / 0.06) 0%, transparent 70%);
+}
+
+/* A faint ruled ground. Reads as paper, which is what the product is about,
+   and stops large pale sections looking like unstyled whitespace. */
+@utility ruled {
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, black 0%, transparent 75%);
+  mask-image: radial-gradient(70% 60% at 50% 0%, black 0%, transparent 75%);
+  opacity: 0.55;
+}
+
+/* The brand ramp, for the few surfaces that carry it. */
+@utility brand-surface {
+  background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-brand-deep) 100%);
+}
+
+/* One word of a heading, not whole paragraphs — gradient text is unreadable
+   at body sizes and disappears in forced-colours mode. */
+@utility brand-text {
+  background-image: linear-gradient(100deg, var(--color-primary) 10%, var(--color-brand-deep) 90%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@media (forced-colors: active) {
+  .brand-text {
+    color: CanvasText;
+    background-image: none;
+  }
+}
+
+/* Section label above a heading. */
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+/* The shared card motion, so every card on the site lifts the same way. */
+@utility card-lift {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-panel);
+  border-color: color-mix(in oklab, var(--color-primary) 40%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

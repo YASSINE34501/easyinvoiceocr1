@@ -13,6 +13,7 @@ import { SITE_ORIGIN, isNoindexSlug } from "@/config/seo";
 import { sortedProducts } from "@/config/products";
 import { solutionLinks, resourceLinks, companyLinks, legalLinks } from "@/config/nav";
 import { blogSlugs } from "@/content/blog";
+import { PDF_TOOLS } from "@/lib/pdftools/registry";
 import { isComingSoonProduct } from "@/content/products";
 
 export type SitemapEntry = { slug: string; changefreq: string; priority: string };
@@ -40,6 +41,14 @@ export function sitemapEntries(): SitemapEntry[] {
   }
   for (const link of legalLinks) {
     entries.push({ slug: link.slug, changefreq: "yearly", priority: "0.3" });
+  }
+
+  // The PDF tool pages. The index itself arrives through resourceLinks, so it
+  // is not pushed twice. These are derived from the tools registry: a tool is
+  // listed here only once it is implemented, because the registry holds
+  // nothing that does not work.
+  for (const tool of PDF_TOOLS) {
+    entries.push({ slug: `pdf/${tool.slug}`, changefreq: "monthly", priority: "0.6" });
   }
 
   // Every published article, in all three locales. blogPosts contains only

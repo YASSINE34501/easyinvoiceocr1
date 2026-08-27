@@ -42,6 +42,8 @@ export function Dropzone({
   onFiles,
   disabled,
   compact,
+  title,
+  buttonLabel,
 }: {
   accept: string;
   multiple: boolean;
@@ -50,6 +52,10 @@ export function Dropzone({
   onFiles: (files: File[]) => void;
   disabled?: boolean;
   compact?: boolean;
+  /** Overrides the heading. The default wording assumes images. */
+  title?: string;
+  /** Overrides the button. Same reason. */
+  buttonLabel?: string;
 }) {
   const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -108,7 +114,7 @@ export function Dropzone({
         aria-hidden="true"
       />
       <p className="mt-3 text-[15px] font-semibold text-navy">
-        {multiple ? t("conv.dropTitleMulti") : t("conv.dropTitle")}
+        {title ?? (multiple ? t("conv.dropTitleMulti") : t("conv.dropTitle"))}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
         {t("conv.dropHint", { formats: formatsLabel, size: formatBytes(maxBytes) })}
@@ -123,7 +129,7 @@ export function Dropzone({
         }}
       >
         <FileUp className="size-4" aria-hidden="true" />
-        {multiple ? t("conv.chooseFiles") : t("conv.chooseFile")}
+        {buttonLabel ?? (multiple ? t("conv.chooseFiles") : t("conv.chooseFile"))}
       </Button>
     </div>
   );
