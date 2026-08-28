@@ -596,7 +596,7 @@ const en = {
   "blocked.trial_exhausted":
     "You have used all 5 free conversions. Choose Pro or Business to continue.",
   "plan.name_trial": "One-Time Free Trial",
-  "plan.name_pro": "Pro",
+  "plan.name_pro": "Premium",
   "plan.name_business": "Business",
   "plan.blurb_trial": "Five successful conversions, once per account. No card required.",
   "plan.blurb_pro":
@@ -1151,7 +1151,7 @@ const fr: Record<MessageKey, string> = {
   "blocked.trial_exhausted":
     "Vous avez utilisé vos 5 conversions gratuites. Choisissez Pro ou Business pour continuer.",
   "plan.name_trial": "Essai gratuit unique",
-  "plan.name_pro": "Pro",
+  "plan.name_pro": "Premium",
   "plan.name_business": "Business",
   "plan.blurb_trial":
     "Cinq conversions réussies, une seule fois par compte. Aucune carte bancaire requise.",
@@ -1674,7 +1674,7 @@ const ar: Record<MessageKey, string> = {
   "blocked.trial_exhausted":
     "لقد استخدمت جميع عمليات التحويل المجانية الخمس. اختر Pro أو Business للمتابعة.",
   "plan.name_trial": "تجربة مجانية لمرة واحدة",
-  "plan.name_pro": "Pro",
+  "plan.name_pro": "بريميوم",
   "plan.name_business": "Business",
   "plan.blurb_trial": "خمس عمليات تحويل ناجحة، مرة واحدة لكل حساب. لا تحتاج إلى بطاقة بنكية.",
   "plan.blurb_pro": "500 صفحة معالَجة بنجاح في كل فترة فوترة، جميع أدوات التحويل، بدون إعلانات.",

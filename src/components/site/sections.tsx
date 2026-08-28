@@ -518,6 +518,8 @@ export function Pricing() {
     };
   });
 
+  const paidPlanCount = plans.filter((plan) => plan.monthlyPrice > 0).length;
+
   return (
     <section id="pricing" className="py-16">
       <Container>
@@ -587,7 +589,14 @@ export function Pricing() {
           );
         })()}
 
-        <div className="mt-10 grid items-start gap-5 md:grid-cols-3">
+        <div
+          className={cn(
+            "mt-10 grid items-start gap-5",
+            // Two plans in a three-column grid leaves a hole; the catalogue
+            // decides the columns rather than a number written here.
+            plans.length >= 3 ? "md:grid-cols-3" : "mx-auto max-w-[820px] md:grid-cols-2",
+          )}
+        >
           {plans.map((p) => (
             <div
               key={p.id}
@@ -600,7 +609,7 @@ export function Pricing() {
             >
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-bold text-navy">{p.name}</h3>
-                {p.popular && (
+                {p.popular && paidPlanCount > 1 && (
                   <span className="brand-surface rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
                     {t("pricing.mostPopular")}
                   </span>
