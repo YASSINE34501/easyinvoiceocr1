@@ -16,9 +16,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/site/AppLink";
-import { getConversionGate } from "@/lib/billing/billing.functions";
+import { useQuery } from "@tanstack/react-query";
+import { getConversionGate, getPublicPlans } from "@/lib/billing/billing.functions";
 import { authSlugs, path } from "@/config/nav";
 import { useLocale, useT } from "@/i18n/useLocale";
+import type { MessageKey } from "@/i18n";
 import { useAuth } from "@/auth/AuthProvider";
 
 export type GateSnapshot = Awaited<ReturnType<typeof getConversionGate>>;
@@ -80,6 +82,14 @@ export function Paywall({ reason }: { reason: "trial_exhausted" | "subscription_
   const t = useT();
   const locale = useLocale();
 
+  // Same key, staleTime and shape as the pricing section and the checkout.
+  const { data: plans = [] } = useQuery({
+    queryKey: ["public-plans"],
+    queryFn: () => getPublicPlans(),
+    staleTime: 300_000,
+  });
+  const paidPlans = plans.filter((plan) => plan.monthlyPrice > 0);
+
   return (
     <Alert variant="destructive" className="border-destructive/40">
       <Lock className="size-4" aria-hidden="true" />
@@ -89,16 +99,25 @@ export function Paywall({ reason }: { reason: "trial_exhausted" | "subscription_
       <AlertDescription>
         <p>{t("paywall.body")}</p>
 
-        <ul className="mt-3 space-y-1 text-sm">
-          <li>
-            <strong>{t("plan.name_pro")}</strong> — $14 {t("pricing.monthly").toLowerCase()} / $140{" "}
-            {t("pricing.yearly").toLowerCase()}
-          </li>
-          <li>
-            <strong>{t("plan.name_business")}</strong> — $49 {t("pricing.monthly").toLowerCase()} /
-            $490 {t("pricing.yearly").toLowerCase()}
-          </li>
-        </ul>
+        {/* Rendered only when the plans are actually known. A paywall that
+            invents a price is worse than one that shows none: the visitor is
+            being asked to pay it. */}
+        {paidPlans.length > 0 && (
+          <ul className="mt-3 space-y-1 text-sm">
+            {paidPlans.map((plan) => (
+              <li key={plan.id}>
+                <strong>{t(`plan.name_${plan.code}` as MessageKey, {}) || plan.name}</strong> — $
+                {plan.monthlyPrice} {t("pricing.monthly").toLowerCase()}
+                {plan.yearlyPrice !== null && (
+                  <>
+                    {" / $"}
+                    {plan.yearlyPrice} {t("pricing.yearly").toLowerCase()}
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-3">
           <Button asChild className="min-h-11 rounded-lg font-semibold">
