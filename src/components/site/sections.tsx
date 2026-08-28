@@ -83,20 +83,12 @@ function SectionHead({
 
 export function Hero() {
   const home = homeFor(useLocale() as Locale);
-  const { hero, languages } = home;
+  const { hero } = home;
   return (
     <section className="hero-glow relative overflow-hidden border-b border-border/70">
       <Container className="relative grid gap-12 py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-14 lg:py-20">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-card/80 py-1.5 ps-2 pe-3.5 text-xs font-semibold text-accent-foreground shadow-card backdrop-blur">
-            <span className="grid size-5 place-items-center rounded-full bg-pale-green">
-              <Sparkles className="size-3 text-primary" aria-hidden="true" />
-            </span>
-            {languages.label}
-            <span className="text-muted-foreground">{languages.items.join(" · ")}</span>
-          </p>
-
-          <h1 className="mt-5 text-balance text-[34px] font-extrabold leading-[1.08] tracking-[-0.025em] text-navy sm:text-[40px] lg:text-[44px] xl:text-[48px]">
+          <h1 className="text-balance text-[34px] font-extrabold leading-[1.08] tracking-[-0.025em] text-navy sm:text-[40px] lg:text-[44px] xl:text-[48px]">
             {hero.h1Line1} <span className="brand-text">{hero.h1Line2}</span>
           </h1>
 
