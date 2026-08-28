@@ -31,6 +31,26 @@ import { useLocale, useT } from "@/i18n/useLocale";
 import { cn } from "@/lib/utils";
 import { robotsMeta } from "@/config/seo";
 
+/**
+ * What a year costs against twelve months of the same plan.
+ *
+ * Derived, never stored: the page cannot advertise a discount the billing does
+ * not honour. Returns null when there is no yearly price, or when the yearly
+ * price saves nothing — a badge over a saving of zero would be a lie.
+ */
+function cycleSaving(plan: { monthlyPrice: number; yearlyPrice: number | null }) {
+  const { monthlyPrice, yearlyPrice } = plan;
+  if (yearlyPrice === null || monthlyPrice <= 0) return null;
+  const twelveMonths = monthlyPrice * 12;
+  const amount = twelveMonths - yearlyPrice;
+  if (amount <= 0) return null;
+  return {
+    amount: Math.round(amount * 100) / 100,
+    percent: Math.round((amount / twelveMonths) * 100),
+    perMonth: Math.round((yearlyPrice / 12) * 100) / 100,
+  };
+}
+
 export const Route = createFileRoute("/$locale/choose-plan")({
   // Session state lives in the browser, so this page is decided after hydration.
   ssr: false,
@@ -203,24 +223,61 @@ function ChoosePlanPage() {
               {t("choose.subscribeBody")}
             </p>
 
-            <div className="mt-5 inline-flex self-start rounded-full border border-border bg-surface p-1">
-              {(["month", "year"] as const).map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={interval === value}
-                  onClick={() => setInterval(value)}
-                  className={cn(
-                    "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
-                    interval === value
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground",
-                  )}
-                >
-                  {value === "month" ? t("plan.monthly") : t("plan.yearly")}
-                </button>
-              ))}
-            </div>
+            {/* Priced against the chosen plan, or the first paid one before a
+                choice is made, so the cards always show a real figure. */}
+            {(() => {
+              const priced = paidPlans.find((p) => p.code === selected) ?? paidPlans[0];
+              if (!priced) return null;
+              const saving = cycleSaving(priced);
+              return (
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {(["month", "year"] as const).map((value) => {
+                    const active = interval === value;
+                    const price = value === "year" ? priced.yearlyPrice : priced.monthlyPrice;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setInterval(value)}
+                        className={cn(
+                          "relative rounded-2xl border-2 p-4 text-start transition-colors",
+                          active
+                            ? "border-primary bg-pale-green/40"
+                            : "border-border hover:border-primary/40",
+                        )}
+                      >
+                        {value === "year" && saving && (
+                          <span className="brand-surface absolute -top-2.5 end-3 rounded-full px-2.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                            {t("plan.percentOff", { percent: saving.percent })}
+                          </span>
+                        )}
+                        <span className="block text-xs font-semibold text-muted-foreground">
+                          {value === "month" ? t("plan.monthly") : t("plan.yearly")}
+                        </span>
+                        <span className="mt-1 block text-2xl font-extrabold tracking-[-0.02em] text-navy">
+                          {price === null ? "—" : `${price}`}
+                        </span>
+                        {value === "year" && saving ? (
+                          <>
+                            <span className="mt-1 block text-[11px] text-muted-foreground">
+                              {t("plan.perMonthBilledYearly", { amount: saving.perMonth })}
+                            </span>
+                            <span className="mt-1 block text-[11px] font-semibold text-primary">
+                              {t("plan.savePerYear", { amount: saving.amount })}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="mt-1 block text-[11px] text-muted-foreground">
+                            {value === "month" ? t("plan.perMonth") : t("plan.perYear")}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {paidPlans.map((plan) => {
@@ -260,6 +317,10 @@ function ChoosePlanPage() {
                 );
               })}
             </div>
+
+            <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
+              {t("pricing.note")}
+            </p>
 
             <div className="mt-5">
               {selected ? (
