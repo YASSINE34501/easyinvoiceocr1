@@ -103,6 +103,9 @@ export type PdfToolsUi = {
   privacyBody: string;
   errorTitle: string;
   howItWorks: string;
+  /** Shown once a run succeeds: the one step worth offering next. */
+  nextTitle: string;
+  nextCta: string;
   limitsTitle: string;
   faqTitle: string;
   otherTools: string;

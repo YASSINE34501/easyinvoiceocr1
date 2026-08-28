@@ -114,6 +114,8 @@ export const pdfToolsAr: PdfToolsContent = {
     privacyBody: "تجري المعالجة داخل متصفحك. لا يُرسل الملف إلى أي جهة ولا نحتفظ بأي نسخة منه.",
     errorTitle: "لم ينجح ذلك",
     howItWorks: "كيف تعمل",
+    nextTitle: "تعمل على فواتير أو إيصالات؟",
+    nextCta: "استخرج البيانات إلى Excel",
     limitsTitle: "ما لا تفعله الأداة",
     faqTitle: "أسئلة",
     otherTools: "أدوات PDF أخرى",

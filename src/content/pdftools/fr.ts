@@ -114,6 +114,8 @@ export const pdfToolsFr: PdfToolsContent = {
       "Le traitement a lieu dans votre navigateur. Le fichier n'est envoyé nulle part et nous n'en gardons aucune copie.",
     errorTitle: "Cela n'a pas fonctionné",
     howItWorks: "Comment ça marche",
+    nextTitle: "Vous traitez des factures ou des reçus ?",
+    nextCta: "Extraire les données vers Excel",
     limitsTitle: "Ce que l'outil ne fait pas",
     faqTitle: "Questions",
     otherTools: "Autres outils PDF",

@@ -113,6 +113,8 @@ export const pdfToolsEn: PdfToolsContent = {
       "This runs in your browser. The file is not sent anywhere and we keep no copy of it.",
     errorTitle: "That did not work",
     howItWorks: "How it works",
+    nextTitle: "Working with invoices or receipts?",
+    nextCta: "Extract the data to Excel",
     limitsTitle: "What it will not do",
     faqTitle: "Questions",
     otherTools: "Other PDF tools",

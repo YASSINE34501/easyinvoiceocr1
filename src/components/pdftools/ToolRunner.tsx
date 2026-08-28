@@ -32,6 +32,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dropzone } from "@/components/convert/parts";
+import { AppLink } from "@/components/site/AppLink";
+import { path } from "@/config/routing";
 import { useLocale } from "@/i18n/useLocale";
 import { pdfToolsCopy } from "@/content/pdftools";
 import { pdfTool } from "@/lib/pdftools/registry";
@@ -362,6 +364,21 @@ export function ToolRunner({ slug }: { slug: PdfToolSlug }) {
             {ui.startOver}
           </Button>
         </div>
+
+        {/* A finished conversion is the moment the visitor is most willing to
+            try something else, and until now the only offers here were
+            "download" and "start over" — both of which end the visit. The one
+            step actually worth naming is the product the PDF tools sit next
+            to: reading an invoice into a spreadsheet. */}
+        <p className="mt-5 border-t border-border pt-5 text-sm text-muted-foreground">
+          {ui.nextTitle}{" "}
+          <AppLink
+            href={path("invoice-ocr", locale)}
+            className="font-semibold text-primary hover:underline"
+          >
+            {ui.nextCta}
+          </AppLink>
+        </p>
       </div>
     );
   }
