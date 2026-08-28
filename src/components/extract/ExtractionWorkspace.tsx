@@ -338,6 +338,10 @@ export function ExtractionWorkspace({
             type="file"
             accept={accept.attr}
             className="sr-only"
+            // See UploadCard: the wrapper is the control, so this input must
+            // not be a second unnamed tab stop for the same action.
+            tabIndex={-1}
+            aria-hidden="true"
             onChange={(event) => {
               const chosen = event.target.files?.[0];
               if (chosen) void start(chosen);

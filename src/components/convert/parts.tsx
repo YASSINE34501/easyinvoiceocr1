@@ -102,6 +102,10 @@ export function Dropzone({
         accept={accept}
         multiple={multiple}
         className="sr-only"
+        // See UploadCard: the wrapper is the control, so this input must not
+        // be a second unnamed tab stop for the same action.
+        tabIndex={-1}
+        aria-hidden="true"
         disabled={disabled}
         onChange={(event) => {
           const chosen = Array.from(event.target.files ?? []);

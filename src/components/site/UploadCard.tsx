@@ -88,6 +88,12 @@ export function UploadCard() {
           type="file"
           accept=".pdf,.jpg,.jpeg,.png"
           className="sr-only"
+          // The wrapper above is the control: it carries role="button", the
+          // keyboard handler and the visible label. Leaving this input in the
+          // tab order too gave screen readers a second, unnamed stop for the
+          // same action. Not focusable, so aria-hidden is legitimate here.
+          tabIndex={-1}
+          aria-hidden="true"
           onChange={(event) => go(event.target.files?.[0])}
         />
 
