@@ -36,6 +36,7 @@ import type { Locale } from "@/i18n";
 import type { MessageKey } from "@/i18n";
 import { cn } from "@/lib/utils";
 import { toolAccent } from "@/components/pdftools/surface";
+import { cycleSaving } from "@/components/billing/cycleSaving";
 import type { LucideIcon } from "lucide-react";
 
 const Container = ({ className, children }: { className?: string; children: React.ReactNode }) => (
@@ -529,28 +530,62 @@ export function Pricing() {
           <p className="mt-6 text-center text-sm text-muted-foreground">{t("plan.unavailable")}</p>
         )}
 
-        <div className="mt-8 flex justify-center">
-          <div className="inline-flex rounded-full border border-border bg-surface p-1 shadow-card">
-            {[
-              [t("pricing.monthly"), false],
-              [t("pricing.yearly"), true],
-            ].map(([label, val]) => (
-              <button
-                key={String(label)}
-                onClick={() => setYearly(Boolean(val))}
-                aria-pressed={yearly === val}
-                className={cn(
-                  "rounded-full px-5 py-2 text-xs font-semibold transition-colors",
-                  yearly === val
-                    ? "bg-primary text-primary-foreground shadow-card"
-                    : "text-muted-foreground hover:text-navy",
-                )}
-              >
-                {String(label)}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* The billing cycle, priced against the recommended plan so the
+            saving is a real figure rather than an abstract percentage. Two
+            cards side by side, stacked on a phone. */}
+        {(() => {
+          const priced = plans.find((p) => p.popular) ?? plans.find((p) => p.monthlyPrice > 0);
+          if (!priced) return null;
+          const saving = cycleSaving(priced);
+          return (
+            <div className="mx-auto mt-8 grid max-w-[560px] gap-3 sm:grid-cols-2">
+              {[false, true].map((value) => {
+                const active = yearly === value;
+                const price = value ? priced.yearlyPrice : priced.monthlyPrice;
+                return (
+                  <button
+                    key={String(value)}
+                    type="button"
+                    onClick={() => setYearly(value)}
+                    aria-pressed={active}
+                    className={cn(
+                      "relative rounded-2xl border-2 p-5 text-start transition-colors",
+                      active
+                        ? "border-primary bg-pale-green/40"
+                        : "border-border bg-card hover:border-primary/40",
+                    )}
+                  >
+                    {value && saving && (
+                      <span className="brand-surface absolute -top-2.5 end-4 rounded-full px-2.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+                        {t("plan.percentOff", { percent: saving.percent })}
+                      </span>
+                    )}
+                    <span className="block text-xs font-semibold text-muted-foreground">
+                      {value ? t("pricing.yearly") : t("pricing.monthly")}
+                    </span>
+                    <span className="mt-1 block text-[28px] font-extrabold leading-none tracking-[-0.02em] text-navy">
+                      {price === null ? "—" : `$${price}`}
+                    </span>
+                    {value && saving ? (
+                      <>
+                        <span className="mt-1.5 block text-[11px] text-muted-foreground">
+                          {t("plan.perMonthBilledYearly", { amount: saving.perMonth })}
+                        </span>
+                        <span className="mt-1 block text-[11px] font-semibold text-primary">
+                          {t("plan.savePerYear", { amount: saving.amount })}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="mt-1.5 block text-[11px] text-muted-foreground">
+                        {value ? t("plan.perYear") : t("plan.perMonth")}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         <div className="mt-10 grid items-start gap-5 md:grid-cols-3">
           {plans.map((p) => (
@@ -610,6 +645,9 @@ export function Pricing() {
         </div>
         <p className="mt-4 text-center text-[11px] text-muted-foreground">
           {t("choose.exclusive")}
+        </p>
+        <p className="mx-auto mt-6 max-w-[620px] text-center text-[13px] leading-relaxed text-ink-soft">
+          {t("pricing.note")}
         </p>
       </Container>
     </section>

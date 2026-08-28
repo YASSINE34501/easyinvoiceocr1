@@ -19,6 +19,7 @@ import { PageHero, PageLayout, Section } from "@/components/site/PageLayout";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/site/AppLink";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
+import { cycleSaving } from "@/components/billing/cycleSaving";
 import { useConsent } from "@/components/site/CookieConsent";
 import { trackEvent } from "@/lib/analytics/analytics.functions";
 import { SESSION_STORAGE_KEY, checkoutStartedKey } from "@/lib/analytics/collection";
@@ -30,26 +31,6 @@ import { formatDate } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { cn } from "@/lib/utils";
 import { robotsMeta } from "@/config/seo";
-
-/**
- * What a year costs against twelve months of the same plan.
- *
- * Derived, never stored: the page cannot advertise a discount the billing does
- * not honour. Returns null when there is no yearly price, or when the yearly
- * price saves nothing — a badge over a saving of zero would be a lie.
- */
-function cycleSaving(plan: { monthlyPrice: number; yearlyPrice: number | null }) {
-  const { monthlyPrice, yearlyPrice } = plan;
-  if (yearlyPrice === null || monthlyPrice <= 0) return null;
-  const twelveMonths = monthlyPrice * 12;
-  const amount = twelveMonths - yearlyPrice;
-  if (amount <= 0) return null;
-  return {
-    amount: Math.round(amount * 100) / 100,
-    percent: Math.round((amount / twelveMonths) * 100),
-    perMonth: Math.round((yearlyPrice / 12) * 100) / 100,
-  };
-}
 
 export const Route = createFileRoute("/$locale/choose-plan")({
   // Session state lives in the browser, so this page is decided after hydration.
@@ -256,7 +237,7 @@ function ChoosePlanPage() {
                           {value === "month" ? t("plan.monthly") : t("plan.yearly")}
                         </span>
                         <span className="mt-1 block text-2xl font-extrabold tracking-[-0.02em] text-navy">
-                          {price === null ? "—" : `${price}`}
+                          {price === null ? "—" : `$${price}`}
                         </span>
                         {value === "year" && saving ? (
                           <>

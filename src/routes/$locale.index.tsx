@@ -96,8 +96,12 @@ function Index() {
       <Header />
       <main id="main">
         <Hero />
-        <AudienceStrip />
+        {/* What the product does comes before who it is for: a visitor who
+            has just read the headline wants the tools, not a positioning
+            statement. The audience band follows as the answer to "is this
+            for me". */}
         <ProductCards />
+        <AudienceStrip />
         {/* Below the hero and the upload card, never inside them. */}
         <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
           <AdSlot name="home_below_hero" variant="banner" />
