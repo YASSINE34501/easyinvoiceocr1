@@ -35,6 +35,7 @@ import { useLocale, useT } from "@/i18n/useLocale";
 import type { Locale } from "@/i18n";
 import type { MessageKey } from "@/i18n";
 import { cn } from "@/lib/utils";
+import { toolAccent } from "@/components/pdftools/surface";
 import type { LucideIcon } from "lucide-react";
 
 const Container = ({ className, children }: { className?: string; children: React.ReactNode }) => (
@@ -219,8 +220,16 @@ export function ProductCards() {
                 href={path(product.slug, locale)}
                 className="card-lift group flex h-full flex-col rounded-2xl border border-border bg-card p-5 shadow-card"
               >
-                <span className="grid size-10 place-items-center rounded-xl bg-pale-green">
-                  <Icon className="size-5 text-primary" aria-hidden="true" />
+                <span
+                  className={cn(
+                    "grid size-10 place-items-center rounded-xl",
+                    toolAccent(product.slug).tile,
+                  )}
+                >
+                  <Icon
+                    className={cn("size-5", toolAccent(product.slug).glyph)}
+                    aria-hidden="true"
+                  />
                 </span>
                 <h3 className="mt-4 text-[15px] font-semibold text-navy">{copy.name}</h3>
                 <p className="mt-1.5 flex-1 text-xs leading-relaxed text-muted-foreground">

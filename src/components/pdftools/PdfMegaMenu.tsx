@@ -24,7 +24,7 @@ import {
 import { useLocale } from "@/i18n/useLocale";
 import { pdfToolsCopy } from "@/content/pdftools";
 import { pdfToolsIndexPath } from "@/lib/pdftools/registry";
-import { SURFACE_CATEGORIES, surfaceEntries, type SurfaceEntry } from "./surface";
+import { SURFACE_CATEGORIES, TOOL_ACCENT, surfaceEntries, type SurfaceEntry } from "./surface";
 import type { SurfaceCategory } from "@/content/pdftools/types";
 import { cn } from "@/lib/utils";
 
@@ -87,7 +87,17 @@ export function PdfMegaMenu() {
                           isActive(item.href) && "font-semibold text-primary",
                         )}
                       >
-                        <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                        <span
+                          className={cn(
+                            "grid size-6 shrink-0 place-items-center rounded-md",
+                            TOOL_ACCENT[item.category].tile,
+                          )}
+                        >
+                          <Icon
+                            className={cn("size-3.5", TOOL_ACCENT[item.category].glyph)}
+                            aria-hidden="true"
+                          />
+                        </span>
                         <span className="min-w-0 truncate">{item.name}</span>
                         {!item.available && (
                           <span className="ms-auto shrink-0 text-[10px] text-muted-foreground">
@@ -139,7 +149,17 @@ export function PdfMenuMobile({ onNavigate }: { onNavigate: () => void }) {
                     onClick={onNavigate}
                     className="flex items-center gap-2.5 py-2.5 text-sm text-muted-foreground"
                   >
-                    <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                    <span
+                      className={cn(
+                        "grid size-6 shrink-0 place-items-center rounded-md",
+                        TOOL_ACCENT[item.category].tile,
+                      )}
+                    >
+                      <Icon
+                        className={cn("size-3.5", TOOL_ACCENT[item.category].glyph)}
+                        aria-hidden="true"
+                      />
+                    </span>
                     <span className="min-w-0 truncate">{item.name}</span>
                     {!item.available && (
                       <span className="ms-auto shrink-0 text-[10px]">

@@ -107,6 +107,45 @@ export function surfaceEntries(locale: Locale): SurfaceEntry[] {
   return [...tools, ...productEntries];
 }
 
+/**
+ * The accent for a family, as Tailwind classes.
+ *
+ * Kept at a similar chroma and lightness so sixteen tools still read as one
+ * family, and the brand's emerald stays with the page tools. Contrast of the
+ * glyph on its tile was measured: 3.9–4.9:1, above the 3:1 that non-text
+ * graphics need.
+ */
+export const TOOL_ACCENT: Record<SurfaceCategory, { tile: string; glyph: string }> = {
+  organise: { tile: "bg-tool-organise-soft", glyph: "text-tool-organise" },
+  edit: { tile: "bg-tool-edit-soft", glyph: "text-tool-edit" },
+  convert: { tile: "bg-tool-convert-soft", glyph: "text-tool-convert" },
+  intelligence: { tile: "bg-tool-intelligence-soft", glyph: "text-tool-intelligence" },
+};
+
+/** Which family a slug belongs to, across both registries. */
+export function categoryOf(slug: string): SurfaceCategory | undefined {
+  const tool = PDF_TOOLS.find((entry) => entry.slug === slug);
+  if (tool) return tool.category;
+  return PRODUCT_CATEGORY[slug];
+}
+
+/**
+ * The accent for any tool slug. Falls back to the brand tint for a slug we do
+ * not know, so an unrecognised link still renders rather than losing its icon.
+ */
+export function toolAccent(slug: string): { tile: string; glyph: string } {
+  const category = categoryOf(slug);
+  return category ? TOOL_ACCENT[category] : { tile: "bg-pale-green", glyph: "text-primary" };
+}
+
+/** The icon for any tool slug, from whichever registry owns it. */
+export function toolIcon(slug: string): LucideIcon | undefined {
+  return (
+    PDF_TOOLS.find((entry) => entry.slug === slug)?.icon ??
+    products.find((product) => product.slug === slug)?.icon
+  );
+}
+
 /** Categories that actually contain something, in display order. */
 export const SURFACE_CATEGORIES: SurfaceCategory[] = [
   "organise",

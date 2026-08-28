@@ -23,6 +23,8 @@ import { relatedProducts, type ProductDefinition } from "@/config/products";
 import { locales, type Locale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { OG_LOCALE, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
+import { toolAccent } from "@/components/pdftools/surface";
+import { cn } from "@/lib/utils";
 
 export function ConverterLayout({
   product,
@@ -129,8 +131,13 @@ export function ConverterLayout({
                 href={path(item.slug, locale)}
                 className="group rounded-xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40"
               >
-                <span className="grid size-9 place-items-center rounded-lg bg-pale-green">
-                  <Icon className="size-4 text-primary" aria-hidden="true" />
+                <span
+                  className={cn(
+                    "grid size-10 place-items-center rounded-xl",
+                    toolAccent(item.slug).tile,
+                  )}
+                >
+                  <Icon className={cn("size-5", toolAccent(item.slug).glyph)} aria-hidden="true" />
                 </span>
                 <h3 className="mt-3 text-sm font-semibold text-navy">{item.copy[locale].name}</h3>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">

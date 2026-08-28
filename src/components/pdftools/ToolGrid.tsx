@@ -23,25 +23,10 @@ import { AppLink } from "@/components/site/AppLink";
 import { useLocale } from "@/i18n/useLocale";
 import { pdfToolsCopy } from "@/content/pdftools";
 import type { SurfaceBadge, SurfaceCategory } from "@/content/pdftools/types";
-import { SURFACE_CATEGORIES, surfaceEntries, type SurfaceEntry } from "./surface";
+import { SURFACE_CATEGORIES, TOOL_ACCENT, surfaceEntries, type SurfaceEntry } from "./surface";
 import { cn } from "@/lib/utils";
 
 type Filter = SurfaceCategory | "all";
-
-/**
- * A colour per group.
- *
- * Sixteen identically-tinted cards are one grey mass to scan. Giving each
- * group a hue is what lets someone find the tool by shape and colour before
- * reading a single label — the reason every tool directory does this. The
- * emerald stays with the page tools, which are what this section is about.
- */
-const TINT: Record<SurfaceCategory, string> = {
-  organise: "bg-tool-organise-soft text-tool-organise",
-  edit: "bg-tool-edit-soft text-tool-edit",
-  convert: "bg-tool-convert-soft text-tool-convert",
-  intelligence: "bg-tool-intelligence-soft text-tool-intelligence",
-};
 
 export function ToolGrid() {
   const locale = useLocale();
@@ -162,10 +147,10 @@ function ToolCard({
         <span
           className={cn(
             "grid size-10 shrink-0 place-items-center rounded-lg",
-            TINT[entry.category],
+            TOOL_ACCENT[entry.category].tile,
           )}
         >
-          <Icon className="size-5" aria-hidden="true" />
+          <Icon className={cn("size-5", TOOL_ACCENT[entry.category].glyph)} aria-hidden="true" />
         </span>
         {entry.badge && <Badge kind={entry.badge} label={badges[entry.badge]} />}
       </div>

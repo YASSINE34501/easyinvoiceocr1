@@ -22,12 +22,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { PdfMegaMenu, PdfMenuMobile } from "@/components/pdftools/PdfMegaMenu";
+import { toolAccent, toolIcon } from "@/components/pdftools/surface";
 import { pdfToolsCopy } from "@/content/pdftools";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
-type RenderedColumn = { title?: string; items: { label: string; href: string }[] };
+type RenderedColumn = { title?: string; items: { label: string; href: string; slug: string }[] };
 
 function NavDropdown({ label, columns }: { label: string; columns: RenderedColumn[] }) {
   const isActive = useIsActive();
@@ -59,19 +60,36 @@ function NavDropdown({ label, columns }: { label: string; columns: RenderedColum
                   {column.title}
                 </p>
               )}
-              {column.items.map((item) => (
-                <DropdownMenuItem key={item.href} asChild>
-                  <AppLink
-                    href={item.href}
-                    className={cn(
-                      "cursor-pointer text-sm",
-                      isActive(item.href) && "font-semibold text-primary",
-                    )}
-                  >
-                    {item.label}
-                  </AppLink>
-                </DropdownMenuItem>
-              ))}
+              {column.items.map((item) => {
+                // A tool link carries its family accent; a page link (Help,
+                // About, a solution) has no icon, which is what tells the two
+                // apart at a glance.
+                const Icon = toolIcon(item.slug);
+                const accent = toolAccent(item.slug);
+                return (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <AppLink
+                      href={item.href}
+                      className={cn(
+                        "cursor-pointer gap-2.5 text-sm",
+                        isActive(item.href) && "font-semibold text-primary",
+                      )}
+                    >
+                      {Icon && (
+                        <span
+                          className={cn(
+                            "grid size-6 shrink-0 place-items-center rounded-md",
+                            accent.tile,
+                          )}
+                        >
+                          <Icon className={cn("size-3.5", accent.glyph)} aria-hidden="true" />
+                        </span>
+                      )}
+                      {item.label}
+                    </AppLink>
+                  </DropdownMenuItem>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -136,7 +154,11 @@ export function Header() {
     title: t(menu.titleKey as MessageKey),
     columns: menu.columns.map((column) => ({
       ...(column.titleKey ? { title: t(column.titleKey) } : {}),
-      items: column.items.map((i) => ({ label: t(i.labelKey), href: path(i.slug, locale) })),
+      items: column.items.map((i) => ({
+        label: t(i.labelKey),
+        href: path(i.slug, locale),
+        slug: i.slug,
+      })),
     })),
   }));
 
@@ -270,17 +292,34 @@ export function Header() {
                                 </p>
                               )}
                               <ul>
-                                {column.items.map((item) => (
-                                  <li key={item.href}>
-                                    <AppLink
-                                      href={item.href}
-                                      onClick={() => setOpen(false)}
-                                      className="block py-2.5 text-sm text-muted-foreground"
-                                    >
-                                      {item.label}
-                                    </AppLink>
-                                  </li>
-                                ))}
+                                {column.items.map((item) => {
+                                  const Icon = toolIcon(item.slug);
+                                  const accent = toolAccent(item.slug);
+                                  return (
+                                    <li key={item.href}>
+                                      <AppLink
+                                        href={item.href}
+                                        onClick={() => setOpen(false)}
+                                        className="flex items-center gap-2.5 py-2.5 text-sm text-muted-foreground"
+                                      >
+                                        {Icon && (
+                                          <span
+                                            className={cn(
+                                              "grid size-6 shrink-0 place-items-center rounded-md",
+                                              accent.tile,
+                                            )}
+                                          >
+                                            <Icon
+                                              className={cn("size-3.5", accent.glyph)}
+                                              aria-hidden="true"
+                                            />
+                                          </span>
+                                        )}
+                                        {item.label}
+                                      </AppLink>
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             </div>
                           ))}

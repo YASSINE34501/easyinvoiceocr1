@@ -5,6 +5,8 @@ import { AppLink } from "./AppLink";
 import { footerColumns, path } from "@/config/nav";
 import { PDF_TOOLS, pdfToolPath } from "@/lib/pdftools/registry";
 import { pdfToolsCopy } from "@/content/pdftools";
+import { toolAccent, toolIcon } from "@/components/pdftools/surface";
+import { cn } from "@/lib/utils";
 import { localeLabels } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { openCookiePreferences } from "./CookieConsent";
@@ -55,8 +57,19 @@ export function Footer() {
                       <li key={tool.slug}>
                         <AppLink
                           href={pdfToolPath(tool.slug, locale)}
-                          className="text-sm text-muted-foreground transition-colors hover:text-navy"
+                          className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-navy"
                         >
+                          <span
+                            className={cn(
+                              "grid size-5 shrink-0 place-items-center rounded",
+                              toolAccent(tool.slug).tile,
+                            )}
+                          >
+                            <tool.icon
+                              className={cn("size-3", toolAccent(tool.slug).glyph)}
+                              aria-hidden="true"
+                            />
+                          </span>
                           {pdfToolsCopy(locale).tools[tool.slug].name}
                         </AppLink>
                       </li>
@@ -71,16 +84,33 @@ export function Footer() {
                       {t(group.titleKey)}
                     </h3>
                     <ul className="space-y-2.5">
-                      {group.items.map((item) => (
-                        <li key={item.slug}>
-                          <AppLink
-                            href={path(item.slug, locale)}
-                            className="text-sm text-muted-foreground transition-colors hover:text-navy"
-                          >
-                            {t(item.labelKey)}
-                          </AppLink>
-                        </li>
-                      ))}
+                      {group.items.map((item) => {
+                        // Tools carry their family accent here too; Resources,
+                        // Solutions, Company and Legal are pages, not tools, so
+                        // they stay plain text.
+                        const Icon = toolIcon(item.slug);
+                        const accent = toolAccent(item.slug);
+                        return (
+                          <li key={item.slug}>
+                            <AppLink
+                              href={path(item.slug, locale)}
+                              className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-navy"
+                            >
+                              {Icon && (
+                                <span
+                                  className={cn(
+                                    "grid size-5 shrink-0 place-items-center rounded",
+                                    accent.tile,
+                                  )}
+                                >
+                                  <Icon className={cn("size-3", accent.glyph)} aria-hidden="true" />
+                                </span>
+                              )}
+                              {t(item.labelKey)}
+                            </AppLink>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 ))}
