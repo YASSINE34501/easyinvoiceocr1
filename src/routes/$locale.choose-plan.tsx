@@ -26,11 +26,40 @@ import { SESSION_STORAGE_KEY, checkoutStartedKey } from "@/lib/analytics/collect
 import { useAuth } from "@/auth/AuthProvider";
 import { useBilling } from "@/billing/BillingProvider";
 import { claimTrial, getPublicPlans } from "@/lib/billing/billing.functions";
+import type { PublicPlan } from "@/lib/billing/types";
 import { authSlugs, path } from "@/config/nav";
-import { formatDate } from "@/i18n";
+import { formatDate, type MessageKey } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { cn } from "@/lib/utils";
 import { robotsMeta } from "@/config/seo";
+
+/**
+ * A plan's entitlements as sentences, straight from the row.
+ *
+ * The same fields the entitlement code enforces — page limit, file size,
+ * batching, advertising, exports — so the panel cannot promise something the
+ * server will refuse. Anything sold but not built is listed as coming soon
+ * rather than folded in with the rest.
+ */
+function planEntitlements(
+  plan: PublicPlan,
+  t: (key: MessageKey, params?: Record<string, string | number>) => string,
+): string[] {
+  const megabytes = Math.round(plan.maxFileSize / (1024 * 1024));
+  const comingSoon = plan.comingSoon ?? [];
+  return [
+    t("plan.pagesPerPeriod", { pages: plan.monthlyPageLimit }),
+    t("plan.maxFile", { mb: megabytes }),
+    plan.batchEnabled
+      ? t("plan.batchFiles", { files: plan.batchMaxFiles })
+      : t("plan.oneFileAtATime"),
+    plan.adsEnabled ? t("plan.adsShown") : t("plan.noAds"),
+    t("plan.exports", {
+      formats: (plan.features.exports ?? []).join(", ").toUpperCase() || "—",
+    }),
+    ...(comingSoon.length > 0 ? [t("plan.comingSoon", { features: comingSoon.join(", ") })] : []),
+  ];
+}
 
 export const Route = createFileRoute("/$locale/choose-plan")({
   // Session state lives in the browser, so this page is decided after hydration.
@@ -116,6 +145,9 @@ function ChoosePlanPage() {
   const paidPlans = plans.filter((plan) => plan.code === "pro" || plan.code === "business");
   const trialPlan = plans.find((plan) => plan.code === "trial");
   const trialEligible = state?.trialEligible ?? false;
+  // The panel describes whatever is selected, or the first paid plan before a
+  // choice is made, so it is never empty.
+  const panelPlan = paidPlans.find((plan) => plan.code === selected) ?? paidPlans[0];
 
   async function beginTrial() {
     setStartingTrial(true);
@@ -147,9 +179,12 @@ function ChoosePlanPage() {
       <Section>
         <p className="mb-6 text-sm font-medium text-navy">{t("choose.exclusive")}</p>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Option A — trial */}
-          <div className="flex flex-col rounded-2xl border border-primary/40 bg-card p-6 shadow-card">
+        {/* One panel, two columns: the choice on the left, what the plan
+            actually allows on the right. The old layout put each option in its
+            own card inside the section, which was a box inside a box before
+            the plan buttons added a third. */}
+        <div className="grid overflow-hidden rounded-3xl border border-border shadow-lift lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="bg-card p-6 sm:p-8">
             <span className="grid size-10 place-items-center rounded-lg bg-pale-green">
               <CalendarClock className="size-5 text-primary" aria-hidden="true" />
             </span>
@@ -192,10 +227,9 @@ function ChoosePlanPage() {
                 <p className="text-sm text-muted-foreground">{t("choose.trialUsed")}</p>
               )}
             </div>
-          </div>
 
-          {/* Option B — subscribe */}
-          <div className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-card">
+            <div className="my-7 border-t border-border" />
+
             <span className="grid size-10 place-items-center rounded-lg bg-pale-blue">
               <CreditCard className="size-5 text-navy" aria-hidden="true" />
             </span>
@@ -315,6 +349,38 @@ function ChoosePlanPage() {
               )}
             </div>
           </div>
+
+          {/* The value panel. Navy carries it rather than a gradient: the
+              palette already has the contrast, and the entitlements below are
+              read from the plan row, never written here. */}
+          <aside className="bg-navy p-6 text-background sm:p-8">
+            <h2 className="text-[22px] font-bold leading-tight tracking-[-0.01em]">
+              {t("choose.included")}
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-background/70">
+              {t("choose.panelLede")}
+            </p>
+
+            {panelPlan && (
+              <>
+                <p className="mt-7 text-xs font-semibold uppercase tracking-[0.12em] text-background/60">
+                  {t(`plan.name_${panelPlan.code}` as MessageKey, {}) || panelPlan.name}
+                </p>
+                <ul className="mt-3 space-y-3">
+                  {planEntitlements(panelPlan, t).map((line) => (
+                    <li key={line} className="flex gap-2.5 text-sm leading-relaxed">
+                      <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                      <span className="min-w-0 text-background/90">{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            <p className="mt-8 border-t border-background/15 pt-6 text-[13px] leading-relaxed text-background/70">
+              {t("pricing.note")}
+            </p>
+          </aside>
         </div>
 
         <p className="mt-8 text-sm text-muted-foreground">

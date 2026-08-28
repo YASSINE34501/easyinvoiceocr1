@@ -414,7 +414,7 @@ const en = {
   "plan.savePerYear": "Save ${amount} a year",
   "plan.perMonthBilledYearly": "${amount} a month, billed yearly",
   "pricing.note":
-    "We built EasyInvoiceOCR to make working with documents simpler and more accessible. The price is deliberately kept low — it supports the people who maintain the service, so we can keep improving it.",
+    "EasyInvoiceOCR was built to make document work simpler and more accessible. The price is deliberately modest: it covers what it costs to run the service and supports the people who maintain and improve it.",
   "plan.mostPopular": "Most popular",
   "plan.currentPlan": "Your current plan",
   "plan.choose": "Choose {plan}",
@@ -436,6 +436,9 @@ const en = {
   "choose.subscribeCta": "Continue to PayPal",
   "choose.selectPlanFirst": "Select a plan above to continue.",
   "choose.exclusive": "You can use the trial or subscribe — never both at once.",
+  "choose.included": "What the plan gives you",
+  "choose.panelLede":
+    "Everything below is read from the plan itself, so what you see here is what the account is actually allowed to do.",
 
   "trial.daysLeft": "{days} days left in your trial",
   "trial.endsOn": "Your trial ends on {date}",
@@ -967,7 +970,7 @@ const fr: Record<MessageKey, string> = {
   "plan.savePerYear": "Économisez {amount} $ par an",
   "plan.perMonthBilledYearly": "{amount} $ par mois, facturé annuellement",
   "pricing.note":
-    "Nous avons conçu EasyInvoiceOCR pour rendre le traitement des documents plus simple et plus accessible. Le prix reste volontairement bas : il soutient celles et ceux qui font vivre le service, afin que nous puissions continuer à l'améliorer.",
+    "EasyInvoiceOCR a été conçu pour rendre le traitement des documents plus simple et plus accessible. Le prix reste volontairement modeste : il couvre les frais de fonctionnement du service et soutient celles et ceux qui l'entretiennent et l'améliorent.",
   "plan.mostPopular": "Le plus choisi",
   "plan.currentPlan": "Votre offre actuelle",
   "plan.choose": "Choisir {plan}",
@@ -988,6 +991,9 @@ const fr: Record<MessageKey, string> = {
   "choose.subscribeCta": "Continuer vers PayPal",
   "choose.selectPlanFirst": "Choisissez une offre ci-dessus pour continuer.",
   "choose.exclusive": "Essai ou abonnement — jamais les deux en même temps.",
+  "choose.included": "Ce que la formule vous donne",
+  "choose.panelLede":
+    "Tout ce qui suit est lu depuis la formule elle-même : ce que vous voyez ici est ce que le compte peut réellement faire.",
 
   "trial.daysLeft": "{days} jours restants dans votre essai",
   "trial.endsOn": "Votre essai se termine le {date}",
@@ -1498,7 +1504,7 @@ const ar: Record<MessageKey, string> = {
   "plan.savePerYear": "وفّر {amount} دولارًا في السنة",
   "plan.perMonthBilledYearly": "{amount} دولارًا شهريًا، تُحصَّل سنويًا",
   "pricing.note":
-    "أنشأنا EasyInvoiceOCR ليكون التعامل مع المستندات أبسط وأيسر منالًا. والسعر منخفض عن قصد: فهو يدعم من يقومون على الخدمة كي نواصل تحسينها وتطويرها.",
+    "أنشأنا EasyInvoiceOCR ليكون التعامل مع المستندات أبسط وأيسر منالًا. والسعر متواضع عن قصد: فهو يغطي تكلفة تشغيل الخدمة ويدعم من يقومون على صيانتها وتحسينها.",
   "plan.mostPopular": "الأكثر اختيارًا",
   "plan.currentPlan": "باقتك الحالية",
   "plan.choose": "اختيار {plan}",
@@ -1519,6 +1525,9 @@ const ar: Record<MessageKey, string> = {
   "choose.subscribeCta": "المتابعة إلى PayPal",
   "choose.selectPlanFirst": "اختر باقة أعلاه للمتابعة.",
   "choose.exclusive": "إما التجربة أو الاشتراك — لا يعملان معًا أبدًا.",
+  "choose.included": "ما الذي تمنحه لك الباقة",
+  "choose.panelLede":
+    "كل ما يلي مقروء من الباقة نفسها، فما تراه هنا هو ما يستطيع الحساب فعله بالضبط.",
 
   "trial.daysLeft": "تبقّى {days} يومًا في تجربتك",
   "trial.endsOn": "تنتهي تجربتك في {date}",
