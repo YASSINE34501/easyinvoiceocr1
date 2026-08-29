@@ -51,6 +51,10 @@ export const Route = createFileRoute("/$locale/about")({
             "@type": "Organization",
             name: "EasyInvoiceOCR",
             url: SITE_ORIGIN,
+            // The strongest logo signal available to a search engine, and it
+            // has to be raster: Google does not accept SVG for this property,
+            // which is why the site's own icon.svg cannot be used here.
+            logo: `${SITE_ORIGIN}/icons/logo-512.png`,
             description: description,
             sameAs: [],
           }),

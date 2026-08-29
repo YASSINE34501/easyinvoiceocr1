@@ -111,7 +111,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // SVG first: browsers that support it get a mark that stays sharp at any
       // density, and the .ico remains for those that do not.
       { rel: "icon", href: "/icons/icon.svg", type: "image/svg+xml", sizes: "any" },
-      { rel: "apple-touch-icon", href: "/icons/icon.svg" },
+      // PNG, not the SVG: iOS ignores an SVG apple-touch-icon, so "Add to
+      // Home Screen" fell back to a screenshot instead of the mark. Rasterised
+      // from icons/icon.svg, which is font-free, so it is the same artwork.
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/apple-touch-icon.png" },
       { rel: "manifest", href: "/site.webmanifest" },
     ],
     scripts: [
