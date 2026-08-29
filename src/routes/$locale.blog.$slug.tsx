@@ -8,7 +8,13 @@ import { blogBySlug, relatedPosts, type BlogPost } from "@/content/blog";
 import { path } from "@/config/nav";
 import { asLocale, formatDate, type Locale } from "@/i18n";
 import { useDir, useLocale, useT } from "@/i18n/useLocale";
-import { SITE_NAME, absoluteUrl, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
+import {
+  SITE_NAME,
+  canonicalUrl,
+  publisherRef,
+  robotsMeta,
+  seoLinks,
+} from "@/config/seo";
 
 /**
  * /:locale/blog/:slug — one article, in the locale it was requested in.
@@ -72,8 +78,11 @@ export const Route = createFileRoute("/$locale/blog/$slug")({
             url,
             // No named person is credited. The organisation is the author,
             // because inventing a byline would be inventing a person.
-            author: { "@type": "Organization", name: SITE_NAME, url: absoluteUrl("/") },
-            publisher: { "@type": "Organization", name: SITE_NAME, url: absoluteUrl("/") },
+            // Referenced, not restated: the organisation is defined once in
+            // the root graph. This also drops the trailing-slash spelling of
+            // the site origin that used to appear only here.
+            author: publisherRef(),
+            publisher: publisherRef(),
           }),
         },
         {

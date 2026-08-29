@@ -16,7 +16,16 @@ import { AuthProvider } from "@/auth/AuthProvider";
 import { BillingProvider } from "@/billing/BillingProvider";
 import { CookieConsent } from "@/components/site/CookieConsent";
 import { useVisitorSession } from "@/lib/analytics/useVisitorSession";
-import { SITE_NAME, SITE_ORIGIN, SOCIAL_IMAGE, absoluteUrl, verificationMeta } from "@/config/seo";
+import {
+  SITE_NAME,
+  SITE_ORIGIN,
+  SOCIAL_IMAGE,
+  WEBSITE_ID,
+  absoluteUrl,
+  organizationNode,
+  publisherRef,
+  verificationMeta,
+} from "@/config/seo";
 import { locales, localeDir, localeFromPathname, localeHtmlLang } from "@/i18n";
 
 function NotFoundComponent() {
@@ -130,10 +139,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         // send queries to an on-site search endpoint, and this site has none.
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: SITE_NAME,
-          url: SITE_ORIGIN,
-          inLanguage: locales,
+          // One graph rather than two blocks, so the site and the organisation
+          // that publishes it arrive as connected nodes instead of two
+          // unrelated assertions. The Organization lives here, on every page,
+          // and is referenced by @id everywhere else — about, the application
+          // pages and the articles — so there is exactly one definition of it.
+          "@graph": [
+            organizationNode(),
+            {
+              "@type": "WebSite",
+              "@id": WEBSITE_ID,
+              name: SITE_NAME,
+              url: SITE_ORIGIN,
+              inLanguage: locales,
+              publisher: publisherRef(),
+            },
+          ],
         }),
       },
     ],

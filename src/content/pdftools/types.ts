@@ -106,6 +106,9 @@ export type PdfToolsUi = {
   /** Shown once a run succeeds: the one step worth offering next. */
   nextTitle: string;
   nextCta: string;
+  /** Crawlable pointer from the PDF tools to the PDF invoice extractor. */
+  pdfInvoiceNote: string;
+  pdfInvoiceCta: string;
   limitsTitle: string;
   faqTitle: string;
   otherTools: string;

@@ -115,6 +115,8 @@ export const pdfToolsEn: PdfToolsContent = {
     howItWorks: "How it works",
     nextTitle: "Working with invoices or receipts?",
     nextCta: "Extract the data to Excel",
+    pdfInvoiceNote: "If the PDFs you are working with are invoices, they can be read into a spreadsheet instead.",
+    pdfInvoiceCta: "Parse PDF invoices",
     limitsTitle: "What it will not do",
     faqTitle: "Questions",
     otherTools: "Other PDF tools",

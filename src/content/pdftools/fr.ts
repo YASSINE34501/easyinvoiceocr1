@@ -116,6 +116,8 @@ export const pdfToolsFr: PdfToolsContent = {
     howItWorks: "Comment ça marche",
     nextTitle: "Vous traitez des factures ou des reçus ?",
     nextCta: "Extraire les données vers Excel",
+    pdfInvoiceNote: "Si les PDF que vous traitez sont des factures, ils peuvent aussi être lus dans un tableur.",
+    pdfInvoiceCta: "Analyser des factures PDF",
     limitsTitle: "Ce que l'outil ne fait pas",
     faqTitle: "Questions",
     otherTools: "Autres outils PDF",

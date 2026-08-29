@@ -28,10 +28,18 @@ import {
   pdfToolsIndexPath,
 } from "@/lib/pdftools/registry";
 import { pdfToolsCopy } from "@/content/pdftools";
+import { path } from "@/config/routing";
 import type { PdfToolSlug } from "@/lib/pdftools/types";
 import { asLocale, type Locale } from "@/i18n";
 import { useLocale } from "@/i18n/useLocale";
-import { OG_LOCALE, SITE_NAME, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
+import {
+  OG_LOCALE,
+  SITE_NAME,
+  canonicalUrl,
+  publisherRef,
+  robotsMeta,
+  seoLinks,
+} from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/pdf/$tool")({
   loader: ({ params }): { tool: PdfToolSlug } => {
@@ -143,6 +151,22 @@ function PdfToolPage() {
             {copy.ui.allTools}
           </AppLink>
         </p>
+
+        {/* The one edge out of the PDF family, and it is server-rendered so a
+            crawler sees it. The related rail above stays inside PDF tools, so
+            nothing here connected these pages to the extraction side of the
+            product. PDF invoice parsing is the nearest neighbour: same input
+            format, and the reason someone is merging invoices in the first
+            place. */}
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          {copy.ui.pdfInvoiceNote}{" "}
+          <AppLink
+            href={path("pdf-invoice-parser", locale)}
+            className="font-semibold text-primary hover:underline"
+          >
+            {copy.ui.pdfInvoiceCta}
+          </AppLink>
+        </p>
       </Section>
     </PageLayout>
   );
@@ -182,6 +206,7 @@ function head(slug: PdfToolSlug, locale: Locale) {
           featureList: text.steps.map((step) => step.title),
           // Free, and genuinely so: no account, no quota, no watermark.
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          publisher: publisherRef(),
           ...(definition ? { applicationSubCategory: definition.category } : {}),
         }),
       },

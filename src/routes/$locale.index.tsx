@@ -16,7 +16,13 @@ import {
 } from "@/components/site/sections";
 import { homeFor } from "@/content/home";
 import { asLocale } from "@/i18n";
-import { OG_LOCALE, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
+import {
+  OG_LOCALE,
+  canonicalUrl,
+  publisherRef,
+  robotsMeta,
+  seoLinks,
+} from "@/config/seo";
 
 const meta = {
   en: {
@@ -63,9 +69,11 @@ export const Route = createFileRoute("/$locale/")({
             "@context": "https://schema.org",
             "@type": "WebApplication",
             name: "EasyInvoiceOCR",
+            url,
             applicationCategory: "BusinessApplication",
             description,
             offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+            publisher: publisherRef(),
           }),
         },
         {

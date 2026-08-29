@@ -10,7 +10,6 @@ import { AppLink } from "@/components/site/AppLink";
 import { translate, asLocale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
 import { robotsMeta, seoLinks } from "@/config/seo";
-import { SITE_ORIGIN } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/about")({
   component: AboutPage,
@@ -44,21 +43,11 @@ export const Route = createFileRoute("/$locale/about")({
           type: "application/ld+json",
           children: breadcrumbJsonLd([{ label: translate(locale, "link.about") }]),
         },
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "EasyInvoiceOCR",
-            url: SITE_ORIGIN,
-            // The strongest logo signal available to a search engine, and it
-            // has to be raster: Google does not accept SVG for this property,
-            // which is why the site's own icon.svg cannot be used here.
-            logo: `${SITE_ORIGIN}/icons/logo-512.png`,
-            description: description,
-            sameAs: [],
-          }),
-        },
+        // No Organization block here any more. It used to be declared on this
+        // page alone, which left the other 111 pages asserting nothing about
+        // who publishes them. It now lives in the root graph with a stable
+        // @id, so this page inherits it like every other page and there is
+        // exactly one definition of the entity site-wide.
       ],
     };
   },

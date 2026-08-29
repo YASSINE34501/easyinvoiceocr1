@@ -22,7 +22,7 @@ import { path } from "@/config/nav";
 import { relatedProducts, type ProductDefinition } from "@/config/products";
 import { locales, type Locale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
-import { OG_LOCALE, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
+import { OG_LOCALE, canonicalUrl, publisherRef, robotsMeta, seoLinks } from "@/config/seo";
 import { toolAccent } from "@/components/pdftools/surface";
 import { cn } from "@/lib/utils";
 
@@ -188,6 +188,7 @@ export function converterHead(product: ProductDefinition, locale: Locale) {
           description: copy.description,
           featureList: product.features,
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          publisher: publisherRef(),
         }),
       },
       {

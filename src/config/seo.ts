@@ -122,6 +122,48 @@ export function robotsMeta(slug: string): MetaTag {
 }
 
 /* ------------------------------------------------------------------ */
+/* Entity graph                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Stable node ids for the two site-level entities.
+ *
+ * Every page already declared what it was — WebApplication, BlogPosting,
+ * BreadcrumbList — but nothing declared what it belonged to, so a search
+ * engine saw a valid graph with no edges. A fragment id on the site origin is
+ * the conventional way to name these: it is stable, it is not a page, and it
+ * lets every other node point at one organisation instead of restating it.
+ */
+export const ORGANIZATION_ID = `${SITE_ORIGIN}/#organization` as const;
+export const WEBSITE_ID = `${SITE_ORIGIN}/#website` as const;
+
+/** The brand logo, raster because Google does not accept SVG for this. */
+export const ORGANIZATION_LOGO = `${SITE_ORIGIN}/icons/logo-512.png` as const;
+
+/**
+ * The one Organization definition. Emitted from the root so it reaches every
+ * page; anything else that needs it references publisherRef() rather than
+ * declaring a second copy.
+ *
+ * No sameAs: the project has no verified official profiles, and an invented
+ * one would be worse than none.
+ */
+export function organizationNode() {
+  return {
+    "@type": "Organization",
+    "@id": ORGANIZATION_ID,
+    name: SITE_NAME,
+    url: SITE_ORIGIN,
+    logo: ORGANIZATION_LOGO,
+  };
+}
+
+/** A reference to the organisation above, never a second definition of it. */
+export function publisherRef() {
+  return { "@id": ORGANIZATION_ID };
+}
+
+/* ------------------------------------------------------------------ */
 /* Social cards                                                        */
 /* ------------------------------------------------------------------ */
 

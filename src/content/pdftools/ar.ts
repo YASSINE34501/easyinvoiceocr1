@@ -116,6 +116,8 @@ export const pdfToolsAr: PdfToolsContent = {
     howItWorks: "كيف تعمل",
     nextTitle: "تعمل على فواتير أو إيصالات؟",
     nextCta: "استخرج البيانات إلى Excel",
+    pdfInvoiceNote: "إذا كانت ملفات PDF التي تعمل عليها فواتير، فيمكن قراءتها إلى جدول بيانات بدلًا من ذلك.",
+    pdfInvoiceCta: "تحليل فواتير PDF",
     limitsTitle: "ما لا تفعله الأداة",
     faqTitle: "أسئلة",
     otherTools: "أدوات PDF أخرى",
