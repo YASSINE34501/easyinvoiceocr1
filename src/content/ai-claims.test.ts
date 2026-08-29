@@ -26,6 +26,11 @@ const SURFACES = [
   "src/routes/$locale.index.tsx",
   "src/routes/__root.tsx",
   "src/config/site.ts",
+  // About was missing from this list, and that is exactly how it came to
+  // describe the extractor as a demo placeholder and the engine as trained on
+  // invoice formats — two claims in opposite directions, both wrong, in three
+  // languages, on the page a search engine most associates with the entity.
+  "src/routes/$locale.about.tsx",
 ];
 
 /** The claim, in each language it was written in. */
@@ -60,6 +65,64 @@ describe("no AI-powered claim on the product surfaces", () => {
 
   it("siteConfig no longer describes the product as AI-powered", () => {
     for (const claim of AI_CLAIMS) expect(siteConfig.description).not.toContain(claim);
+  });
+});
+
+/**
+ * Two specific claims the About page used to make, in all three languages.
+ *
+ * Deliberately narrow phrases rather than a keyword blacklist: "handwriting"
+ * or "placeholder" on their own are legitimate words that a future honest
+ * sentence might use, and a guard that fires on those would be turned off. The
+ * assertions below fire only on the shapes that were actually wrong.
+ */
+describe("the About page claims only what the implementation supports", () => {
+  const ABOUT = "src/routes/$locale.about.tsx";
+
+  /** Tesseract.js is general-purpose OCR; it is not trained on invoices. */
+  const TRAINING_CLAIMS = [
+    "trained to recognize invoice",
+    "trained to recognise invoice",
+    "entraîné pour reconnaître les formats de factures",
+    "تم تدريب محرك",
+  ];
+
+  /** The engine is not offered for handwriting, in any language. */
+  const HANDWRITING_CLAIMS = ["handling handwriting", "l'écriture manuscrite", "الكتابة اليدوية"];
+
+  /**
+   * Extraction is not a stub. It reuses the converters' readers — the PDF text
+   * layer, or Tesseract — so saying otherwise understates a working feature.
+   */
+  const PLACEHOLDER_CLAIMS = [
+    "demo placeholders are used",
+    "espaces réservés de démonstration",
+    "عناصر نائبة للعرض التوضيحي",
+  ];
+
+  it("does not claim the OCR engine is trained on invoice formats", () => {
+    const src = readFileSync(ABOUT, "utf8");
+    for (const claim of TRAINING_CLAIMS) {
+      expect(src, `About contains "${claim}"`).not.toContain(claim);
+    }
+  });
+
+  it("does not offer handwriting recognition", () => {
+    const src = readFileSync(ABOUT, "utf8");
+    for (const claim of HANDWRITING_CLAIMS) {
+      expect(src, `About contains "${claim}"`).not.toContain(claim);
+    }
+  });
+
+  it("does not describe invoice extraction as a demo placeholder", () => {
+    const src = readFileSync(ABOUT, "utf8");
+    for (const claim of PLACEHOLDER_CLAIMS) {
+      expect(src, `About contains "${claim}"`).not.toContain(claim);
+    }
+  });
+
+  it("still names the engine that actually runs", () => {
+    expect(readFileSync(ABOUT, "utf8")).toContain("Tesseract.js");
   });
 });
 

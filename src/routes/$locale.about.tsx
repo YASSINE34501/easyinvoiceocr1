@@ -73,15 +73,15 @@ We're committed to keeping the process simple and transparent—no complicated c
       security: "Enterprise Security",
       securityBody:
         "Row-level security isolates user data. All passwords are handled by Supabase Auth, and any stored data is encrypted at rest.",
-      accuracy: "High Accuracy",
+      accuracy: "Checked, not guessed",
       accuryBody:
-        "Our OCR engine is trained to recognize invoice and receipt formats, handling handwriting, poor scans, and multiple languages.",
+        "Recognition covers scanned documents and photographs in English, French and Arabic. Every extracted field carries a confidence score, and anything uncertain is flagged for review rather than guessed.",
       technology: "Technology",
       technologyBody: `EasyInvoiceOCR runs primarily on your computer:
 
 • Conversions (PDF/Image to Word, Image to PDF) use client-side libraries.
 • Text recognition uses Tesseract.js, an open-source OCR engine compiled to WebAssembly.
-• For invoice and receipt extraction, demo placeholders are used while real provider integration is in development.
+• Invoice and receipt extraction uses those same readers: a PDF's own text layer when it has one, Tesseract when it does not.
 
 All subscription and user data is stored in Supabase, a PostgreSQL-based platform with row-level security policies enforced at the database level. Payment processing is handled through PayPal, and all webhook signatures are verified server-side.`,
       team: "The Team",
@@ -103,15 +103,15 @@ Nous sommes attachés à maintenir le processus simple et transparent—pas de c
       security: "Sécurité Professionnelle",
       securityBody:
         "La sécurité au niveau des lignes isole les données utilisateur. Tous les mots de passe sont gérés par Supabase Auth, et toutes les données stockées sont chiffrées au repos.",
-      accuracy: "Haute Précision",
+      accuracy: "Vérifié, pas deviné",
       accuryBody:
-        "Notre moteur OCR est entraîné pour reconnaître les formats de factures et de reçus, en gérant l'écriture manuscrite, les mauvaises numérisation et plusieurs langues.",
+        "La reconnaissance couvre les documents numérisés et les photos, en anglais, en français et en arabe. Chaque champ extrait est accompagné d'un indice de confiance, et tout élément incertain est signalé pour vérification plutôt que deviné.",
       technology: "Technologie",
       technologyBody: `EasyInvoiceOCR s'exécute principalement sur votre ordinateur :
 
 • Les conversions (PDF/Image vers Word, Image vers PDF) utilisent des bibliothèques côté client.
 • La reconnaissance de texte utilise Tesseract.js, un moteur OCR open-source compilé en WebAssembly.
-• Pour l'extraction de factures et de reçus, des espaces réservés de démonstration sont utilisés tandis que l'intégration d'un vrai fournisseur est en développement.
+• L'extraction des factures et des reçus utilise les mêmes lecteurs : la couche de texte du PDF lorsqu'elle existe, Tesseract dans le cas contraire.
 
 Toutes les données d'abonnement et d'utilisateur sont stockées dans Supabase, une plateforme basée sur PostgreSQL avec des politiques de sécurité au niveau des lignes appliquées au niveau de la base de données. Le traitement des paiements est effectué via PayPal, et toutes les signatures de webhook sont vérifiées côté serveur.`,
       team: "L'Équipe",
@@ -132,15 +132,15 @@ Toutes les données d'abonnement et d'utilisateur sont stockées dans Supabase, 
       security: "الأمان على مستوى المؤسسة",
       securityBody:
         "الأمان على مستوى الصفوف يعزل بيانات المستخدم. جميع كلمات المرور يتم التعامل معها من خلال Supabase Auth، وجميع البيانات المخزنة مشفرة أثناء الراحة.",
-      accuracy: "دقة عالية",
+      accuracy: "مراجَع لا مخمَّن",
       accuryBody:
-        "تم تدريب محرك OCR الخاص بنا للتعرف على تنسيقات الفواتير والإيصالات، مع التعامل مع الكتابة اليدوية والفحوصات السيئة واللغات المتعددة.",
+        "يشمل التعرّف المستندات الممسوحة والصور بالإنجليزية والفرنسية والعربية. ولكل حقل مستخرَج درجة ثقة، وأي عنصر غير مؤكد يُعلَّم للمراجعة بدل تخمينه.",
       technology: "التكنولوجيا",
       technologyBody: `يعمل EasyInvoiceOCR بشكل أساسي على جهاز الكمبيوتر الخاص بك:
 
 • التحويلات (PDF/صورة إلى Word، صورة إلى PDF) تستخدم مكتبات من جانب العميل.
 • يستخدم التعرف على النص Tesseract.js، وهو محرك OCR مفتوح المصدر مترجم إلى WebAssembly.
-• لاستخراج الفواتير والإيصالات، يتم استخدام عناصر نائبة للعرض التوضيحي بينما يتم تطوير تكامل موفر حقيقي.
+• يستخدم استخراج الفواتير والإيصالات القارئات نفسها: طبقة النص الأصلية في ملف PDF إن وُجدت، وTesseract إن لم توجد.
 
 يتم تخزين جميع بيانات الاشتراك والمستخدم في Supabase، وهي منصة قائمة على PostgreSQL مع سياسات الأمان على مستوى الصفوف المفروضة على مستوى قاعدة البيانات. يتم التعامل مع معالجة الدفع من خلال PayPal، وتتم التحقق من جميع توقيعات webhook على جانب الخادم.`,
       team: "الفريق",
