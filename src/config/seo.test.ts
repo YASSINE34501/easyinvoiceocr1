@@ -162,6 +162,21 @@ describe("robots.txt", () => {
   it("keeps crawlers out of the OCR binaries", () => {
     expect(ROBOTS).toContain("Disallow: /tesseract/");
   });
+
+  /**
+   * The assertions above only prove the lines exist somewhere in the file.
+   * They passed while the rules were dead: the file opened with per-crawler
+   * groups holding nothing but "Allow: /", and a crawler obeys one group only
+   * — the most specific match — so Googlebot and Bingbot ignored every
+   * Disallow written for them. Presence is not the same as applying, so pin
+   * the group structure too.
+   */
+  it("puts every Disallow in a group that all crawlers obey", () => {
+    const groups = ROBOTS.split(/\n(?=User-agent:)/i).filter((g) => /^User-agent:/i.test(g));
+    expect(groups.length).toBe(1);
+    expect(groups[0]).toMatch(/^User-agent:\s*\*/i);
+    expect(groups[0]).toContain("Disallow: /tesseract/");
+  });
 });
 
 describe("sitemap", () => {

@@ -1,14 +1,19 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
+# One group, so the rules below actually bind.
+#
+# This file used to open with per-crawler groups — Googlebot, Bingbot,
+# Twitterbot, facebookexternalhit — each containing only "Allow: /". Under the
+# robots exclusion protocol a crawler obeys the single most specific group that
+# matches it and ignores every other group, so Googlebot and Bingbot read
+# "Allow: /" and nothing else: every Disallow below was invisible to the two
+# crawlers they were written for. The private areas were still kept out of the
+# index by their noindex meta, but /tesseract/ has no meta to fall back on, and
+# that is tens of megabytes of WebAssembly and language models.
+#
+# Removing those groups loses nothing. "User-agent: *" already says Allow: /,
+# so every crawler — Googlebot, Bingbot, the social preview fetchers, and the
+# AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended) — is still
+# welcome on the public pages, and now every one of them also honours the
+# exclusions.
 
 User-agent: *
 Allow: /
