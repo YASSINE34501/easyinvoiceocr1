@@ -126,7 +126,16 @@ export function robotsMeta(slug: string): MetaTag {
 /* ------------------------------------------------------------------ */
 
 /** Shared social image. A real asset in public/, not a placeholder service. */
-export const SOCIAL_IMAGE = "/og/easyinvoiceocr-card.svg" as const;
+/**
+ * PNG, not the SVG beside it. Open Graph and the X card spec accept JPG, PNG,
+ * WEBP and GIF; an SVG is simply not rendered, so every share of every page
+ * previewed with no image at all while twitter:card promised a large one.
+ *
+ * The PNG is rasterised from easyinvoiceocr-card.svg, which stays the source
+ * of truth for the design. Regenerating it needs Inter available to the
+ * rasteriser — without it the text silently reflows into a fallback face.
+ */
+export const SOCIAL_IMAGE = "/og/easyinvoiceocr-card.png" as const;
 
 export const OG_LOCALE: Record<Locale, string> = {
   en: "en_US",
