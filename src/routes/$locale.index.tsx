@@ -16,13 +16,7 @@ import {
 } from "@/components/site/sections";
 import { homeFor } from "@/content/home";
 import { asLocale } from "@/i18n";
-import {
-  OG_LOCALE,
-  canonicalUrl,
-  publisherRef,
-  robotsMeta,
-  seoLinks,
-} from "@/config/seo";
+import { OG_LOCALE, canonicalUrl, publisherRef, robotsMeta, seoLinks } from "@/config/seo";
 
 const meta = {
   en: {

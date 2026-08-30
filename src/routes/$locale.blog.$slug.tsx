@@ -8,13 +8,7 @@ import { blogBySlug, relatedPosts, type BlogPost } from "@/content/blog";
 import { path } from "@/config/nav";
 import { asLocale, formatDate, type Locale } from "@/i18n";
 import { useDir, useLocale, useT } from "@/i18n/useLocale";
-import {
-  SITE_NAME,
-  canonicalUrl,
-  publisherRef,
-  robotsMeta,
-  seoLinks,
-} from "@/config/seo";
+import { SITE_NAME, canonicalUrl, publisherRef, robotsMeta, seoLinks } from "@/config/seo";
 
 /**
  * /:locale/blog/:slug — one article, in the locale it was requested in.
