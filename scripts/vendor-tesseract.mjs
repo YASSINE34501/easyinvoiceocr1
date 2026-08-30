@@ -28,7 +28,16 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "public", "tesseract");
 const langDir = join(outDir, "lang");
 
-const LANGUAGES = ["eng", "fra", "ara"];
+/**
+ * Every language OCR_LANGUAGES offers, composites split into their parts.
+ *
+ * This list and src/lib/convert/ocr.ts must agree. They did not: the picker in
+ * PDF to Word and Image to Word offered Deutsch and Español while only eng,
+ * fra and ara were ever vendored, so choosing either asked our own origin for
+ * a model that was not there and the conversion died on a 404. ocr.test.ts now
+ * fails if the two lists drift apart again.
+ */
+const LANGUAGES = ["eng", "fra", "ara", "deu", "spa"];
 const TESSDATA_BASE = "https://tessdata.projectnaptha.com/4.0.0";
 
 /** Core files tesseract.js may request, depending on the browser's SIMD support. */
