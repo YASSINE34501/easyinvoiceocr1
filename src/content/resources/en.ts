@@ -163,7 +163,7 @@ export const resourcesEn: ResourcesContent = {
           title: "Recognition runs in your browser",
           body: [
             "Your document is not uploaded to a server to be read. Recognition happens on your own machine, so the file's contents never reach our logs and are never held in a processing queue.",
-            "The only network requests during a conversion are for the recognition engine and its language files, which are static assets.",
+            "During a conversion the network is used for two things: the recognition engine and its language files, which are static assets, and the conversion record described below. Neither carries the contents of your document.",
           ],
         },
         {

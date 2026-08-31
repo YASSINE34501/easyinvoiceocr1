@@ -33,6 +33,16 @@ export type BlogBlock = {
 
 export type BlogLink = { label: string; href: string };
 
+/**
+ * An outbound reference to a primary source.
+ *
+ * Kept separate from BlogLink because these leave the site: they render as
+ * real anchors rather than router links, and they are only ever added where
+ * the article genuinely leans on the source. A references list assembled for
+ * its own sake would be link decoration, which is the opposite of the point.
+ */
+export type BlogSource = { label: string; href: string; note: string };
+
 export type BlogLocaleContent = {
   /** <title>. Written for the result page, so it carries the brand. */
   title: string;
@@ -55,6 +65,10 @@ export type BlogLocaleContent = {
    * phrase is not repeated across the blog.
    */
   links: BlogLink[];
+  /** Heading above the outbound sources block. Present only when sources are. */
+  sourcesTitle?: string;
+  /** Primary sources the article actually relies on. Optional by design. */
+  sources?: BlogSource[];
   cta: { label: string; href: string; note: string };
 };
 
@@ -80,7 +94,7 @@ const accuracyGuide: BlogPost = {
   date: "2026-06-18",
   readingMinutes: { en: 7, fr: 8, ar: 7 },
   featured: true,
-  related: ["line-item-extraction-hard", "multilingual-invoice-extraction"],
+  related: ["line-item-extraction-hard", "what-is-browser-ocr"],
   content: {
     en: {
       title: "What invoice OCR accuracy actually means — EasyInvoiceOCR",
@@ -140,7 +154,7 @@ const accuracyGuide: BlogPost = {
       },
     },
     fr: {
-      title: "Précision d'un OCR de factures : ce que le chiffre signifie — EasyInvoiceOCR",
+      title: "Ce que signifie la précision d'un OCR de factures — EasyInvoiceOCR",
       description:
         "Les taux annoncés sont rarement comparables. Comment se mesure la précision par champ, et comment la tester sur vos propres factures.",
       heading: "Précision d'un OCR de factures : ce que le chiffre signifie vraiment",
@@ -450,10 +464,10 @@ const multilingual: BlogPost = {
   date: "2026-03-21",
   updated: "2026-06-01",
   readingMinutes: { en: 8, fr: 9, ar: 8 },
-  related: ["invoice-ocr-accuracy-guide", "line-item-extraction-hard"],
+  related: ["invoice-ocr-accuracy-guide", "tesseract-js-browser-ocr"],
   content: {
     en: {
-      title: "Extracting invoice data in Arabic, French and mixed scripts — EasyInvoiceOCR",
+      title: "Extracting invoice data in Arabic and French — EasyInvoiceOCR",
       description:
         "Right-to-left layouts, Eastern Arabic numerals and bilingual invoices break parsers built for one script. What actually goes wrong, and how it is caught.",
       heading: "Extracting invoice data in Arabic, French and mixed scripts",
@@ -509,7 +523,7 @@ const multilingual: BlogPost = {
       },
     },
     fr: {
-      title: "Extraire des factures en arabe, en français et en écritures mixtes — EasyInvoiceOCR",
+      title: "Extraire des factures en arabe et en français — EasyInvoiceOCR",
       description:
         "Mise en page de droite à gauche, chiffres arabes orientaux, factures bilingues : autant de pièges pour un analyseur conçu pour une seule écriture. Ce qui se casse, et comment on le détecte.",
       heading: "Extraire des factures en arabe, en français et en écritures mixtes",
@@ -562,7 +576,7 @@ const multilingual: BlogPost = {
       },
     },
     ar: {
-      title: "استخراج بيانات الفواتير بالعربية والفرنسية والنصوص المختلطة — EasyInvoiceOCR",
+      title: "استخراج بيانات الفواتير بالعربية والفرنسية — EasyInvoiceOCR",
       description:
         "التخطيط من اليمين إلى اليسار، والأرقام العربية المشرقية، والفواتير ثنائية اللغة: عقبات أمام أي محلّل صُمِّم لكتابة واحدة. ما الذي يختلّ فعلًا، وكيف يُكتشف.",
       heading: "استخراج بيانات الفواتير بالعربية والفرنسية والنصوص المختلطة",
@@ -628,7 +642,7 @@ const gdpr: BlogPost = {
   related: ["receipts-to-spreadsheet-workflow", "choosing-ocr-api"],
   content: {
     en: {
-      title: "GDPR questions to ask before uploading invoices to an OCR service — EasyInvoiceOCR",
+      title: "GDPR questions to ask an OCR service — EasyInvoiceOCR",
       description:
         "Supplier invoices contain personal data. Five questions to put to any document-processing vendor before your first upload, and what a good answer sounds like.",
       heading: "GDPR questions to ask before uploading invoices to an OCR service",
@@ -681,8 +695,7 @@ const gdpr: BlogPost = {
       },
     },
     fr: {
-      title:
-        "RGPD : les questions à poser avant de confier vos factures à un service OCR — EasyInvoiceOCR",
+      title: "RGPD : les questions à poser à un service OCR — EasyInvoiceOCR",
       description:
         "Les factures fournisseurs contiennent des données personnelles. Cinq questions à poser à tout prestataire de traitement documentaire avant le premier envoi, et à quoi ressemble une bonne réponse.",
       heading: "RGPD : les questions à poser avant de confier vos factures à un service OCR",
@@ -799,7 +812,7 @@ const lineItems: BlogPost = {
   slug: "line-item-extraction-hard",
   date: "2025-11-14",
   readingMinutes: { en: 6, fr: 7, ar: 6 },
-  related: ["invoice-ocr-accuracy-guide", "multilingual-invoice-extraction"],
+  related: ["what-is-browser-ocr", "multilingual-invoice-extraction"],
   content: {
     en: {
       title: "Why line-item extraction is harder than reading the total — EasyInvoiceOCR",
@@ -849,7 +862,7 @@ const lineItems: BlogPost = {
       },
     },
     fr: {
-      title: "Pourquoi extraire les lignes est plus difficile que lire le total — EasyInvoiceOCR",
+      title: "Extraire les lignes est plus dur que lire le total — EasyInvoiceOCR",
       description:
         "Les totaux occupent des emplacements prévisibles, pas les tableaux. Colonnes sans filets, libellés qui débordent et sauts de page : le vrai test d'un analyseur.",
       heading: "Pourquoi extraire les lignes est plus difficile que lire le total",
@@ -1021,7 +1034,7 @@ const ocrApi: BlogPost = {
       },
     },
     fr: {
-      title: "Choisir une API d'OCR : la liste de contrôle du développeur — EasyInvoiceOCR",
+      title: "Choisir une API d'OCR : la liste du développeur — EasyInvoiceOCR",
       description:
         "Latence, idempotence, format d'erreur et versionnage déterminent le coût de maintenance d'une intégration. Ce qu'il faut vérifier dans la documentation avant de s'engager.",
       heading: "Choisir une API d'OCR : la liste de contrôle du développeur",
@@ -1140,6 +1153,775 @@ const ocrApi: BlogPost = {
 };
 
 /* ------------------------------------------------------------------ */
+/* 7. What browser OCR is                                              */
+/* ------------------------------------------------------------------ */
+
+const browserOcr: BlogPost = {
+  slug: "what-is-browser-ocr",
+  date: "2026-08-31",
+  readingMinutes: { en: 9, fr: 10, ar: 9 },
+  related: ["tesseract-js-browser-ocr", "gdpr-document-processing"],
+  content: {
+    en: {
+      title: "What is browser OCR? — EasyInvoiceOCR",
+      description:
+        "Browser OCR reads text from images and PDFs inside the browser tab instead of on a server. How it works, how it compares to cloud OCR, and where each one is the better choice.",
+      heading: "What is browser OCR?",
+      category: "Browser OCR",
+      lede: "Browser OCR runs text recognition inside the page you already have open, so the document itself never has to be uploaded. That single difference changes the privacy story, the failure modes and the performance profile.",
+      imageAlt: "A document being read inside a browser window rather than sent to a server",
+      body: [
+        {
+          paragraphs: [
+            "Browser OCR is optical character recognition performed by code running in your web browser, rather than by a service running on someone else's machine. The recognition engine is compiled to WebAssembly and downloaded like any other page asset; the document is read from local memory; the extracted text is produced in the tab and never has to leave it.",
+            "Conventional OCR works the other way around. You upload the file, a server recognises it, and JSON comes back. That is easier to build and usually more accurate, and it means a copy of your document exists on infrastructure you do not control.",
+          ],
+        },
+        {
+          heading: "How browser OCR works",
+          paragraphs: [
+            "A browser OCR pipeline has four stages, and only the third is recognition proper.",
+          ],
+          list: [
+            "Read — the file is loaded into memory from the file input. No network request carries it.",
+            "Decide — if the input is a PDF that already contains a text layer, the text is read directly and OCR is skipped entirely.",
+            "Recognise — pages without usable text are rasterised and passed to a WebAssembly OCR engine running in a worker thread, so the interface stays responsive.",
+            "Assemble — recognised words carry positions, which are used to rebuild lines, paragraphs, tables and reading order.",
+          ],
+        },
+        {
+          heading: "The PDF text layer comes first",
+          paragraphs: [
+            "This is the step most descriptions of OCR skip, and it matters more than the engine. A PDF exported from accounting software already contains the characters, with exact coordinates. Running OCR on it would be slower and less accurate than reading what is already there — you would be converting perfect text into pixels and then guessing at the pixels.",
+            "A well-built pipeline therefore inspects each page and picks a route per page, so a printed contract with one scanned signature page is handled correctly rather than being forced down one path.",
+          ],
+        },
+        {
+          heading: "Browser OCR versus cloud OCR",
+          paragraphs: [
+            "Neither is universally better. They fail in different places, and the honest comparison is about which failure you can tolerate.",
+          ],
+          list: [
+            "Accuracy on hard inputs — cloud wins. Server-side models are larger than anything you can reasonably ship to a browser, and handle poor photographs better.",
+            "Privacy of the document — browser wins, decisively. The file bytes never leave the device, so there is no copy to secure, subpoena or breach.",
+            "Speed on a single page — usually cloud, because the server hardware is dedicated and the model is already warm.",
+            "Speed on a private network with no upload bandwidth — browser, because there is nothing to upload.",
+            "Cost at volume — browser, because recognition runs on hardware you are not paying for.",
+            "Predictability — cloud, because you control the machine; browser recognition depends on the visitor's device and available memory.",
+            "Offline capability — browser, once the assets are cached.",
+          ],
+        },
+        {
+          heading: "Where cloud OCR is the better choice",
+          paragraphs: [
+            "If you are processing tens of thousands of documents a night, need the highest achievable accuracy on creased phone photographs, or require handwriting recognition, a server-side service is the right tool. Browser OCR is not a universal replacement and claiming otherwise would be dishonest.",
+          ],
+        },
+        {
+          heading: "Where browser OCR is the better choice",
+          paragraphs: [
+            "It suits documents people hesitate to upload: invoices with bank details, receipts tied to a personal card, contracts, identity documents, medical letters. It also suits anyone who would rather not take on the obligations that come with holding other people's documents — because the simplest way to protect a file is never to receive it.",
+          ],
+        },
+        {
+          heading: "What browser OCR does not mean",
+          paragraphs: [
+            "It does not mean the page makes no network requests. The engine and its language models are downloaded, and an application may still record that a conversion happened. In our case the server receives a short job record — filename, file type, size, page count and a key identifying the attempt — because a conversion allowance cannot be enforced by asking the browser to count honestly.",
+            "The precise claim worth making is narrow and checkable: document bytes are processed locally in the browser and are never uploaded, while limited metadata is transmitted for quota and record-keeping. Anything broader than that is marketing.",
+          ],
+        },
+        {
+          heading: "Accuracy expectations",
+          paragraphs: [
+            "Recognition quality depends far more on the input than on the engine. A flat, sharp, well-lit scan of printed text reads well in any modern OCR. A creased receipt photographed at an angle in poor light does not, in the browser or on a server. Handwriting is a separate problem that general-purpose OCR does not solve reliably.",
+            "The useful safeguard is not a higher accuracy claim but a confidence score attached to every extracted field, so uncertain values are flagged for review instead of being written silently into a spreadsheet.",
+          ],
+        },
+        {
+          heading: "How EasyInvoiceOCR implements it",
+          paragraphs: [
+            "Recognition runs client-side with Tesseract.js compiled to WebAssembly. PDFs with a text layer are read directly through PDF.js and OCR is skipped. Five base language models are available — English, French, Arabic, German and Spanish — plus two combined modes, English + Arabic and English + French, for bilingual documents. The engine and language models are served from our own origin rather than a third-party CDN.",
+            "Extracted fields carry a confidence score and a review flag, both of which are written into the exported spreadsheet rather than shown once and discarded.",
+          ],
+        },
+      ],
+      linksTitle: "Go further",
+      links: [
+        {
+          label: "How the engine and its models are put together",
+          href: "/en/blog/tesseract-js-browser-ocr",
+        },
+        { label: "Read an invoice without uploading it", href: "/en/invoice-ocr" },
+        { label: "Turn receipts into a spreadsheet", href: "/en/receipt-to-excel" },
+        {
+          label: "How accounting teams handle documents they cannot upload",
+          href: "/en/solutions/accountants",
+        },
+        { label: "PDF tools that run in the same tab", href: "/en/pdf-tools" },
+        { label: "What the service stores, and what it does not", href: "/en/security" },
+      ],
+      sourcesTitle: "Primary sources",
+      sources: [
+        {
+          label: "Tesseract.js",
+          href: "https://github.com/naptha/tesseract.js",
+          note: "the WebAssembly port of the Tesseract engine used for recognition in the browser.",
+        },
+        {
+          label: "Tesseract OCR",
+          href: "https://github.com/tesseract-ocr/tesseract",
+          note: "the upstream C++ engine and its documentation on page segmentation and language data.",
+        },
+        {
+          label: "WebAssembly — MDN",
+          href: "https://developer.mozilla.org/en-US/docs/WebAssembly",
+          note: "reference for the compilation target that lets a native engine run in a page.",
+        },
+        {
+          label: "PDF.js",
+          href: "https://mozilla.github.io/pdf.js/",
+          note: "used to read the text layer of PDFs that already contain characters.",
+        },
+      ],
+      cta: {
+        label: "Try it on your own document",
+        href: "/en/invoice-ocr",
+        note: "Five conversions are free. Document bytes are processed in your browser.",
+      },
+    },
+    fr: {
+      title: "Qu'est-ce que l'OCR dans le navigateur ? — EasyInvoiceOCR",
+      description:
+        "L'OCR dans le navigateur lit le texte des images et des PDF dans l'onglet plutôt que sur un serveur. Fonctionnement, comparaison avec l'OCR cloud, et le bon choix selon le cas.",
+      heading: "Qu'est-ce que l'OCR dans le navigateur ?",
+      category: "OCR navigateur",
+      lede: "L'OCR dans le navigateur exécute la reconnaissance de texte dans la page déjà ouverte : le document n'a jamais besoin d'être envoyé. Cette seule différence change la question de la confidentialité, les modes de défaillance et le profil de performance.",
+      imageAlt: "Un document lu dans une fenêtre de navigateur plutôt qu'envoyé à un serveur",
+      body: [
+        {
+          paragraphs: [
+            "L'OCR dans le navigateur est une reconnaissance optique de caractères effectuée par du code exécuté dans votre navigateur, et non par un service tournant sur la machine d'un tiers. Le moteur est compilé en WebAssembly et téléchargé comme n'importe quelle ressource de page ; le document est lu depuis la mémoire locale ; le texte extrait est produit dans l'onglet et n'a jamais à en sortir.",
+            "L'OCR classique fonctionne à l'inverse : vous envoyez le fichier, un serveur le reconnaît, du JSON revient. C'est plus simple à construire et généralement plus précis, et cela signifie qu'une copie de votre document existe sur une infrastructure que vous ne contrôlez pas.",
+          ],
+        },
+        {
+          heading: "Comment cela fonctionne",
+          paragraphs: [
+            "Un pipeline d'OCR navigateur comporte quatre étapes, et seule la troisième est la reconnaissance proprement dite.",
+          ],
+          list: [
+            "Lire — le fichier est chargé en mémoire depuis le champ de fichier. Aucune requête réseau ne le transporte.",
+            "Décider — si le PDF contient déjà une couche de texte, ce texte est lu directement et l'OCR est ignoré.",
+            "Reconnaître — les pages sans texte exploitable sont rasterisées et confiées à un moteur WebAssembly dans un worker, pour que l'interface reste réactive.",
+            "Assembler — les mots reconnus portent des positions, qui servent à reconstruire lignes, paragraphes, tableaux et ordre de lecture.",
+          ],
+        },
+        {
+          heading: "La couche de texte du PDF passe en premier",
+          paragraphs: [
+            "C'est l'étape que la plupart des descriptions de l'OCR passent sous silence, et elle compte davantage que le moteur. Un PDF exporté depuis un logiciel comptable contient déjà les caractères, avec leurs coordonnées exactes. Lui appliquer l'OCR serait plus lent et moins précis que lire ce qui est déjà là : vous convertiriez du texte parfait en pixels pour ensuite deviner ces pixels.",
+            "Un pipeline bien construit inspecte donc chaque page et choisit une route page par page, si bien qu'un contrat imprimé avec une page de signature scannée est traité correctement.",
+          ],
+        },
+        {
+          heading: "Navigateur ou cloud",
+          paragraphs: [
+            "Aucun des deux n'est universellement meilleur. Ils échouent à des endroits différents, et la vraie question est de savoir quelle défaillance vous pouvez tolérer.",
+          ],
+          list: [
+            "Précision sur les entrées difficiles — avantage cloud. Les modèles côté serveur sont plus gros que tout ce qu'on peut raisonnablement livrer à un navigateur.",
+            "Confidentialité du document — avantage navigateur, nettement. Le fichier ne quitte pas l'appareil : il n'existe aucune copie à sécuriser ni à compromettre.",
+            "Vitesse sur une page isolée — souvent le cloud, matériel dédié et modèle déjà chargé.",
+            "Vitesse sans bande passante montante — le navigateur, puisqu'il n'y a rien à envoyer.",
+            "Coût au volume — le navigateur, la reconnaissance tournant sur du matériel que vous ne payez pas.",
+            "Prévisibilité — le cloud, car vous maîtrisez la machine ; dans le navigateur, tout dépend de l'appareil du visiteur.",
+            "Fonctionnement hors ligne — le navigateur, une fois les ressources mises en cache.",
+          ],
+        },
+        {
+          heading: "Quand le cloud est préférable",
+          paragraphs: [
+            "Pour des dizaines de milliers de documents par nuit, pour la meilleure précision possible sur des photos froissées, ou pour la reconnaissance d'écriture manuscrite, un service côté serveur est le bon outil. L'OCR navigateur n'est pas un remplacement universel, et prétendre le contraire serait malhonnête.",
+          ],
+        },
+        {
+          heading: "Quand le navigateur est préférable",
+          paragraphs: [
+            "Il convient aux documents que l'on hésite à envoyer : factures avec coordonnées bancaires, reçus liés à une carte personnelle, contrats, pièces d'identité, courriers médicaux. Il convient aussi à qui préfère ne pas assumer les obligations liées à la détention des documents d'autrui — car le moyen le plus simple de protéger un fichier est de ne jamais le recevoir.",
+          ],
+        },
+        {
+          heading: "Ce que cela ne signifie pas",
+          paragraphs: [
+            "Cela ne signifie pas que la page n'effectue aucune requête réseau. Le moteur et ses modèles de langue sont téléchargés, et une application peut malgré tout enregistrer qu'une conversion a eu lieu. Chez nous, le serveur reçoit un bref enregistrement — nom du fichier, type, taille, nombre de pages et une clé identifiant la tentative — car un quota ne peut pas être appliqué en demandant au navigateur de compter honnêtement.",
+            "La formulation juste est étroite et vérifiable : les octets du document sont traités localement dans le navigateur et ne sont jamais envoyés, tandis que des métadonnées limitées sont transmises à des fins de quota et de traçabilité. Tout ce qui va au-delà relève du marketing.",
+          ],
+        },
+        {
+          heading: "Ce qu'il faut attendre de la précision",
+          paragraphs: [
+            "La qualité dépend bien davantage de l'image que du moteur. Un scan net, à plat et bien éclairé d'un texte imprimé se lit bien avec n'importe quel OCR moderne. Un reçu froissé photographié de biais dans une lumière faible, non — dans le navigateur comme sur un serveur. L'écriture manuscrite est un problème distinct que l'OCR généraliste ne résout pas de façon fiable.",
+            "La vraie protection n'est pas une promesse de précision plus élevée, mais un score de confiance attaché à chaque champ extrait, pour signaler les valeurs incertaines au lieu de les inscrire silencieusement dans un tableur.",
+          ],
+        },
+        {
+          heading: "Comment EasyInvoiceOCR le met en œuvre",
+          paragraphs: [
+            "La reconnaissance s'exécute côté client avec Tesseract.js compilé en WebAssembly. Les PDF dotés d'une couche de texte sont lus directement via PDF.js et l'OCR est ignoré. Cinq modèles de langue sont disponibles — anglais, français, arabe, allemand et espagnol — plus deux modes combinés, anglais + arabe et anglais + français, pour les documents bilingues. Le moteur et les modèles sont servis depuis notre propre domaine plutôt que par un CDN tiers.",
+            "Chaque champ extrait porte un score de confiance et un indicateur de relecture, tous deux inscrits dans le tableur exporté plutôt qu'affichés une fois puis oubliés.",
+          ],
+        },
+      ],
+      linksTitle: "Pour aller plus loin",
+      links: [
+        {
+          label: "Comment le moteur et ses modèles sont assemblés",
+          href: "/fr/blog/tesseract-js-browser-ocr",
+        },
+        { label: "Lire une facture sans l'envoyer", href: "/fr/invoice-ocr" },
+        { label: "Transformer des reçus en tableur", href: "/fr/receipt-to-excel" },
+        {
+          label: "Comment les cabinets traitent des documents qu'ils ne peuvent pas envoyer",
+          href: "/fr/solutions/accountants",
+        },
+        { label: "Les outils PDF qui tournent dans le même onglet", href: "/fr/pdf-tools" },
+        { label: "Ce que le service conserve, et ce qu'il ne conserve pas", href: "/fr/security" },
+      ],
+      sourcesTitle: "Sources primaires",
+      sources: [
+        {
+          label: "Tesseract.js",
+          href: "https://github.com/naptha/tesseract.js",
+          note: "le portage WebAssembly du moteur Tesseract utilisé pour la reconnaissance dans le navigateur.",
+        },
+        {
+          label: "Tesseract OCR",
+          href: "https://github.com/tesseract-ocr/tesseract",
+          note: "le moteur C++ amont et sa documentation sur la segmentation de page et les données de langue.",
+        },
+        {
+          label: "WebAssembly — MDN",
+          href: "https://developer.mozilla.org/fr/docs/WebAssembly",
+          note: "référence sur la cible de compilation qui permet d'exécuter un moteur natif dans une page.",
+        },
+        {
+          label: "PDF.js",
+          href: "https://mozilla.github.io/pdf.js/",
+          note: "utilisé pour lire la couche de texte des PDF qui contiennent déjà des caractères.",
+        },
+      ],
+      cta: {
+        label: "Essayez sur votre propre document",
+        href: "/fr/invoice-ocr",
+        note: "Cinq conversions sont gratuites. Les octets du document sont traités dans votre navigateur.",
+      },
+    },
+    ar: {
+      title: "ما هو التعرف الضوئي داخل المتصفح؟ — EasyInvoiceOCR",
+      description:
+        "يقرأ التعرف الضوئي داخل المتصفح النص من الصور وملفات PDF داخل التبويب بدل خادم بعيد. كيف يعمل، ومقارنته بالتعرف السحابي، ومتى يناسب كل منهما.",
+      heading: "ما هو التعرف الضوئي داخل المتصفح؟",
+      category: "التعرف داخل المتصفح",
+      lede: "يشغّل التعرف الضوئي داخل المتصفح عملية قراءة النص في الصفحة المفتوحة أمامك، فلا يحتاج المستند إلى الرفع أصلًا. هذا الفارق وحده يغيّر مسألة الخصوصية وأنماط الإخفاق وأداء المعالجة.",
+      imageAlt: "مستند يُقرأ داخل نافذة المتصفح بدل إرساله إلى خادم",
+      body: [
+        {
+          paragraphs: [
+            "التعرف الضوئي داخل المتصفح هو تعرف على الحروف تنفّذه شيفرة تعمل في متصفحك، لا خدمة تعمل على جهاز طرف آخر. يُصرَّف المحرك إلى WebAssembly ويُنزَّل كأي مورد آخر في الصفحة، ويُقرأ المستند من الذاكرة المحلية، ويُنتَج النص المستخرج داخل التبويب دون حاجة إلى مغادرته.",
+            "أما التعرف التقليدي فيعمل بالعكس: ترفع الملف، ويتعرف عليه خادم، ويعود إليك JSON. هذا أسهل في البناء وأدق عادةً، ويعني في الوقت نفسه وجود نسخة من مستندك على بنية تحتية لا تتحكم فيها.",
+          ],
+        },
+        {
+          heading: "كيف يعمل",
+          paragraphs: ["يتكوّن المسار من أربع مراحل، والثالثة وحدها هي التعرف الفعلي."],
+          list: [
+            "القراءة — يُحمَّل الملف في الذاكرة من حقل الملفات، ولا ينقله أي طلب شبكة.",
+            "القرار — إذا كان ملف PDF يحتوي أصلًا على طبقة نصية، يُقرأ النص مباشرة ويُتجاوز التعرف الضوئي.",
+            "التعرف — تُحوَّل الصفحات التي لا تحتوي نصًا صالحًا إلى صور وتُمرَّر إلى محرك WebAssembly في خيط عامل، لتبقى الواجهة سريعة الاستجابة.",
+            "التجميع — تحمل الكلمات المتعرَّف عليها مواضعها، وتُستخدم لإعادة بناء الأسطر والفقرات والجداول وترتيب القراءة.",
+          ],
+        },
+        {
+          heading: "طبقة النص في PDF أولًا",
+          paragraphs: [
+            "هذه هي الخطوة التي تغفلها أغلب الشروح، وهي أهم من المحرك نفسه. ملف PDF المُصدَّر من برنامج محاسبي يحتوي الحروف فعلًا بإحداثياتها الدقيقة، وتشغيل التعرف الضوئي عليه سيكون أبطأ وأقل دقة من قراءة الموجود: ستحوّل نصًا سليمًا إلى بكسلات ثم تخمّن تلك البكسلات.",
+            "لذلك يفحص المسار الجيد كل صفحة ويختار لها مسارها، فيُعالَج عقد مطبوع فيه صفحة توقيع ممسوحة معالجة صحيحة بدل إجباره على مسار واحد.",
+          ],
+        },
+        {
+          heading: "المتصفح مقابل السحابة",
+          paragraphs: [
+            "لا أحدهما أفضل على الإطلاق. كل منهما يخفق في موضع مختلف، والسؤال الحقيقي هو أي إخفاق يمكنك احتماله.",
+          ],
+          list: [
+            "الدقة على المدخلات الصعبة — تتفوق السحابة، فنماذج الخادم أكبر مما يمكن إرساله إلى متصفح.",
+            "خصوصية المستند — يتفوق المتصفح بوضوح: لا يغادر الملف الجهاز، فلا توجد نسخة تحتاج إلى حماية أو قد تُخترق.",
+            "سرعة صفحة واحدة — غالبًا السحابة، لعتاد مخصص ونموذج جاهز.",
+            "السرعة عند ضعف سرعة الرفع — المتصفح، إذ لا شيء يُرفع.",
+            "الكلفة عند الحجم الكبير — المتصفح، فالمعالجة تجري على عتاد لا تدفع ثمنه.",
+            "إمكانية التنبؤ — السحابة، لأنك تتحكم في الجهاز؛ أما في المتصفح فكل شيء يعتمد على جهاز الزائر.",
+            "العمل دون اتصال — المتصفح، بعد تخزين الموارد مؤقتًا.",
+          ],
+        },
+        {
+          heading: "متى تكون السحابة أنسب",
+          paragraphs: [
+            "إن كنت تعالج عشرات الآلاف من المستندات ليلًا، أو تحتاج أعلى دقة ممكنة على صور مجعّدة، أو تحتاج التعرف على خط اليد، فالخدمة على الخادم هي الأداة الصحيحة. التعرف داخل المتصفح ليس بديلًا شاملًا، وادعاء غير ذلك تضليل.",
+          ],
+        },
+        {
+          heading: "متى يكون المتصفح أنسب",
+          paragraphs: [
+            "يناسب المستندات التي يتردد الناس في رفعها: فواتير تحمل بيانات بنكية، وإيصالات مرتبطة ببطاقة شخصية، وعقود، ووثائق هوية، ورسائل طبية. ويناسب أيضًا من يفضّل ألا يتحمل التزامات حيازة مستندات الآخرين — فأبسط طريقة لحماية ملف هي ألا تستلمه أصلًا.",
+          ],
+        },
+        {
+          heading: "ما لا يعنيه ذلك",
+          paragraphs: [
+            "لا يعني أن الصفحة لا ترسل أي طلب شبكة. فالمحرك وملفات اللغة تُنزَّل، وقد يسجّل التطبيق مع ذلك أن عملية تحويل قد جرت. في حالتنا يستقبل الخادم سجلًا موجزًا — اسم الملف ونوعه وحجمه وعدد الصفحات ومفتاحًا يعرّف المحاولة — لأن الرصيد لا يمكن فرضه بالطلب من المتصفح أن يحسب بأمانة.",
+            "الصياغة الدقيقة ضيّقة وقابلة للتحقق: تُعالَج بيانات المستند محليًا داخل المتصفح ولا تُرفع أبدًا، بينما تُرسل بيانات وصفية محدودة لأغراض الرصيد وحفظ السجل. وما زاد على ذلك تسويق.",
+          ],
+        },
+        {
+          heading: "ما ينبغي توقعه من الدقة",
+          paragraphs: [
+            "تعتمد جودة التعرف على الصورة أكثر بكثير من اعتمادها على المحرك. النص المطبوع الممسوح بشكل مستوٍ وواضح ومضاء جيدًا يُقرأ جيدًا بأي محرك حديث، بخلاف إيصال مجعّد مصوَّر بزاوية في إضاءة ضعيفة — في المتصفح أو على الخادم سواء. وخط اليد مشكلة منفصلة لا يحلها التعرف العام بشكل موثوق.",
+            "الضمانة المفيدة ليست وعدًا بدقة أعلى، بل درجة ثقة مرفقة بكل حقل مستخرج، لتُعلَّم القيم غير المؤكدة للمراجعة بدل كتابتها بصمت في جدول.",
+          ],
+        },
+        {
+          heading: "كيف ينفّذه EasyInvoiceOCR",
+          paragraphs: [
+            "يجري التعرف داخل المتصفح باستخدام Tesseract.js المصرَّف إلى WebAssembly. وتُقرأ ملفات PDF ذات الطبقة النصية مباشرة عبر PDF.js ويُتجاوز التعرف الضوئي. وتتوفر خمسة نماذج لغة أساسية — الإنجليزية والفرنسية والعربية والألمانية والإسبانية — إضافة إلى وضعين مركّبين، الإنجليزية + العربية والإنجليزية + الفرنسية، للمستندات ثنائية اللغة. ويُقدَّم المحرك وملفات اللغة من نطاقنا نفسه لا من شبكة توصيل خارجية.",
+            "ويحمل كل حقل مستخرج درجة ثقة وعلامة مراجعة، وكلاهما يُكتب في الجدول المصدَّر بدل عرضه مرة ثم نسيانه.",
+          ],
+        },
+      ],
+      linksTitle: "للتعمق أكثر",
+      links: [
+        { label: "كيف يُجمَّع المحرك وملفات اللغة", href: "/ar/blog/tesseract-js-browser-ocr" },
+        { label: "اقرأ فاتورة دون رفعها", href: "/ar/invoice-ocr" },
+        { label: "حوّل الإيصالات إلى جدول", href: "/ar/receipt-to-excel" },
+        {
+          label: "كيف تتعامل فرق المحاسبة مع مستندات لا يمكن رفعها",
+          href: "/ar/solutions/accountants",
+        },
+        { label: "أدوات PDF التي تعمل في التبويب نفسه", href: "/ar/pdf-tools" },
+        { label: "ما الذي تحتفظ به الخدمة وما لا تحتفظ به", href: "/ar/security" },
+      ],
+      sourcesTitle: "المصادر الأساسية",
+      sources: [
+        {
+          label: "Tesseract.js",
+          href: "https://github.com/naptha/tesseract.js",
+          note: "نسخة WebAssembly من محرك Tesseract المستخدمة للتعرف داخل المتصفح.",
+        },
+        {
+          label: "Tesseract OCR",
+          href: "https://github.com/tesseract-ocr/tesseract",
+          note: "المحرك الأصلي بلغة C++ وتوثيقه حول تقسيم الصفحة وبيانات اللغة.",
+        },
+        {
+          label: "WebAssembly — MDN",
+          href: "https://developer.mozilla.org/en-US/docs/WebAssembly",
+          note: "مرجع هدف التصريف الذي يتيح تشغيل محرك أصلي داخل صفحة.",
+        },
+        {
+          label: "PDF.js",
+          href: "https://mozilla.github.io/pdf.js/",
+          note: "يُستخدم لقراءة الطبقة النصية في ملفات PDF التي تحتوي حروفًا أصلًا.",
+        },
+      ],
+      cta: {
+        label: "جرّبه على مستندك",
+        href: "/ar/invoice-ocr",
+        note: "خمس عمليات تحويل مجانية. تُعالَج بيانات المستند داخل متصفحك.",
+      },
+    },
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/* 8. Tesseract.js and the model assets                                */
+/* ------------------------------------------------------------------ */
+
+const tesseractJs: BlogPost = {
+  slug: "tesseract-js-browser-ocr",
+  date: "2026-08-31",
+  readingMinutes: { en: 10, fr: 11, ar: 10 },
+  related: ["what-is-browser-ocr", "multilingual-invoice-extraction"],
+  content: {
+    en: {
+      title: "Tesseract.js in production: models and assets — EasyInvoiceOCR",
+      description:
+        "What Tesseract.js actually loads, why language models are the hard part, what happens when they come from a CDN, and the failure mode that self-hosting introduces.",
+      heading: "Running Tesseract.js in production",
+      category: "Engineering",
+      lede: "Getting Tesseract.js to recognise a word takes ten minutes. Running it in production for years takes an understanding of what it downloads, when, and from where — because that is where it breaks.",
+      imageAlt: "Language model files being served from an application's own origin",
+      body: [
+        {
+          paragraphs: [
+            "Tesseract.js is a JavaScript wrapper around Tesseract, the open-source OCR engine, compiled to WebAssembly so it can run in a browser. It is an independent community project; we use it, we contribute to its issue tracker, and we have no affiliation with it beyond that.",
+            "What makes it interesting in production is not the recognition API, which is small. It is the asset story underneath.",
+          ],
+        },
+        {
+          heading: "What actually gets downloaded",
+          paragraphs: [
+            "A recognition run pulls three separate things, and confusing them is the source of most deployment problems.",
+          ],
+          list: [
+            "The worker script — the JavaScript that runs recognition off the main thread.",
+            "The WASM core — the compiled engine. Several variants exist (plain, SIMD, relaxed-SIMD, LSTM-only builds of each) and the browser gets the fastest one it can execute.",
+            "The language data — one .traineddata file per language, and these are by far the largest component.",
+          ],
+        },
+        {
+          heading: "Language models are the expensive part",
+          paragraphs: [
+            "Each language is a separate multi-megabyte file. Our five base models total 32.75 MB: English 10.42 MB, Spanish 7.98 MB, German 6.77 MB, French 5.99 MB and Arabic 1.60 MB. Adding the WASM cores brings the vendored total to 76.00 MB.",
+            "That figure alarms people until you note what it is not: none of it is in the initial page bundle. A model is fetched once, on demand, when someone actually runs recognition in that language, and then cached. A visitor who only merges two PDFs downloads none of it.",
+          ],
+        },
+        {
+          heading: "Combined language modes are not extra models",
+          paragraphs: [
+            "Tesseract accepts a language argument like eng+ara, which loads two models into a single recognition pass so a bilingual page can be read without choosing a side. It is worth being precise about the arithmetic: seven options in a language picker can mean five model files. We offer five base languages and two combined modes, not seven independent models.",
+          ],
+        },
+        {
+          heading: "The default is a CDN, and that has consequences",
+          paragraphs: [
+            "By default Tesseract.js fetches its language data from a public CDN at run time. That is convenient and it works — until it does not. A stalled asset request leaves a conversion hanging mid-flight, and because the failing request never touches your own servers, the outage is invisible to your monitoring while being entirely visible to your users.",
+            "There is a second, quieter issue. The default asset path is not pinned to a published version, and the download is not integrity-checked, so the bytes fed to the recognizer can change without any consumer noticing. This is an open discussion in the project rather than a criticism of it — the same tension exists in any run-time asset fetch.",
+          ],
+        },
+        {
+          heading: "Self-hosting the assets",
+          paragraphs: [
+            "We now serve the worker, the cores and the language models from our own origin. A setup script copies the worker and cores out of node_modules — so they always match the installed version rather than drifting against whatever a CDN currently serves — and downloads the language data once at build time, never at run time.",
+            "This removes the third-party dependency from the recognition path entirely. It also removes a subtler privacy leak: fetching the engine from a third-party CDN means that third party sees a request, with a referrer, every time someone starts a conversion. No document content, but a request pattern that maps to intent.",
+          ],
+        },
+        {
+          heading: "The failure mode self-hosting introduces",
+          paragraphs: [
+            "This is the part worth passing on, because we learned it the expensive way. When you vendor the models, the set of languages your interface offers and the set your build script downloads become two separate lists, in two different files, with nothing enforcing that they match.",
+            "Ours drifted. Two languages were selectable in the picker whose model files had never been added to the download step. Because the asset path pointed at our own origin there was no CDN to quietly fall back to: the request 404'd and recognition failed for those two languages only. Nothing in the test suite caught it, because no test connected the two lists.",
+            "The fix that mattered was not adding the two files. It was an invariant test that fails in both directions — a language offered but not vendored, and a model vendored but no longer offered — and that reads the build script as source text so it needs neither network access nor the downloaded assets to run.",
+          ],
+        },
+        {
+          heading: "Practical advice if you are doing this",
+          paragraphs: ["Four things we would tell our past selves."],
+          list: [
+            "Pin an explicit version of the language data rather than relying on a path that resolves to whatever is current.",
+            "If you self-host, add a test that every language your UI offers resolves to a file that exists.",
+            "Check the network tab while the worker starts. A missing model looks like 'this language does not work', not like a missing file.",
+            "Do not use a character whitelist with the LSTM engine, and do not request the legacy engine mode against data that has no legacy component. Both make output worse while looking like tuning.",
+          ],
+        },
+        {
+          heading: "What this does not change",
+          paragraphs: [
+            "Self-hosting moves where the bytes come from. It does not change what recognition does — we use the standard model set, byte-identical to what Tesseract.js fetches by default, deliberately, because a vendoring change that also silently altered output would be miserable to debug later.",
+            "It also does not make the application network-free. Document bytes are processed locally in the browser and are never uploaded; a short job record — filename, file type, size, page count and a key identifying the attempt — is still transmitted so a conversion allowance can be enforced server-side.",
+          ],
+        },
+      ],
+      linksTitle: "Go further",
+      links: [
+        {
+          label: "What browser OCR is, and how it compares to cloud OCR",
+          href: "/en/blog/what-is-browser-ocr",
+        },
+        {
+          label: "Reading invoices across Arabic, French and mixed scripts",
+          href: "/en/blog/multilingual-invoice-extraction",
+        },
+        { label: "The extraction tool this engine powers", href: "/en/invoice-ocr" },
+        { label: "Supported formats, languages and limits", href: "/en/documentation" },
+        { label: "What the developer-facing side offers today", href: "/en/solutions/developers" },
+      ],
+      sourcesTitle: "Primary sources",
+      sources: [
+        {
+          label: "Tesseract.js",
+          href: "https://github.com/naptha/tesseract.js",
+          note: "the project itself, including the worker options that control asset paths.",
+        },
+        {
+          label: "tessdata — Tesseract language data",
+          href: "https://github.com/tesseract-ocr/tessdata",
+          note: "the published .traineddata files, including the standard 4.0.0 set used here.",
+        },
+        {
+          label: "Tesseract documentation on page segmentation and engine modes",
+          href: "https://tesseract-ocr.github.io/tessdoc/",
+          note: "reference for the PSM and OEM arguments discussed above.",
+        },
+        {
+          label: "WebAssembly — MDN",
+          href: "https://developer.mozilla.org/en-US/docs/WebAssembly",
+          note: "background on the compilation target and on SIMD support in browsers.",
+        },
+      ],
+      cta: {
+        label: "See the engine read a document",
+        href: "/en/invoice-ocr",
+        note: "Five conversions are free. Document bytes are processed in your browser.",
+      },
+    },
+    fr: {
+      title: "Tesseract.js en production : modèles et ressources — EasyInvoiceOCR",
+      description:
+        "Ce que Tesseract.js télécharge réellement, pourquoi les modèles de langue sont la partie difficile, ce qui se passe quand ils viennent d'un CDN, et le défaut qu'introduit l'auto-hébergement.",
+      heading: "Tesseract.js en production",
+      category: "Ingénierie",
+      lede: "Faire reconnaître un mot à Tesseract.js prend dix minutes. Le faire tourner en production pendant des années demande de comprendre ce qu'il télécharge, quand et depuis où — car c'est là qu'il casse.",
+      imageAlt: "Des fichiers de modèles de langue servis depuis le domaine de l'application",
+      body: [
+        {
+          paragraphs: [
+            "Tesseract.js est une enveloppe JavaScript autour de Tesseract, le moteur d'OCR open source, compilé en WebAssembly pour tourner dans un navigateur. C'est un projet communautaire indépendant : nous l'utilisons, nous contribuons à son suivi de tickets, et nous n'avons aucune affiliation avec lui au-delà de cela.",
+            "Ce qui le rend intéressant en production n'est pas l'API de reconnaissance, qui est réduite. C'est l'histoire des ressources qu'il y a en dessous.",
+          ],
+        },
+        {
+          heading: "Ce qui est réellement téléchargé",
+          paragraphs: [
+            "Une reconnaissance récupère trois choses distinctes, et les confondre est à l'origine de la plupart des problèmes de déploiement.",
+          ],
+          list: [
+            "Le script worker — le JavaScript qui exécute la reconnaissance hors du fil principal.",
+            "Le cœur WASM — le moteur compilé. Plusieurs variantes existent (simple, SIMD, SIMD relâché, versions LSTM de chacune) et le navigateur reçoit la plus rapide qu'il sache exécuter.",
+            "Les données de langue — un fichier .traineddata par langue, de loin le composant le plus lourd.",
+          ],
+        },
+        {
+          heading: "Les modèles de langue sont la partie coûteuse",
+          paragraphs: [
+            "Chaque langue est un fichier distinct de plusieurs mégaoctets. Nos cinq modèles de base totalisent 32,75 Mo : anglais 10,42 Mo, espagnol 7,98 Mo, allemand 6,77 Mo, français 5,99 Mo et arabe 1,60 Mo. Avec les cœurs WASM, le total hébergé atteint 76,00 Mo.",
+            "Ce chiffre inquiète tant qu'on n'a pas précisé ce qu'il n'est pas : rien de tout cela ne se trouve dans le bundle initial. Un modèle est récupéré une fois, à la demande, quand quelqu'un lance réellement une reconnaissance dans cette langue, puis mis en cache. Un visiteur qui fusionne seulement deux PDF n'en télécharge rien.",
+          ],
+        },
+        {
+          heading: "Les modes combinés ne sont pas des modèles supplémentaires",
+          paragraphs: [
+            "Tesseract accepte un argument de langue tel que eng+ara, qui charge deux modèles dans une même passe pour lire une page bilingue sans choisir un camp. L'arithmétique mérite d'être précise : sept options dans un sélecteur peuvent correspondre à cinq fichiers. Nous proposons cinq langues de base et deux modes combinés, non sept modèles indépendants.",
+          ],
+        },
+        {
+          heading: "Par défaut, c'est un CDN — et cela a des conséquences",
+          paragraphs: [
+            "Par défaut, Tesseract.js récupère ses données de langue depuis un CDN public à l'exécution. C'est pratique et cela fonctionne — jusqu'à ce que cela ne fonctionne plus. Une requête bloquée laisse une conversion suspendue en plein vol, et comme la requête défaillante ne touche jamais vos propres serveurs, la panne est invisible à votre supervision tout en étant parfaitement visible pour vos utilisateurs.",
+            "Il existe un second problème, plus discret. Le chemin par défaut n'est pas figé sur une version publiée et le téléchargement n'est pas vérifié par empreinte, si bien que les octets fournis au moteur peuvent changer sans que personne s'en aperçoive. C'est une discussion ouverte dans le projet plutôt qu'une critique : la même tension existe dans toute récupération de ressource à l'exécution.",
+          ],
+        },
+        {
+          heading: "Héberger les ressources soi-même",
+          paragraphs: [
+            "Nous servons désormais le worker, les cœurs et les modèles depuis notre propre domaine. Un script de préparation copie le worker et les cœurs depuis node_modules — ils correspondent donc toujours à la version installée plutôt que de diverger de ce qu'un CDN sert à un instant donné — et télécharge les données de langue une fois, à la construction, jamais à l'exécution.",
+            "Cela retire entièrement la dépendance tierce du chemin de reconnaissance. Cela supprime aussi une fuite plus subtile : récupérer le moteur depuis un CDN tiers signifie que ce tiers voit une requête, avec un référent, chaque fois qu'une conversion démarre. Aucun contenu de document, mais un motif de requête qui trahit l'intention.",
+          ],
+        },
+        {
+          heading: "Le défaut qu'introduit l'auto-hébergement",
+          paragraphs: [
+            "C'est la partie qui mérite d'être transmise, parce que nous l'avons apprise à nos dépens. Quand vous hébergez les modèles, la liste des langues que votre interface propose et celle que votre script télécharge deviennent deux listes distinctes, dans deux fichiers différents, sans rien qui garantisse leur correspondance.",
+            "Les nôtres ont divergé. Deux langues étaient sélectionnables dans le sélecteur alors que leurs fichiers n'avaient jamais été ajoutés à l'étape de téléchargement. Comme le chemin pointait vers notre propre domaine, il n'y avait aucun CDN vers lequel retomber : la requête renvoyait 404 et la reconnaissance échouait pour ces deux langues seulement. Rien dans la suite de tests ne l'a détecté, car aucun test ne reliait les deux listes.",
+            "Le vrai correctif n'a pas été d'ajouter les deux fichiers. C'est un test d'invariant qui échoue dans les deux sens — une langue proposée mais non hébergée, et un modèle hébergé mais plus proposé — et qui lit le script de construction comme du texte source, sans réseau ni ressources téléchargées.",
+          ],
+        },
+        {
+          heading: "Conseils pratiques",
+          paragraphs: ["Quatre choses que nous dirions à nos versions passées."],
+          list: [
+            "Figez une version explicite des données de langue plutôt que de dépendre d'un chemin qui résout vers la version courante.",
+            "Si vous auto-hébergez, ajoutez un test vérifiant que chaque langue proposée correspond à un fichier existant.",
+            "Regardez l'onglet réseau au démarrage du worker. Un modèle manquant ressemble à « cette langue ne marche pas », pas à un fichier absent.",
+            "N'utilisez pas de liste blanche de caractères avec le moteur LSTM, et ne demandez pas le mode moteur historique sur des données qui n'en contiennent pas. Les deux dégradent le résultat tout en ressemblant à du réglage fin.",
+          ],
+        },
+        {
+          heading: "Ce que cela ne change pas",
+          paragraphs: [
+            "L'auto-hébergement change l'origine des octets, pas ce que fait la reconnaissance : nous utilisons le jeu de modèles standard, identique octet pour octet à ce que Tesseract.js récupère par défaut, délibérément, car un changement d'hébergement qui modifierait aussi silencieusement le résultat serait pénible à déboguer.",
+            "Cela ne rend pas non plus l'application exempte de réseau. Les octets du document sont traités localement dans le navigateur et ne sont jamais envoyés ; un bref enregistrement — nom du fichier, type, taille, nombre de pages et une clé identifiant la tentative — reste transmis pour que le quota puisse être appliqué côté serveur.",
+          ],
+        },
+      ],
+      linksTitle: "Pour aller plus loin",
+      links: [
+        {
+          label: "Ce qu'est l'OCR navigateur, et sa comparaison au cloud",
+          href: "/fr/blog/what-is-browser-ocr",
+        },
+        {
+          label: "Lire des factures en arabe, en français et en écritures mixtes",
+          href: "/fr/blog/multilingual-invoice-extraction",
+        },
+        { label: "L'outil d'extraction que ce moteur alimente", href: "/fr/invoice-ocr" },
+        { label: "Formats, langues et limites pris en charge", href: "/fr/documentation" },
+        {
+          label: "Ce que propose aujourd'hui le volet développeurs",
+          href: "/fr/solutions/developers",
+        },
+      ],
+      sourcesTitle: "Sources primaires",
+      sources: [
+        {
+          label: "Tesseract.js",
+          href: "https://github.com/naptha/tesseract.js",
+          note: "le projet lui-même, avec les options de worker qui contrôlent les chemins de ressources.",
+        },
+        {
+          label: "tessdata — données de langue Tesseract",
+          href: "https://github.com/tesseract-ocr/tessdata",
+          note: "les fichiers .traineddata publiés, dont le jeu standard 4.0.0 utilisé ici.",
+        },
+        {
+          label: "Documentation Tesseract : segmentation de page et modes moteur",
+          href: "https://tesseract-ocr.github.io/tessdoc/",
+          note: "référence pour les arguments PSM et OEM évoqués plus haut.",
+        },
+        {
+          label: "WebAssembly — MDN",
+          href: "https://developer.mozilla.org/fr/docs/WebAssembly",
+          note: "contexte sur la cible de compilation et la prise en charge SIMD dans les navigateurs.",
+        },
+      ],
+      cta: {
+        label: "Voir le moteur lire un document",
+        href: "/fr/invoice-ocr",
+        note: "Cinq conversions sont gratuites. Les octets du document sont traités dans votre navigateur.",
+      },
+    },
+    ar: {
+      title: "تشغيل Tesseract.js في الإنتاج: النماذج والموارد — EasyInvoiceOCR",
+      description:
+        "ما الذي ينزّله Tesseract.js فعلًا، ولماذا تمثّل ملفات اللغة الجزء الصعب، وماذا يحدث حين تأتي من شبكة توصيل خارجية، وأي خلل يُدخله الاستضافة الذاتية.",
+      heading: "تشغيل Tesseract.js في الإنتاج",
+      category: "هندسة",
+      lede: "جعل Tesseract.js يتعرف على كلمة يستغرق عشر دقائق. أما تشغيله في الإنتاج لسنوات فيتطلب فهم ما ينزّله ومتى ومن أين — فهناك تحديدًا يقع العطب.",
+      imageAlt: "ملفات نماذج اللغة تُقدَّم من نطاق التطبيق نفسه",
+      body: [
+        {
+          paragraphs: [
+            "Tesseract.js غلاف بلغة JavaScript حول محرك التعرف الضوئي مفتوح المصدر Tesseract، مصرَّف إلى WebAssembly ليعمل داخل المتصفح. وهو مشروع مجتمعي مستقل: نستخدمه ونساهم في متتبّع مشكلاته، ولا تربطنا به صلة أخرى.",
+            "وما يجعله مثيرًا للاهتمام في الإنتاج ليس واجهة التعرف، فهي صغيرة، بل قصة الموارد التي تقوم تحتها.",
+          ],
+        },
+        {
+          heading: "ما الذي يُنزَّل فعلًا",
+          paragraphs: ["تجلب عملية التعرف ثلاثة أشياء منفصلة، والخلط بينها سبب معظم مشكلات النشر."],
+          list: [
+            "سكربت العامل — شيفرة JavaScript التي تنفّذ التعرف خارج الخيط الرئيسي.",
+            "نواة WASM — المحرك المصرَّف. توجد منه صيغ متعددة (عادية، SIMD، SIMD مرن، ونسخ LSTM من كل منها) ويحصل المتصفح على أسرع ما يستطيع تشغيله.",
+            "بيانات اللغة — ملف ‎.traineddata‎ لكل لغة، وهي المكوّن الأكبر حجمًا بفارق واسع.",
+          ],
+        },
+        {
+          heading: "ملفات اللغة هي الجزء المكلف",
+          paragraphs: [
+            "كل لغة ملف مستقل بحجم عدة ميغابايت. مجموع نماذجنا الخمسة الأساسية 32.75 ميغابايت: الإنجليزية 10.42، والإسبانية 7.98، والألمانية 6.77، والفرنسية 5.99، والعربية 1.60. وبإضافة نوى WASM يصل المجموع المستضاف إلى 76.00 ميغابايت.",
+            "يثير هذا الرقم القلق حتى تُذكر ما ليس هو: لا شيء منه ضمن حزمة الصفحة الأولية. يُجلب النموذج مرة واحدة عند الطلب، حين يشغّل أحدهم التعرف بتلك اللغة فعلًا، ثم يُخزَّن مؤقتًا. ومن يدمج ملفَّي PDF فقط لا ينزّل منه شيئًا.",
+          ],
+        },
+        {
+          heading: "الأوضاع المركّبة ليست نماذج إضافية",
+          paragraphs: [
+            "يقبل Tesseract وسيط لغة مثل eng+ara، فيحمّل نموذجين في تمريرة واحدة لقراءة صفحة ثنائية اللغة دون اختيار طرف. ويجدر ضبط الحساب: سبعة خيارات في قائمة قد تعني خمسة ملفات. نحن نوفّر خمس لغات أساسية ووضعين مركّبين، لا سبعة نماذج مستقلة.",
+          ],
+        },
+        {
+          heading: "الافتراضي شبكة توصيل خارجية، ولذلك تبعات",
+          paragraphs: [
+            "يجلب Tesseract.js افتراضيًا بيانات اللغة من شبكة توصيل عامة أثناء التشغيل. هذا مريح ويعمل — إلى أن يتوقف. فطلب متعثّر يترك عملية التحويل معلّقة في منتصفها، ولأن الطلب المتعثّر لا يمرّ بخوادمك أصلًا، يبقى العطل غير مرئي لمراقبتك ومرئيًا تمامًا لمستخدميك.",
+            "وثمة مشكلة ثانية أهدأ: المسار الافتراضي غير مثبّت على إصدار منشور، ولا يُتحقق من سلامة الملف المنزَّل، فقد تتغير البايتات التي تُغذّى للمحرك دون أن يلاحظ أحد. وهذه مناقشة مفتوحة داخل المشروع لا انتقادًا له، فالتوتر نفسه قائم في أي جلب مورد أثناء التشغيل.",
+          ],
+        },
+        {
+          heading: "استضافة الموارد ذاتيًا",
+          paragraphs: [
+            "صرنا نقدّم العامل والنوى وملفات اللغة من نطاقنا نفسه. يَنسخ سكربت إعداد العاملَ والنوى من node_modules — فتطابق دائمًا النسخة المثبتة بدل أن تنحرف عمّا تقدّمه شبكة خارجية في لحظة ما — ويُنزّل بيانات اللغة مرة واحدة وقت البناء، لا وقت التشغيل.",
+            "هذا يزيل الاعتماد على طرف ثالث من مسار التعرف تمامًا. ويزيل أيضًا تسربًا أدق: جلب المحرك من شبكة خارجية يعني أن ذلك الطرف يرى طلبًا، مع مرجع الصفحة، كلما بدأ أحدهم تحويلًا. لا محتوى مستند، لكن نمط طلبات يدل على النية.",
+          ],
+        },
+        {
+          heading: "الخلل الذي تُدخله الاستضافة الذاتية",
+          paragraphs: [
+            "هذا هو الجزء الجدير بالنقل، لأننا تعلمناه بثمن. حين تستضيف النماذج بنفسك، تصبح قائمة اللغات التي تعرضها واجهتك وقائمة ما ينزّله سكربت البناء قائمتين منفصلتين، في ملفين مختلفين، دون ما يضمن تطابقهما.",
+            "وقد انحرفت قائمتانا. كانت لغتان قابلتين للاختيار في القائمة بينما لم تُضف ملفاتهما إلى خطوة التنزيل قط. ولأن المسار يشير إلى نطاقنا نفسه لم يكن هناك أي شبكة خارجية للرجوع إليها: عاد الطلب بخطأ 404 وأخفق التعرف لهاتين اللغتين وحدهما. ولم تلتقط ذلك أي اختبار، لأن أي اختبار لم يكن يربط القائمتين.",
+            "ولم يكن الإصلاح الحقيقي إضافة الملفين، بل اختبار ثابت يفشل في الاتجاهين — لغة معروضة غير مستضافة، ونموذج مستضاف لم يعد معروضًا — ويقرأ سكربت البناء كنص مصدري، فلا يحتاج شبكة ولا موارد منزَّلة.",
+          ],
+        },
+        {
+          heading: "نصائح عملية",
+          paragraphs: ["أربعة أمور كنا نتمنى لو قالها لنا أحد قبل أن نبدأ."],
+          list: [
+            "ثبّت إصدارًا صريحًا لبيانات اللغة بدل الاعتماد على مسار يشير إلى الأحدث.",
+            "إن استضفت ذاتيًا، أضف اختبارًا يتحقق أن كل لغة معروضة تقابل ملفًا موجودًا.",
+            "راقب تبويب الشبكة عند بدء العامل. النموذج المفقود يبدو كأن «هذه اللغة لا تعمل»، لا كملف ناقص.",
+            "لا تستخدم قائمة حروف مسموحة مع محرك LSTM، ولا تطلب وضع المحرك القديم مع بيانات لا تتضمنه. كلاهما يُضعف النتيجة بينما يبدو ضبطًا دقيقًا.",
+          ],
+        },
+        {
+          heading: "ما لا يغيّره ذلك",
+          paragraphs: [
+            "تغيّر الاستضافة الذاتية مصدر البايتات لا ما يفعله التعرف: نستخدم مجموعة النماذج القياسية، مطابقة بايتًا ببايت لما يجلبه Tesseract.js افتراضيًا، عن قصد، لأن تغيير الاستضافة مع تغيير صامت في المخرجات كابوس في التنقيح لاحقًا.",
+            "كما أنها لا تجعل التطبيق خاليًا من الشبكة. تُعالَج بيانات المستند محليًا داخل المتصفح ولا تُرفع أبدًا، ويبقى سجل موجز — اسم الملف ونوعه وحجمه وعدد الصفحات ومفتاح يعرّف المحاولة — يُرسل ليتمكن الخادم من تطبيق الرصيد.",
+          ],
+        },
+      ],
+      linksTitle: "للتعمق أكثر",
+      links: [
+        {
+          label: "ما التعرف داخل المتصفح، وكيف يقارَن بالسحابة",
+          href: "/ar/blog/what-is-browser-ocr",
+        },
+        {
+          label: "قراءة الفواتير بالعربية والفرنسية والنصوص المختلطة",
+          href: "/ar/blog/multilingual-invoice-extraction",
+        },
+        { label: "أداة الاستخراج التي يشغّلها هذا المحرك", href: "/ar/invoice-ocr" },
+        { label: "الصيغ واللغات والحدود المدعومة", href: "/ar/documentation" },
+        { label: "ما الذي يقدّمه جانب المطوّرين اليوم", href: "/ar/solutions/developers" },
+      ],
+      sourcesTitle: "المصادر الأساسية",
+      sources: [
+        {
+          label: "Tesseract.js",
+          href: "https://github.com/naptha/tesseract.js",
+          note: "المشروع نفسه، بما فيه خيارات العامل التي تتحكم في مسارات الموارد.",
+        },
+        {
+          label: "tessdata — بيانات لغة Tesseract",
+          href: "https://github.com/tesseract-ocr/tessdata",
+          note: "ملفات ‎.traineddata‎ المنشورة، ومنها مجموعة 4.0.0 القياسية المستخدمة هنا.",
+        },
+        {
+          label: "توثيق Tesseract حول تقسيم الصفحة وأوضاع المحرك",
+          href: "https://tesseract-ocr.github.io/tessdoc/",
+          note: "مرجع وسيطي PSM وOEM المذكورين أعلاه.",
+        },
+        {
+          label: "WebAssembly — MDN",
+          href: "https://developer.mozilla.org/en-US/docs/WebAssembly",
+          note: "خلفية عن هدف التصريف ودعم SIMD في المتصفحات.",
+        },
+      ],
+      cta: {
+        label: "شاهد المحرك يقرأ مستندًا",
+        href: "/ar/invoice-ocr",
+        note: "خمس عمليات تحويل مجانية. تُعالَج بيانات المستند داخل متصفحك.",
+      },
+    },
+  },
+};
+
+/* ------------------------------------------------------------------ */
 /* Registry                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -1157,6 +1939,8 @@ export const blogPosts: BlogPost[] = [
   gdpr,
   lineItems,
   ocrApi,
+  browserOcr,
+  tesseractJs,
 ].sort((a, b) => (a.date < b.date ? 1 : -1));
 
 export const blogBySlug: Record<string, BlogPost | undefined> = Object.fromEntries(

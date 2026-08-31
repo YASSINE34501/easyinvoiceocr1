@@ -151,7 +151,7 @@ export const resourcesFr: ResourcesContent = {
           title: "La reconnaissance s'exécute dans votre navigateur",
           body: [
             "Votre document n'est pas envoyé à un serveur pour être lu. La reconnaissance a lieu sur votre propre machine : le contenu du fichier n'atteint jamais nos journaux et n'est jamais placé dans une file de traitement.",
-            "Les seules requêtes réseau pendant une conversion concernent le moteur de reconnaissance et ses fichiers de langue, qui sont des ressources statiques.",
+            "Pendant une conversion, le réseau sert à deux choses : le moteur de reconnaissance et ses fichiers de langue, qui sont des ressources statiques, et l'enregistrement de conversion décrit ci-dessous. Ni l'un ni l'autre ne transporte le contenu de votre document.",
           ],
         },
         {

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/site/AppLink";
-import { Container, PageLayout, Section } from "@/components/site/PageLayout";
+import { Container, PageLayout, Section, breadcrumbJsonLd } from "@/components/site/PageLayout";
 import { ToolGrid } from "@/components/pdftools/ToolGrid";
 import { pdfToolsCopy } from "@/content/pdftools";
 import { authSlugs, path } from "@/config/nav";
@@ -234,6 +234,9 @@ function head(locale: Locale) {
     ],
     links: seoLinks(SLUG, locale),
     scripts: [
+      // Mirrors the visible breadcrumb rendered by PageLayout above. Every
+      // other non-home page emits this; the hub was the one page that did not.
+      { type: "application/ld+json", children: breadcrumbJsonLd([{ label: copy.eyebrow }]) },
       {
         type: "application/ld+json",
         children: JSON.stringify({

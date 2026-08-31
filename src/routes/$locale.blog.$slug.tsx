@@ -227,6 +227,33 @@ function BlogPostPage() {
             </ul>
           </nav>
 
+          {/* Outbound references. Rendered as real anchors rather than router
+              links because they leave the site, and only on articles that
+              actually rely on a primary source — an article without sources
+              renders nothing here rather than an empty heading. */}
+          {content.sources && content.sources.length > 0 && (
+            <section aria-labelledby="article-sources" className="mt-10 max-w-[720px]">
+              <h2 id="article-sources" className="text-[20px] font-bold tracking-tight text-navy">
+                {content.sourcesTitle}
+              </h2>
+              <ul className="mt-4 space-y-3">
+                {content.sources.map((source) => (
+                  <li key={source.href} className="text-[15px] leading-[1.7]">
+                    <a
+                      href={source.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                    >
+                      {source.label}
+                    </a>
+                    <span className="text-muted-foreground"> — {source.note}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           <div className="mt-10 max-w-[720px] rounded-2xl border border-primary/40 bg-pale-green/40 p-6">
             <Button asChild className="min-h-11 rounded-lg font-semibold">
               <AppLink href={content.cta.href}>{content.cta.label}</AppLink>

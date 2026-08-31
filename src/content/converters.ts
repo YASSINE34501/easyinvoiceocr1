@@ -65,7 +65,7 @@ const pdfToWord: ConverterContent = {
     faqs: [
       {
         q: "Is my PDF uploaded to a server?",
-        a: "No. The conversion runs entirely in your browser. The only network requests are for the recognition engine and its language files, which are static assets — your document is never sent anywhere.",
+        a: "No. The conversion runs in your browser and your document is never sent anywhere. The network is used for the recognition engine and its language files, which are static assets, and for a short record of the conversion — filename, file type, size, page count and a key identifying the attempt — which is how your allowance is counted. None of it contains your document.",
       },
       {
         q: "Will the Word file look exactly like the PDF?",
@@ -125,7 +125,7 @@ const pdfToWord: ConverterContent = {
     faqs: [
       {
         q: "Mon PDF est-il envoyé sur un serveur ?",
-        a: "Non. La conversion s'effectue entièrement dans votre navigateur. Les seules requêtes réseau concernent le moteur de reconnaissance et ses fichiers de langue, qui sont des ressources statiques — votre document n'est jamais transmis.",
+        a: "Non. La conversion s'effectue dans votre navigateur et votre document n'est jamais transmis. Le réseau sert au moteur de reconnaissance et à ses fichiers de langue, qui sont des ressources statiques, ainsi qu'à un bref enregistrement de la conversion — nom du fichier, type, taille, nombre de pages et une clé identifiant la tentative — servant à décompter votre quota. Rien de tout cela ne contient votre document.",
       },
       {
         q: "Le fichier Word ressemblera-t-il exactement au PDF ?",
@@ -185,7 +185,7 @@ const pdfToWord: ConverterContent = {
     faqs: [
       {
         q: "هل يُرفع ملف PDF إلى خادم؟",
-        a: "لا. تتم العملية بالكامل داخل متصفحك. طلبات الشبكة الوحيدة هي لمحرك التعرف وملفات اللغة، وهي ملفات ثابتة — ولا يُرسل مستندك إلى أي مكان.",
+        a: "لا. تتم العملية داخل متصفحك ولا يُرسل مستندك إلى أي مكان. وتُستخدم الشبكة لمحرك التعرف وملفات اللغة، وهي ملفات ثابتة، ولسجل موجز للعملية — اسم الملف ونوعه وحجمه وعدد الصفحات ومفتاح يعرّف المحاولة — يُستخدم لحساب رصيدك. ولا يحتوي أي منها على مستندك.",
       },
       {
         q: "هل سيبدو ملف Word مطابقًا لملف PDF؟",
@@ -247,7 +247,7 @@ const imageToWord: ConverterContent = {
     faqs: [
       {
         q: "Are my photos uploaded?",
-        a: "No. Both the recognition and the document are produced in your browser. Only the recognition engine and its language files are downloaded.",
+        a: "No. Both the recognition and the document are produced in your browser. What is downloaded is the recognition engine and its language files; what is sent back is a short record of the conversion — filename, file type, size, page count and a key identifying the attempt — used to count your allowance. Your photos are not part of either.",
       },
       {
         q: "How accurate is the text recognition?",
@@ -306,7 +306,7 @@ const imageToWord: ConverterContent = {
     faqs: [
       {
         q: "Mes photos sont-elles envoyées ?",
-        a: "Non. La reconnaissance et le document sont produits dans votre navigateur. Seuls le moteur de reconnaissance et ses fichiers de langue sont téléchargés.",
+        a: "Non. La reconnaissance et le document sont produits dans votre navigateur. Ce qui est téléchargé, c'est le moteur de reconnaissance et ses fichiers de langue ; ce qui est renvoyé, c'est un bref enregistrement de la conversion — nom du fichier, type, taille, nombre de pages et une clé identifiant la tentative — servant à décompter votre quota. Vos photos ne figurent ni dans l'un ni dans l'autre.",
       },
       {
         q: "Quelle est la précision de la reconnaissance ?",
@@ -365,7 +365,7 @@ const imageToWord: ConverterContent = {
     faqs: [
       {
         q: "هل تُرفع صوري؟",
-        a: "لا. يجري التعرف وإنشاء المستند داخل متصفحك. ولا يُنزَّل سوى محرك التعرف وملفات اللغة.",
+        a: "لا. يجري التعرف وإنشاء المستند داخل متصفحك. وما يُنزَّل هو محرك التعرف وملفات اللغة، وما يُرسل هو سجل موجز للعملية — اسم الملف ونوعه وحجمه وعدد الصفحات ومفتاح يعرّف المحاولة — لحساب رصيدك. وصورك ليست جزءًا من أي منهما.",
       },
       {
         q: "ما مدى دقة التعرف على النص؟",
@@ -397,10 +397,10 @@ const imageToPdf: ConverterContent = {
     ],
     sections: [
       {
-        title: "Nothing leaves your device",
+        title: "Your images are assembled in the browser",
         body: [
-          "This tool needs no server: the PDF is assembled in your browser and handed straight to your downloads. Photographs of identity documents, contracts, medical letters and anything else private stay where they already are.",
-          "That is also why it keeps working on a slow connection — once the page has loaded, the conversion itself uses no network at all.",
+          "The PDF is built in this tab from the images you choose and handed straight to your downloads. The image bytes are never uploaded, so photographs of identity documents, contracts, medical letters and anything else private stay on your device.",
+          "The assembly itself needs no connection once the page has loaded, which is why it keeps working on a slow link. What does reach us is a short record of the conversion — filename, file type, size, page count and a key that stops a retry being counted twice — which is how your free allowance is counted.",
         ],
       },
       {
@@ -427,7 +427,7 @@ const imageToPdf: ConverterContent = {
     faqs: [
       {
         q: "Is anything uploaded?",
-        a: "No. This conversion runs entirely in your browser and makes no network request with your images.",
+        a: "Your images are not. They are read and assembled in this tab and never leave it. A short record of the conversion is sent so your allowance can be counted: filename, file type, file size, page count and a key that identifies the attempt. No image data is part of it.",
       },
       {
         q: "Can I reorder and rotate the pages?",
@@ -456,10 +456,10 @@ const imageToPdf: ConverterContent = {
     ],
     sections: [
       {
-        title: "Rien ne quitte votre appareil",
+        title: "Vos images sont assemblées dans le navigateur",
         body: [
-          "Cet outil n'a besoin d'aucun serveur : le PDF est assemblé dans votre navigateur et remis directement à vos téléchargements. Photos de pièces d'identité, contrats, courriers médicaux et tout autre document privé restent où ils sont.",
-          "C'est aussi pourquoi il fonctionne sur une connexion lente : une fois la page chargée, la conversion n'utilise plus le réseau.",
+          "Le PDF est construit dans cet onglet à partir des images que vous choisissez, puis remis directement à vos téléchargements. Les images elles-mêmes ne sont jamais envoyées : photos de pièces d'identité, contrats, courriers médicaux et tout autre document privé restent sur votre appareil.",
+          "L'assemblage n'a besoin d'aucune connexion une fois la page chargée, ce qui lui permet de fonctionner sur un lien lent. Ce qui nous parvient, c'est un bref enregistrement de la conversion — nom du fichier, type, taille, nombre de pages et une clé qui évite de compter deux fois une nouvelle tentative — servant à décompter votre quota gratuit.",
         ],
       },
       {
@@ -486,7 +486,7 @@ const imageToPdf: ConverterContent = {
     faqs: [
       {
         q: "Quelque chose est-il envoyé ?",
-        a: "Non. Cette conversion s'exécute entièrement dans votre navigateur et n'effectue aucune requête réseau avec vos images.",
+        a: "Vos images, non. Elles sont lues et assemblées dans cet onglet et n'en sortent jamais. Un bref enregistrement de la conversion est transmis pour décompter votre quota : nom du fichier, type, taille, nombre de pages et une clé identifiant la tentative. Aucune donnée d'image n'y figure.",
       },
       {
         q: "Puis-je réorganiser et pivoter les pages ?",
@@ -515,10 +515,10 @@ const imageToPdf: ConverterContent = {
     ],
     sections: [
       {
-        title: "لا شيء يغادر جهازك",
+        title: "تُجمَّع صورك داخل المتصفح",
         body: [
-          "لا تحتاج هذه الأداة إلى خادم: يُجمَّع ملف PDF داخل متصفحك ويُسلَّم مباشرة إلى تنزيلاتك. صور وثائق الهوية والعقود والرسائل الطبية وأي مستند خاص آخر تبقى في مكانها.",
-          "ولهذا تعمل الأداة أيضًا على اتصال بطيء: فبعد تحميل الصفحة لا تستخدم عملية التحويل الشبكة إطلاقًا.",
+          "يُبنى ملف PDF في هذا التبويب من الصور التي تختارها، ثم يُسلَّم مباشرة إلى تنزيلاتك. أما الصور نفسها فلا تُرفع أبدًا: صور وثائق الهوية والعقود والرسائل الطبية وأي مستند خاص آخر تبقى على جهازك.",
+          "ولا يحتاج التجميع إلى اتصال بعد تحميل الصفحة، ولذلك يعمل على وصلة بطيئة. والذي يصلنا هو سجل موجز للعملية — اسم الملف ونوعه وحجمه وعدد الصفحات ومفتاح يمنع احتساب إعادة المحاولة مرتين — ويُستخدم لحساب رصيدك المجاني.",
         ],
       },
       {
@@ -545,7 +545,7 @@ const imageToPdf: ConverterContent = {
     faqs: [
       {
         q: "هل يُرفع أي شيء؟",
-        a: "لا. تتم هذه العملية بالكامل داخل متصفحك ولا ترسل أي طلب شبكة يحمل صورك.",
+        a: "صورك لا تُرفع. تُقرأ وتُجمَّع داخل هذا التبويب ولا تغادره. ويُرسل سجل موجز للعملية لحساب رصيدك: اسم الملف ونوعه وحجمه وعدد الصفحات ومفتاح يعرّف المحاولة. ولا يتضمن أي بيانات من الصور.",
       },
       {
         q: "هل يمكنني إعادة الترتيب والتدوير؟",

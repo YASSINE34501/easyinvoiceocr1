@@ -141,12 +141,21 @@ export const WEBSITE_ID = `${SITE_ORIGIN}/#website` as const;
 export const ORGANIZATION_LOGO = `${SITE_ORIGIN}/icons/logo-512.png` as const;
 
 /**
+ * The public source repository. The only third-party profile this project
+ * actually controls, and it already points back here through its `homepage`
+ * field, so the sameAs edge below is reciprocal rather than asserted.
+ */
+export const ORGANIZATION_REPOSITORY = "https://github.com/YASSINE34501/easyinvoiceocr1" as const;
+
+/**
  * The one Organization definition. Emitted from the root so it reaches every
  * page; anything else that needs it references publisherRef() rather than
  * declaring a second copy.
  *
- * No sameAs: the project has no verified official profiles, and an invented
- * one would be worse than none.
+ * sameAs lists only profiles we own and can prove. Directory listings are
+ * deliberately absent while they are pending: an entry that resolves to
+ * nothing is a claim we cannot support, and unverified profiles are worse
+ * than an empty list.
  */
 export function organizationNode() {
   return {
@@ -155,6 +164,7 @@ export function organizationNode() {
     name: SITE_NAME,
     url: SITE_ORIGIN,
     logo: ORGANIZATION_LOGO,
+    sameAs: [ORGANIZATION_REPOSITORY],
   };
 }
 

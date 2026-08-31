@@ -19,6 +19,8 @@ const EXPECTED_SLUGS = [
   "gdpr-document-processing",
   "line-item-extraction-hard",
   "choosing-ocr-api",
+  "what-is-browser-ocr",
+  "tesseract-js-browser-ocr",
 ];
 
 /** Latin letters outside a bracketed brand or unit. Used to spot English leakage. */
@@ -50,10 +52,23 @@ const ALLOWED_LATIN = new Set([
   "ocr",
   "riyad",
   "riyadh",
+  // Engineering proper nouns. These are names of projects, compilation
+  // targets and file formats, not English prose: Arabic and French technical
+  // writing keeps them in Latin script, and transliterating them would make
+  // the articles harder to read rather than more localised.
+  "tesseract",
+  "webassembly",
+  "wasm",
+  "javascript",
+  "simd",
+  "lstm",
+  "traineddata",
+  "node",
+  "modules",
 ]);
 
 describe("article inventory", () => {
-  it("publishes exactly the six known articles", () => {
+  it("publishes exactly the eight known articles", () => {
     expect([...blogSlugs].sort()).toEqual([...EXPECTED_SLUGS].sort());
   });
 
