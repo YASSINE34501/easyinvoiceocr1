@@ -41,6 +41,11 @@ export const resourceLinks: NavLink[] = [
 ];
 
 export const companyLinks: NavLink[] = [
+  // Pricing sits with the company links rather than the products: it describes
+  // what the whole service costs, not one tool. It is listed so the page has a
+  // real inbound link — a page in the sitemap that nothing points at is an
+  // orphan, and the sitemap is derived from these groups.
+  { labelKey: "link.pricing", slug: "pricing" },
   { labelKey: "link.about", slug: "about" },
   { labelKey: "link.contact", slug: "contact" },
   { labelKey: "link.security", slug: "security" },

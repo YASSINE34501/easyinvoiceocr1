@@ -297,6 +297,7 @@ export function ExtractSection() {
           <ExtractedPanel
             title={extract.panelTitle}
             confidenceLabel={extract.confidenceLabel}
+            confidenceValue={extract.confidenceValue}
             labels={extract.sampleFieldLabels}
           />
         </figure>
@@ -368,10 +369,12 @@ const sampleValues = ["Acme Corporation", "INV-10023", "May 18, 2024", "$1,844.5
 function ExtractedPanel({
   title,
   confidenceLabel,
+  confidenceValue,
   labels,
 }: {
   title: string;
   confidenceLabel: string;
+  confidenceValue: string;
   labels: readonly string[];
 }) {
   const extracted = labels.map((label, index) => [label, sampleValues[index] ?? ""] as const);
@@ -387,7 +390,7 @@ function ExtractedPanel({
         ))}
       </dl>
       <p className="mt-4 flex items-center gap-1.5 rounded-lg bg-pale-green px-2.5 py-1.5 text-[10px] font-semibold text-accent-foreground">
-        <BadgeCheck className="size-3.5" aria-hidden="true" /> {confidenceLabel}: 99.2%
+        <BadgeCheck className="size-3.5" aria-hidden="true" /> {confidenceLabel}: {confidenceValue}
       </p>
     </div>
   );

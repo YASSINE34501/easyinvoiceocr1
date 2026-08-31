@@ -31,6 +31,7 @@ import { Route as LocaleOcrApiRouteImport } from './routes/$locale.ocr-api'
 import { Route as LocalePdfInvoiceParserRouteImport } from './routes/$locale.pdf-invoice-parser'
 import { Route as LocalePdfToWordRouteImport } from './routes/$locale.pdf-to-word'
 import { Route as LocalePdfToolsRouteImport } from './routes/$locale.pdf-tools'
+import { Route as LocalePricingRouteImport } from './routes/$locale.pricing'
 import { Route as LocalePrivacyRouteImport } from './routes/$locale.privacy'
 import { Route as LocaleReceiptToExcelRouteImport } from './routes/$locale.receipt-to-excel'
 import { Route as LocaleResetPasswordRouteImport } from './routes/$locale.reset-password'
@@ -159,6 +160,11 @@ const LocalePdfToolsRoute = LocalePdfToolsRouteImport.update({
   path: '/pdf-tools',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocalePricingRoute = LocalePricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocalePrivacyRoute = LocalePrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/$locale/pdf-invoice-parser': typeof LocalePdfInvoiceParserRoute
   '/$locale/pdf-to-word': typeof LocalePdfToWordRoute
   '/$locale/pdf-tools': typeof LocalePdfToolsRoute
+  '/$locale/pricing': typeof LocalePricingRoute
   '/$locale/privacy': typeof LocalePrivacyRoute
   '/$locale/receipt-to-excel': typeof LocaleReceiptToExcelRoute
   '/$locale/reset-password': typeof LocaleResetPasswordRoute
@@ -306,6 +313,7 @@ export interface FileRoutesByTo {
   '/$locale/pdf-invoice-parser': typeof LocalePdfInvoiceParserRoute
   '/$locale/pdf-to-word': typeof LocalePdfToWordRoute
   '/$locale/pdf-tools': typeof LocalePdfToolsRoute
+  '/$locale/pricing': typeof LocalePricingRoute
   '/$locale/privacy': typeof LocalePrivacyRoute
   '/$locale/receipt-to-excel': typeof LocaleReceiptToExcelRoute
   '/$locale/reset-password': typeof LocaleResetPasswordRoute
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/$locale/pdf-invoice-parser': typeof LocalePdfInvoiceParserRoute
   '/$locale/pdf-to-word': typeof LocalePdfToWordRoute
   '/$locale/pdf-tools': typeof LocalePdfToolsRoute
+  '/$locale/pricing': typeof LocalePricingRoute
   '/$locale/privacy': typeof LocalePrivacyRoute
   '/$locale/receipt-to-excel': typeof LocaleReceiptToExcelRoute
   '/$locale/reset-password': typeof LocaleResetPasswordRoute
@@ -391,6 +400,7 @@ export interface FileRouteTypes {
     | '/$locale/pdf-invoice-parser'
     | '/$locale/pdf-to-word'
     | '/$locale/pdf-tools'
+    | '/$locale/pricing'
     | '/$locale/privacy'
     | '/$locale/receipt-to-excel'
     | '/$locale/reset-password'
@@ -430,6 +440,7 @@ export interface FileRouteTypes {
     | '/$locale/pdf-invoice-parser'
     | '/$locale/pdf-to-word'
     | '/$locale/pdf-tools'
+    | '/$locale/pricing'
     | '/$locale/privacy'
     | '/$locale/receipt-to-excel'
     | '/$locale/reset-password'
@@ -471,6 +482,7 @@ export interface FileRouteTypes {
     | '/$locale/pdf-invoice-parser'
     | '/$locale/pdf-to-word'
     | '/$locale/pdf-tools'
+    | '/$locale/pricing'
     | '/$locale/privacy'
     | '/$locale/receipt-to-excel'
     | '/$locale/reset-password'
@@ -655,6 +667,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocalePdfToolsRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/pricing': {
+      id: '/$locale/pricing'
+      path: '/pricing'
+      fullPath: '/$locale/pricing'
+      preLoaderRoute: typeof LocalePricingRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/privacy': {
       id: '/$locale/privacy'
       path: '/privacy'
@@ -814,6 +833,7 @@ interface LocaleRouteChildren {
   LocalePdfInvoiceParserRoute: typeof LocalePdfInvoiceParserRoute
   LocalePdfToWordRoute: typeof LocalePdfToWordRoute
   LocalePdfToolsRoute: typeof LocalePdfToolsRoute
+  LocalePricingRoute: typeof LocalePricingRoute
   LocalePrivacyRoute: typeof LocalePrivacyRoute
   LocaleReceiptToExcelRoute: typeof LocaleReceiptToExcelRoute
   LocaleResetPasswordRoute: typeof LocaleResetPasswordRoute
@@ -847,6 +867,7 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocalePdfInvoiceParserRoute: LocalePdfInvoiceParserRoute,
   LocalePdfToWordRoute: LocalePdfToWordRoute,
   LocalePdfToolsRoute: LocalePdfToolsRoute,
+  LocalePricingRoute: LocalePricingRoute,
   LocalePrivacyRoute: LocalePrivacyRoute,
   LocaleReceiptToExcelRoute: LocaleReceiptToExcelRoute,
   LocaleResetPasswordRoute: LocaleResetPasswordRoute,

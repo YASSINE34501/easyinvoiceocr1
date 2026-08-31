@@ -55,6 +55,12 @@ export type HomeContent = {
     sampleLabel: string;
     panelTitle: string;
     confidenceLabel: string;
+    /**
+     * The confidence shown beside the specimen. Deliberately a word rather
+     * than a number: a figure here reads as a measured accuracy rate, and the
+     * rest of the site refuses to publish one it has not measured.
+     */
+    confidenceValue: string;
     previewAlt: string;
     /** Labels for the extracted-field panel. The sample values stay as-is:
         they are an English specimen invoice, which is a realistic input. */
@@ -120,6 +126,7 @@ const en: HomeContent = {
     sampleLabel: "Example",
     panelTitle: "Extracted fields",
     confidenceLabel: "Confidence",
+    confidenceValue: "Illustrative",
     previewAlt: "A sample invoice beside the fields extracted from it",
     sampleFieldLabels: ["Vendor", "Invoice number", "Invoice date", "Total amount", "Currency"],
   },
@@ -263,6 +270,7 @@ const fr: HomeContent = {
     sampleLabel: "Exemple",
     panelTitle: "Champs extraits",
     confidenceLabel: "Indice de confiance",
+    confidenceValue: "Exemple",
     previewAlt: "Un exemple de facture à côté des champs qui en ont été extraits",
     sampleFieldLabels: [
       "Fournisseur",
@@ -405,6 +413,7 @@ const ar: HomeContent = {
     sampleLabel: "مثال",
     panelTitle: "الحقول المستخرَجة",
     confidenceLabel: "درجة الثقة",
+    confidenceValue: "توضيحي",
     previewAlt: "نموذج فاتورة بجانب الحقول المستخرَجة منها",
     sampleFieldLabels: ["المورّد", "رقم الفاتورة", "تاريخ الفاتورة", "المبلغ الإجمالي", "العملة"],
   },

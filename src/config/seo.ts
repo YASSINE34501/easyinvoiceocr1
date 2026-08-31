@@ -162,6 +162,13 @@ export function organizationNode() {
     "@type": "Organization",
     "@id": ORGANIZATION_ID,
     name: SITE_NAME,
+    // The spaced spelling is what search engines produce when they tokenise the
+    // compound, and what people type. Declaring it here says the two strings
+    // name one entity, rather than leaving that inference to be made or missed.
+    // It is an alias, not a rename: SITE_NAME remains the brand everywhere else.
+    alternateName: "Easy Invoice OCR",
+    description:
+      "Browser-based invoice and receipt OCR with PDF and document conversion tools. Document content is processed locally in the browser and file bytes are never uploaded.",
     url: SITE_ORIGIN,
     logo: ORGANIZATION_LOGO,
     sameAs: [ORGANIZATION_REPOSITORY],
@@ -171,6 +178,54 @@ export function organizationNode() {
 /** A reference to the organisation above, never a second definition of it. */
 export function publisherRef() {
   return { "@id": ORGANIZATION_ID };
+}
+
+/* ------------------------------------------------------------------ */
+/* Page-level entity identifiers                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Stable @id values for the nodes a single page emits.
+ *
+ * Without these every FAQPage, BreadcrumbList and WebApplication is an
+ * anonymous node: valid on its own, but with nothing tying it to the page it
+ * describes or to the WebSite above it. Fragment identifiers on the canonical
+ * URL give each node one address that is unique, stable across deploys and
+ * resolvable back to the page.
+ */
+export function pageNodeId(slug: string, locale: Locale, fragment: string): string {
+  return `${canonicalUrl(slug, locale)}#${fragment}`;
+}
+
+/**
+ * The WebPage node that page-level entities hang from.
+ *
+ * This is the tier the graph was missing: Organization and WebSite were
+ * declared once at the root and referenced correctly, but nothing below them
+ * said which page it belonged to. WebPage closes that gap without duplicating
+ * either — both are referenced by @id, never redeclared.
+ */
+export function webPageNode(input: {
+  slug: string;
+  locale: Locale;
+  name: string;
+  description: string;
+}) {
+  return {
+    "@type": "WebPage",
+    "@id": pageNodeId(input.slug, input.locale, "webpage"),
+    url: canonicalUrl(input.slug, input.locale),
+    name: input.name,
+    description: input.description,
+    inLanguage: input.locale,
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: publisherRef(),
+  };
+}
+
+/** A reference to the WebPage above, for nodes that belong to it. */
+export function webPageRef(slug: string, locale: Locale) {
+  return { "@id": pageNodeId(slug, locale, "webpage") };
 }
 
 /* ------------------------------------------------------------------ */

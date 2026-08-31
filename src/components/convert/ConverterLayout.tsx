@@ -22,7 +22,16 @@ import { path } from "@/config/nav";
 import { relatedProducts, type ProductDefinition } from "@/config/products";
 import { locales, type Locale } from "@/i18n";
 import { useLocale, useT } from "@/i18n/useLocale";
-import { OG_LOCALE, canonicalUrl, publisherRef, robotsMeta, seoLinks } from "@/config/seo";
+import {
+  OG_LOCALE,
+  canonicalUrl,
+  pageNodeId,
+  publisherRef,
+  robotsMeta,
+  seoLinks,
+  webPageNode,
+  webPageRef,
+} from "@/config/seo";
 import { toolAccent } from "@/components/pdftools/surface";
 import { cn } from "@/lib/utils";
 
@@ -176,41 +185,60 @@ export function converterHead(product: ProductDefinition, locale: Locale) {
     ],
     links: seoLinks(product.slug, locale),
     scripts: [
+      // One @graph. The nodes were valid individually but anonymous, so nothing
+      // said which page the application, the FAQ and the breadcrumb belonged
+      // to. Stable @ids and isPartOf fix that; Organization and WebSite keep
+      // coming from the root by reference rather than being redeclared here.
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "WebApplication",
-          name: copy.name,
-          url,
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Any modern web browser",
-          description: copy.description,
-          featureList: product.features,
-          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-          publisher: publisherRef(),
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: content.faqs.map((faq) => ({
-            "@type": "Question",
-            name: faq.q,
-            acceptedAnswer: { "@type": "Answer", text: faq.a },
-          })),
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("", locale) },
-            { "@type": "ListItem", position: 2, name: copy.name, item: url },
+          "@graph": [
+            webPageNode({
+              slug: product.slug,
+              locale,
+              name: copy.title,
+              description: copy.description,
+            }),
+            {
+              "@type": "WebApplication",
+              "@id": pageNodeId(product.slug, locale, "webapplication"),
+              name: copy.name,
+              url,
+              applicationCategory: "BusinessApplication",
+              operatingSystem: "Any modern web browser",
+              description: copy.description,
+              inLanguage: locale,
+              featureList: product.features,
+              isPartOf: webPageRef(product.slug, locale),
+              // These converters have a genuine free entry point — the five
+              // conversions every account gets, with no card — so a zero Offer
+              // is true of the tool as a visitor first meets it. Whole-product
+              // pricing lives on /pricing, where the paid plans are read from
+              // the database rather than asserted here.
+              offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+              publisher: publisherRef(),
+            },
+            {
+              "@type": "FAQPage",
+              "@id": pageNodeId(product.slug, locale, "faq"),
+              inLanguage: locale,
+              isPartOf: webPageRef(product.slug, locale),
+              mainEntity: content.faqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.q,
+                acceptedAnswer: { "@type": "Answer", text: faq.a },
+              })),
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": pageNodeId(product.slug, locale, "breadcrumb"),
+              isPartOf: webPageRef(product.slug, locale),
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("", locale) },
+                { "@type": "ListItem", position: 2, name: copy.name, item: url },
+              ],
+            },
           ],
         }),
       },

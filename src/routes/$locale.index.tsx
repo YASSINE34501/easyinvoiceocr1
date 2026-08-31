@@ -16,7 +16,16 @@ import {
 } from "@/components/site/sections";
 import { homeFor } from "@/content/home";
 import { asLocale } from "@/i18n";
-import { OG_LOCALE, canonicalUrl, publisherRef, robotsMeta, seoLinks } from "@/config/seo";
+import {
+  OG_LOCALE,
+  canonicalUrl,
+  pageNodeId,
+  publisherRef,
+  robotsMeta,
+  seoLinks,
+  webPageNode,
+  webPageRef,
+} from "@/config/seo";
 
 const meta = {
   en: {
@@ -61,30 +70,44 @@ export const Route = createFileRoute("/$locale/")({
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "WebApplication",
-            name: "EasyInvoiceOCR",
-            url,
-            applicationCategory: "BusinessApplication",
-            description,
-            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-            publisher: publisherRef(),
-          }),
-        },
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            inLanguage: locale,
-            // The same questions the accordion renders, in the same locale.
-            // It previously emitted the English config list on every locale,
-            // so /fr and /ar published structured data that did not match the
-            // page.
-            mainEntity: home.faq.items.map((f) => ({
-              "@type": "Question",
-              name: f.q,
-              acceptedAnswer: { "@type": "Answer", text: f.a },
-            })),
+            "@graph": [
+              webPageNode({ slug: "", locale, name: title, description }),
+              {
+                "@type": "WebApplication",
+                "@id": pageNodeId("", locale, "webapplication"),
+                name: "EasyInvoiceOCR",
+                url,
+                applicationCategory: "BusinessApplication",
+                // The platform is the browser, which is the whole point of the
+                // product. Every tool page already said this; the node that
+                // represents the product as a whole did not.
+                operatingSystem: "Any modern web browser",
+                description,
+                inLanguage: locale,
+                isPartOf: webPageRef("", locale),
+                // No Offer here. This node stands for the entire product, and
+                // the product is not free — it has paid plans. Declaring
+                // price 0 on it said otherwise. The real, database-backed
+                // Offers live on /pricing, which is the one page that reads
+                // them, so there is no second copy of a price to drift.
+                publisher: publisherRef(),
+              },
+              {
+                "@type": "FAQPage",
+                "@id": pageNodeId("", locale, "faq"),
+                inLanguage: locale,
+                isPartOf: webPageRef("", locale),
+                // The same questions the accordion renders, in the same locale.
+                // It previously emitted the English config list on every locale,
+                // so /fr and /ar published structured data that did not match the
+                // page.
+                mainEntity: home.faq.items.map((f) => ({
+                  "@type": "Question",
+                  name: f.q,
+                  acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
+              },
+            ],
           }),
         },
       ],

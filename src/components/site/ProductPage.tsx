@@ -16,7 +16,16 @@ import { productUi, withName } from "@/content/products/ui";
 import type { Locale } from "@/i18n";
 import { authSlugs, path } from "@/config/nav";
 import { useDir, useLocale, useT } from "@/i18n/useLocale";
-import { SITE_NAME, canonicalUrl, robotsMeta, seoLinks } from "@/config/seo";
+import {
+  SITE_NAME,
+  canonicalUrl,
+  pageNodeId,
+  publisherRef,
+  robotsMeta,
+  seoLinks,
+  webPageNode,
+  webPageRef,
+} from "@/config/seo";
 
 /**
  * The shared template for the five extraction product pages.
@@ -333,27 +342,65 @@ export function productHead(product: Product, locale: Locale) {
     ],
     links: seoLinks(product.slug, locale),
     scripts: [
+      // One @graph rather than four loose blocks. The extraction products are
+      // the ones the brand is named after, and until now they were the only
+      // tools with no application node at all — merge-pdf described itself as
+      // software while invoice-ocr did not. The nodes below carry stable @ids
+      // so each says which page it belongs to; Organization and WebSite are
+      // referenced from the root, never redeclared here.
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "FAQPage",
-          inLanguage: locale,
-          mainEntity: content.faqs.map((faq) => ({
-            "@type": "Question",
-            name: faq.q,
-            acceptedAnswer: { "@type": "Answer", text: faq.a },
-          })),
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: SITE_NAME, item: canonicalUrl("", locale) },
-            { "@type": "ListItem", position: 2, name: content.name, item: url },
+          "@graph": [
+            webPageNode({
+              slug: product.slug,
+              locale,
+              name: content.title,
+              description: content.description,
+            }),
+            {
+              "@type": "WebApplication",
+              "@id": pageNodeId(product.slug, locale, "webapplication"),
+              name: content.name,
+              url,
+              description: content.description,
+              applicationCategory: "BusinessApplication",
+              // Factual: recognition runs in the visitor's browser, so the
+              // browser is the platform. The converter pages already say this.
+              operatingSystem: "Any modern web browser",
+              inLanguage: locale,
+              isPartOf: webPageRef(product.slug, locale),
+              publisher: publisherRef(),
+              // Drawn from the rendered "what you get" groups, so the list
+              // describes something a reader can see on the page.
+              featureList: content.fields.flatMap((group) => group.items).slice(0, 8),
+            },
+            {
+              "@type": "FAQPage",
+              "@id": pageNodeId(product.slug, locale, "faq"),
+              inLanguage: locale,
+              isPartOf: webPageRef(product.slug, locale),
+              mainEntity: content.faqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.q,
+                acceptedAnswer: { "@type": "Answer", text: faq.a },
+              })),
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": pageNodeId(product.slug, locale, "breadcrumb"),
+              isPartOf: webPageRef(product.slug, locale),
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: SITE_NAME,
+                  item: canonicalUrl("", locale),
+                },
+                { "@type": "ListItem", position: 2, name: content.name, item: url },
+              ],
+            },
           ],
         }),
       },

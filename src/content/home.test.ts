@@ -62,6 +62,7 @@ function allStrings(c: HomeContent): string[] {
     c.extract.sampleLabel,
     c.extract.panelTitle,
     c.extract.confidenceLabel,
+    c.extract.confidenceValue,
     c.extract.previewAlt,
     c.workflows.heading,
     ...c.workflows.cards.flatMap((x) => [x.title, x.body]),

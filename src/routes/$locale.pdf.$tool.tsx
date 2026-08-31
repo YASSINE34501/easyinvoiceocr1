@@ -36,9 +36,12 @@ import {
   OG_LOCALE,
   SITE_NAME,
   canonicalUrl,
+  pageNodeId,
   publisherRef,
   robotsMeta,
   seoLinks,
+  webPageNode,
+  webPageRef,
 } from "@/config/seo";
 
 export const Route = createFileRoute("/$locale/pdf/$tool")({
@@ -193,49 +196,61 @@ function head(slug: PdfToolSlug, locale: Locale) {
     ],
     links: seoLinks(pageSlug, locale),
     scripts: [
+      // One @graph with stable @ids, so each node says which page it belongs
+      // to. Organization and WebSite keep coming from the root by reference.
       {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "WebApplication",
-          name: text.name,
-          url,
-          applicationCategory: "UtilitiesApplication",
-          operatingSystem: "Any modern web browser",
-          description: text.description,
-          featureList: text.steps.map((step) => step.title),
-          // Free, and genuinely so: no account, no quota, no watermark.
-          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-          publisher: publisherRef(),
-          ...(definition ? { applicationSubCategory: definition.category } : {}),
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: text.faqs.map((faq) => ({
-            "@type": "Question",
-            name: faq.q,
-            acceptedAnswer: { "@type": "Answer", text: faq.a },
-          })),
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("", locale) },
+          "@graph": [
+            webPageNode({
+              slug: pageSlug,
+              locale,
+              name: text.title,
+              description: text.description,
+            }),
             {
-              "@type": "ListItem",
-              position: 2,
-              name: copy.index.eyebrow,
-              item: canonicalUrl("pdf-tools", locale),
+              "@type": "WebApplication",
+              "@id": pageNodeId(pageSlug, locale, "webapplication"),
+              name: text.name,
+              url,
+              applicationCategory: "UtilitiesApplication",
+              operatingSystem: "Any modern web browser",
+              description: text.description,
+              inLanguage: locale,
+              featureList: text.steps.map((step) => step.title),
+              isPartOf: webPageRef(pageSlug, locale),
+              // Free, and genuinely so: no account, no quota, no watermark.
+              offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+              publisher: publisherRef(),
+              ...(definition ? { applicationSubCategory: definition.category } : {}),
             },
-            { "@type": "ListItem", position: 3, name: text.name, item: url },
+            {
+              "@type": "FAQPage",
+              "@id": pageNodeId(pageSlug, locale, "faq"),
+              inLanguage: locale,
+              isPartOf: webPageRef(pageSlug, locale),
+              mainEntity: text.faqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.q,
+                acceptedAnswer: { "@type": "Answer", text: faq.a },
+              })),
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": pageNodeId(pageSlug, locale, "breadcrumb"),
+              isPartOf: webPageRef(pageSlug, locale),
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("", locale) },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: copy.index.eyebrow,
+                  item: canonicalUrl("pdf-tools", locale),
+                },
+                { "@type": "ListItem", position: 3, name: text.name, item: url },
+              ],
+            },
           ],
         }),
       },
