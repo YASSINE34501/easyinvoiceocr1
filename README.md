@@ -1,23 +1,104 @@
 # EasyInvoiceOCR
 
-Invoice and receipt data extraction, plus document conversion, in three languages
-(English, French, Arabic).
+**Official website: <https://www.easyinvoiceocr.com/>**
 
-**Recognition runs in the visitor's browser.** Files are read by Tesseract.js and
-pdf.js locally and are never uploaded — the server only decides entitlement,
-counts quota and keeps a job record. That is the product's main privacy claim and
-the reason the architecture is shaped the way it is.
+EasyInvoiceOCR is a browser-based invoice and document OCR platform. It reads
+invoices and receipts, extracts their fields, and converts documents between PDF,
+Word, Excel and image formats — with recognition running inside the visitor's own
+browser rather than on a server.
+
+The interface is available in English, French and Arabic.
+
+## What is EasyInvoiceOCR?
+
+EasyInvoiceOCR performs two related jobs:
+
+- **Extraction** — read an invoice or receipt and pull out structured fields
+  (vendor, invoice number, dates, tax, totals, line items), then export them as
+  Excel, CSV or JSON.
+- **Conversion** — turn documents between formats: PDF to Word, image to Word,
+  image to PDF, plus a set of standalone PDF utilities.
+
+It is a web application. There is nothing to install.
 
 ## Tools
 
-**Extraction** — invoice OCR, receipt to Excel, PDF invoice parser, image to
-Excel. Output as Excel, CSV or JSON.
+Each page below is a live product page on the official site.
 
-**Conversion** — PDF to Word, image to Word, image to PDF.
+| Tool | What it does |
+| ---- | ------------ |
+| [Invoice OCR](https://www.easyinvoiceocr.com/en/invoice-ocr) | Read an invoice and extract its fields |
+| [Receipt to Excel](https://www.easyinvoiceocr.com/en/receipt-to-excel) | Turn receipts into a spreadsheet |
+| [PDF Invoice Parser](https://www.easyinvoiceocr.com/en/pdf-invoice-parser) | Parse invoice data out of a PDF |
+| [Image to Excel](https://www.easyinvoiceocr.com/en/image-to-excel) | Extract tabular data from a photo or scan |
+| [PDF to Word](https://www.easyinvoiceocr.com/en/pdf-to-word) | Convert a PDF into an editable document |
+| [Image to Word](https://www.easyinvoiceocr.com/en/image-to-word) | Convert an image into an editable document |
+| [Image to PDF](https://www.easyinvoiceocr.com/en/image-to-pdf) | Combine images into a PDF |
+| [PDF tools](https://www.easyinvoiceocr.com/en/pdf-tools) | Merge, split, compress and related utilities |
+
+## Supported documents
+
+PDF files and images (JPG, PNG, WebP). Extraction handles up to 30 pages per
+document. Exact accepted MIME types per tool are defined in
+`src/lib/convert/validation.ts`, which is the same rule the server enforces.
+
+## Browser-based processing
+
+**Recognition runs in the visitor's browser.** Documents are read locally by
+[Tesseract.js](https://github.com/naptha/tesseract.js) (WebAssembly) and
+[pdf.js](https://github.com/mozilla/pdf.js). The engine, the WebAssembly core and
+the language models are served from our own origin, not a third-party CDN, so a
+conversion never depends on an external service being up.
+
+## Privacy model
+
+This is the part worth stating precisely, because "browser-based" is often
+oversold.
+
+**The file's contents are never uploaded.** Page images and document text are
+processed in the browser and the bytes do not leave it.
+
+**A job record is written server-side**, because quota and entitlement decisions
+are not safe to make in the browser. That record carries metadata only — the
+tool used, the original file name, MIME type, file size, page count, and an
+idempotency key. It does not carry the document, its images, or any extracted
+field values.
+
+We therefore do not claim that "nothing leaves your device". What we claim is
+narrower and true: the document content stays local; the accounting metadata does
+not.
+
+Details: [Privacy](https://www.easyinvoiceocr.com/en/privacy) ·
+[Security](https://www.easyinvoiceocr.com/en/security)
+
+## Supported languages
+
+Recognition models vendored and served locally: **English, French, Arabic, German
+and Spanish**, plus two combined modes (English + Arabic, English + French) for
+mixed-language documents — seven selectable recognition modes in total.
+
+The interface itself is available in English, French and Arabic, with Arabic
+rendered right-to-left.
+
+## Pricing
+
+Every account gets **five free conversions**, shared across every tool. It is an
+allowance, not a 30-day trial, and it does not require a card.
+
+Beyond that there is a paid subscription. Current plans and prices are published
+on the pricing page and read from our billing records rather than restated here,
+so this file cannot drift out of date:
+
+**<https://www.easyinvoiceocr.com/en/pricing>**
+
+## API
 
 An OCR API is described on the site but is **not operational**: no endpoint
 accepts requests and no plan grants access. `OCR_API_STATUS.md` lists every
-condition that must hold before it may be marked live.
+condition that must hold before it may be marked live. Please do not build
+against it yet.
+
+---
 
 ## Running it
 
